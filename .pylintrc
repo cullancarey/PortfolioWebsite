@@ -1,0 +1,2 @@
+[MASTER]
+disable=line-too-long,unused-argument,import-error,no-name-in-module,too-few-public-methods,wrong-import-order
