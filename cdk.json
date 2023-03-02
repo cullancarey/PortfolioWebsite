@@ -1,7 +1,3 @@
 {
-  "app": "python3 app.py",
-  "context": {
-    "domain_name": "cullan.click",
-    "hosted_zone_id": "Z03561453XSBD4BWAB4V"
-  }
+  "app": "python3 app.py"
 }

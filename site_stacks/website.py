@@ -10,94 +10,71 @@ from aws_cdk import (
     aws_certificatemanager as acm,
     aws_route53 as route53,
     aws_route53_targets as targets,
-    aws_ssm as ssm,
-    custom_resources,
+    aws_logs as logs,
+    aws_lambda as lambda_,
+    aws_apigatewayv2 as apigatewayv2,
 )
 from constructs import Construct
-from datetime import datetime
+import os
 
 
 class Website(Construct):
-    """Construct class that will be used by the below resources class."""
+    """Construct class that will be used by the below resources classes."""
 
-    def __init__(self, scope, construct_id, domain_name, **kwargs):
+    def __init__(self, scope, construct_id, domain_name, hosted_zone_id, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
-        self.backend_bucket = None
-        self.backup_backend_bucket = None
-        self.website_distribution = None
-        self.website_certificate = None
-        self.website_distribution_id_parameter = "website_distribution_id"
+        self.website_api_domain_name = None
+        self.website_intake_form_lambda = None
 
+        # Interanal variables
         self._domain_name = domain_name
-
-    def _create_ssm_parameter(
-        self, construct_id, parameter_value, param_name, description
-    ):
-        ssm.StringParameter(
-            self,
-            construct_id,
-            string_value=parameter_value,
-            parameter_name=param_name,
-            description=description,
-            simple_name=True,
-        )
-
-class WebsiteResources(Website):
-    """Class that defines the resources used for cullan.click"""
-
-    def __init__(
-        self,
-        scope,
-        construct_id,
-        hosted_zone_id,
-        **kwargs,
-    ):
-        super().__init__(scope, construct_id, **kwargs)
-
+        self._sub_domain_name = f"www.{self._domain_name}"
+        self._api_domain_name = f"email.{self._domain_name}"
         self._hosted_zone_id = hosted_zone_id
 
-        self._build_site()
+        website_bucket, website_distribution = self._build_site()
+
+        self.website_bucket = website_bucket
+        self.website_distribution = website_distribution
 
     def _build_site(self):
-        self.backup_backend_bucket = self._get_backup_backend_bucket()
-
-        self._create_backend_bucket()
-
-        bucket_role = self._create_backend_bucket_role()
-
-        self._add_bucket_replication(bucket_role)
+        website_bucket = self._create_website_bucket()
 
         hosted_zone = self._get_hosted_zone()
 
-        self._create_acm_certificate(hosted_zone)
-
-        self._create_website_distribution()
-
-        self._create_route53_record(hosted_zone)
-
-        self._create_backend_bucket_policy()
-
-    def _get_backup_backend_bucket(self):
-        return s3.Bucket.from_bucket_arn(
-            self,
-            "backup_website_bucket_arn",
-            bucket_arn=f"arn:aws:s3:::backup-{self._domain_name}",
+        website_certificate = self._create_acm_certificate(
+            "website_certificate", self._domain_name, hosted_zone
         )
 
-    def _get_hosted_zone(self):
-        return route53.HostedZone.from_hosted_zone_attributes(
-            self,
-            "website_hosted_zone",
-            hosted_zone_id=self._hosted_zone_id,
-            zone_name=self._domain_name,
+        website_distribution = self._create_website_distribution(
+            website_certificate, website_bucket
         )
 
-    def _create_backend_bucket(self):
-        self.backend_bucket = s3.Bucket(
+        doamins = [self._sub_domain_name, self._domain_name]
+        for doamin in doamins:
+            self._create_cf_route53_record(hosted_zone, doamin, website_distribution)
+
+        self._create_website_bucket_policy(website_bucket, website_distribution)
+
+        intake_form_certificate = self._create_acm_certificate(
+            "intake_form_certificate", self._api_domain_name, hosted_zone
+        )
+
+        self._create_intake_form_lambda()
+
+        self._create_intake_form_api(intake_form_certificate)
+
+        self._create_api_route53_record(hosted_zone)
+
+        # self._deploy_website_files()
+
+        return website_bucket, website_distribution
+
+    def _create_website_bucket(self):
+        return s3.Bucket(
             self,
             "website_bucket",
-            bucket_name=f"{self._domain_name}",
             encryption=s3.BucketEncryption.S3_MANAGED,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             versioned=True,
@@ -111,105 +88,25 @@ class WebsiteResources(Website):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-    def _create_backend_bucket_policy(self):
-        my_bucket_policy = iam.PolicyStatement(
-            actions=["s3:GetObject"],
-            effect=iam.Effect.ALLOW,
-            resources=[f"{self.backend_bucket.bucket_arn}/*"],
-            principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
-            conditions={
-                "StringEquals": {
-                    "aws:SourceArn": [
-                        f"arn:aws:cloudfront::{Aws.ACCOUNT_ID}:distribution/{self.website_distribution.distribution_id}"
-                    ]
-                }
-            },
-        )
-
-        self.backend_bucket.add_to_resource_policy(my_bucket_policy)
-
-    def _create_backend_bucket_role(self):
-        my_custom_policy = iam.PolicyDocument(
-            statements=[
-                iam.PolicyStatement(
-                    actions=[
-                        "s3:ListBucket",
-                        "s3:GetReplicationConfiguration",
-                        "s3:GetObjectVersionForReplication",
-                        "s3:GetObjectVersionAcl",
-                        "s3:GetObjectVersionTagging",
-                        "s3:GetObjectRetention",
-                        "s3:GetObjectLegalHold",
-                    ],
-                    effect=iam.Effect.ALLOW,
-                    resources=[
-                        f"{self.backend_bucket.bucket_arn}",
-                        f"{self.backend_bucket.bucket_arn}/*",
-                        f"{self.backup_backend_bucket.bucket_arn}",
-                        f"{self.backup_backend_bucket.bucket_arn}/*",
-                    ],
-                ),
-                iam.PolicyStatement(
-                    actions=[
-                        "s3:ReplicateObject",
-                        "s3:ReplicateDelete",
-                        "s3:ReplicateTags",
-                        "s3:ObjectOwnerOverrideToBucketOwner",
-                    ],
-                    effect=iam.Effect.ALLOW,
-                    resources=[
-                        f"{self.backend_bucket.bucket_arn}/*",
-                        f"{self.backup_backend_bucket.bucket_arn}/*",
-                    ],
-                ),
-            ]
-        )
-
-        iam_role_policy = iam.Policy(
+    def _get_hosted_zone(self):
+        return route53.HostedZone.from_hosted_zone_attributes(
             self,
-            "website_bucket_role_policy",
-            document=my_custom_policy,
-            policy_name=f"s3crr_policy_for_{self._domain_name}",
+            "website_hosted_zone",
+            hosted_zone_id=self._hosted_zone_id,
+            zone_name=self._domain_name,
         )
 
-        s3_iam_role = iam.Role(
+    def _create_acm_certificate(self, construct_id, domain_name, hosted_zone):
+        return acm.Certificate(
             self,
-            "website_bucket_role",
-            assumed_by=iam.ServicePrincipal("s3.amazonaws.com"),
-            description="Role for s3crr of website files.",
-            role_name=f"s3crr_role_for_{self._domain_name}",
-        )
-
-        iam_role_policy.attach_to_role(s3_iam_role)
-
-        return s3_iam_role
-
-    def _add_bucket_replication(self, s3_iam_role):
-    # Get the CloudFormation resource
-        cfn_bucket = self.backend_bucket.node.default_child
-
-        # Change its properties
-        cfn_bucket.replication_configuration = {
-            "role": s3_iam_role.role_arn,
-            "rules": [
-                {
-                    "destination": {"bucket": self.backup_backend_bucket.bucket_arn},
-                    "id": "Replicate to us-east-2",
-                    "status": "Enabled",
-                }
-            ],
-        }
-
-    def _create_acm_certificate(self, hosted_zone):
-        self.website_certificate = acm.Certificate(
-            self,
-            "website_certificate",
-            domain_name=self._domain_name,
-            subject_alternative_names=[f"www.{self._domain_name}"],
+            construct_id,
+            domain_name=domain_name,
+            subject_alternative_names=[f"www.{domain_name}"],
             validation=acm.CertificateValidation.from_dns(hosted_zone),
         )
 
-    def _create_website_distribution(self):
+    def _create_website_distribution(self, website_certificate, website_bucket):
+        # Create OAC for cloudfront to access S3
         oac = cloudfront.CfnOriginAccessControl(
             self,
             "MyWebsiteCfnOriginAccessControl",
@@ -222,24 +119,20 @@ class WebsiteResources(Website):
                 description=f"Origin Access Control for {self._domain_name}.",
             ),
         )
-
-        self.website_distribution = cloudfront.Distribution(
+        # Creating cloudfront distro
+        website_distribution = cloudfront.Distribution(
             self,
             "website_distribution",
             default_behavior=cloudfront.BehaviorOptions(
-                origin=origins.OriginGroup(
-                    primary_origin=origins.S3Origin(self.backend_bucket),
-                    fallback_origin=origins.S3Origin(self.backup_backend_bucket),
-                    fallback_status_codes=[500, 502, 503, 504],
-                ),
+                origin=origins.S3Origin(website_bucket),
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
                 cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
                 cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
                 response_headers_policy=cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
             ),
-            domain_names=[f"{self._domain_name}", f"www.{self._domain_name}"],
-            certificate=self.website_certificate,
+            domain_names=[self._domain_name, self._sub_domain_name],
+            certificate=website_certificate,
             default_root_object="index.html",
             price_class=cloudfront.PriceClass.PRICE_CLASS_100,
             comment=f"Distribution for {self._domain_name}",
@@ -259,152 +152,152 @@ class WebsiteResources(Website):
             ],
         )
 
-        self.website_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
+        website_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
 
-        # Get the CloudFormation resource
-        cfn_website_distribution = self.website_distribution.node.default_child
+        # Get the L1 CloudFormation resource
+        cfn_website_distribution = website_distribution.node.default_child
 
-        # Adding property overrides for both origins in group
-        for origin in range(2):
-            # Add OAC configuration
-            cfn_website_distribution.add_property_override(
-                f"DistributionConfig.Origins.{origin}.OriginAccessControlId",
-                oac.get_att("Id"),
-            )
-
-            # Remove OAI configuration
-            cfn_website_distribution.add_property_override(
-                f"DistributionConfig.Origins.{origin}.S3OriginConfig.OriginAccessIdentity",
-                "",
-            )
-
-        self._create_ssm_parameter(
-            "website_distribution_id_parameter",
-            self.website_distribution.distribution_id,
-            self.website_distribution_id_parameter,
-            "Parameter holding ID of the cloudfront website distribution.",
+        # Add OAC configuration
+        cfn_website_distribution.add_property_override(
+            "DistributionConfig.Origins.0.OriginAccessControlId",
+            oac.get_att("Id"),
         )
 
-    def _create_route53_record(self, hosted_zone):
+        # Remove OAI configuration
+        cfn_website_distribution.add_property_override(
+            "DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity",
+            "",
+        )
+
+        return website_distribution
+
+    def _create_cf_route53_record(self, hosted_zone, domain_name, website_distribution):
         route53.ARecord(
             self,
-            "website_alias_record",
-            record_name=self._domain_name,
+            f"{domain_name}_alias_record",
+            record_name=domain_name,
             zone=hosted_zone,
             target=route53.RecordTarget.from_alias(
-                targets.CloudFrontTarget(self.website_distribution)
+                targets.CloudFrontTarget(website_distribution)
             ),
         )
+
+    def _create_api_route53_record(self, hosted_zone):
         route53.ARecord(
             self,
-            "website_sub_alias_record",
-            record_name=f"www.{self._domain_name}",
+            "website_api_alias_record",
+            record_name=self._api_domain_name,
             zone=hosted_zone,
             target=route53.RecordTarget.from_alias(
-                targets.CloudFrontTarget(self.website_distribution)
+                targets.ApiGatewayv2DomainProperties(
+                    self.website_api_domain_name.attr_regional_domain_name,
+                    self.website_api_domain_name.attr_regional_hosted_zone_id,
+                )
             ),
         )
 
-
-class UES2WebsiteResources(Website):
-    """Class that defines the resources used for cullan.click"""
-
-    def __init__(
-        self,
-        scope,
-        construct_id,
-        **kwargs,
-    ):
-        super().__init__(scope, construct_id, **kwargs)
-
-        self._build_use2_resources()
-
-    def _build_use2_resources(self):
-
-        self._create_backup_backend_bucket()
-
-        self._create_backeup_backend_bucket_policy()
-
-    def _create_backup_backend_bucket(self):
-        self.backup_backend_bucket = s3.Bucket(
-            self,
-            "backup_website_bucket",
-            bucket_name=f"backup-{self._domain_name}",
-            encryption=s3.BucketEncryption.S3_MANAGED,
-            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-            versioned=True,
-            lifecycle_rules=[
-                s3.LifecycleRule(
-                    enabled=True,
-                    id="Delete noncurrent versions",
-                    noncurrent_version_expiration=Duration.days(2),
-                )
-            ],
-            removal_policy=RemovalPolicy.DESTROY,
-        )
-
-    def _create_backeup_backend_bucket_policy(self):
-
-        custom_resource_policy = iam.PolicyDocument(
-            statements=[
-                iam.PolicyStatement(
-                    actions=["ssm:GetParameter"],
-                    effect=iam.Effect.ALLOW,
-                    resources=[
-                        f"arn:aws:ssm:us-east-1:{Aws.ACCOUNT_ID}:parameter/{self.website_distribution_id_parameter}"
-                    ],
-                )
-            ]
-        )
-
-        custom_resource_role_policy = iam.Policy(
-            self,
-            "custom_resource_role_policy",
-            document=custom_resource_policy,
-            policy_name="website_custom_resource_lambda_role_policy",
-        )
-
-        custom_resource_role = iam.Role(
-            self,
-            "website_custom_resource_role",
-            assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
-            description="Role for the lambda created by website custom resource.",
-            role_name="website_custom_resource_lambda_role",
-        )
-
-        custom_resource_role_policy.attach_to_role(custom_resource_role)
-
-        website_distribution_id = custom_resources.AwsCustomResource(
-            self,
-            "GetParameter",
-            on_update=custom_resources.AwsSdkCall(
-                action="getParameter",
-                service="SSM",
-                parameters={"Name": "website_distribution_id"},
-                region="us-east-1",
-                physical_resource_id=custom_resources.PhysicalResourceId.of(
-                    str(datetime.now())
-                ),
-            ),
-            role=custom_resource_role,
-        )
-
-        website_distribution_id_value = website_distribution_id.get_response_field(
-            "Parameter.Value"
-        )
-
+    def _create_website_bucket_policy(self, website_bucket, website_distribution):
         my_bucket_policy = iam.PolicyStatement(
             actions=["s3:GetObject"],
             effect=iam.Effect.ALLOW,
-            resources=[f"{self.backup_backend_bucket.bucket_arn}/*"],
+            resources=[f"{website_bucket.bucket_arn}/*"],
             principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
             conditions={
                 "StringEquals": {
-                    "AWS:SourceArn": [
-                        f"arn:aws:cloudfront::{Aws.ACCOUNT_ID}:distribution/{website_distribution_id_value}"
+                    "aws:SourceArn": [
+                        f"arn:aws:cloudfront::{Aws.ACCOUNT_ID}:distribution/{website_distribution.distribution_id}"
                     ]
                 }
             },
         )
 
-        self.backup_backend_bucket.add_to_resource_policy(my_bucket_policy)
+        website_bucket.add_to_resource_policy(my_bucket_policy)
+
+    def _create_intake_form_lambda(self):
+        self.website_intake_form_lambda = lambda_.Function(
+            self,
+            "website_intake_form_lambda",
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            handler="contact_form_intake.lambda_handler",
+            code=lambda_.Code.from_asset("lambda"),
+            description=f"Lambda to handle intake from the contact form on {self._domain_name}.",
+            environment={
+                "website": self._domain_name,
+                "environment": f"{os.environ.get('ENVIRONMENT')}",
+            },
+            log_retention=logs.RetentionDays.THREE_MONTHS,
+            timeout=Duration.minutes(5),
+        )
+
+        policy_statements = [
+            iam.PolicyStatement(
+                actions=[
+                    "ses:SendEmail",
+                ],
+                effect=iam.Effect.ALLOW,
+                resources=[
+                    f"arn:aws:ses:us-east-1:{Aws.ACCOUNT_ID}:identity/{self._domain_name}",
+                    f"arn:aws:ses:us-east-1:{Aws.ACCOUNT_ID}:identity/cullancarey@yahoo.com",
+                ],
+            ),
+            iam.PolicyStatement(
+                actions=[
+                    "ssm:GetParameter",
+                ],
+                effect=iam.Effect.ALLOW,
+                resources=[
+                    f"arn:aws:ssm:us-east-1:{Aws.ACCOUNT_ID}:parameter/{os.environ.get('ENVIRONMENT')}_google_captcha_secret"
+                ],
+            ),
+        ]
+        for policy_statement in policy_statements:
+            self.website_intake_form_lambda.add_to_role_policy(policy_statement)
+
+    def _create_intake_form_api(self, intake_form_certificate):
+        website_intake_form_api = apigatewayv2.CfnApi(
+            self,
+            "website_intake_form_api",
+            description=f"API for intake of the contact form on {self._domain_name}.",
+            protocol_type="HTTP",
+            route_key="POST /",
+            target=self.website_intake_form_lambda.function_arn,
+            name="website_intake_form_api",
+        )
+
+        self.website_api_domain_name = apigatewayv2.CfnDomainName(
+            self,
+            "website_api_domain_name",
+            domain_name=self._api_domain_name,
+            domain_name_configurations=[
+                apigatewayv2.CfnDomainName.DomainNameConfigurationProperty(
+                    certificate_arn=intake_form_certificate.certificate_arn,
+                    endpoint_type="REGIONAL",
+                    security_policy="TLS_1_2",
+                )
+            ],
+        )
+
+        apigatewayv2.CfnApiMapping(
+            self,
+            "cfn_api_mapping",
+            api_id=website_intake_form_api.attr_api_id,
+            domain_name=self.website_api_domain_name.domain_name,
+            stage="$default",
+        )
+
+        apigatewayv2.CfnIntegration(
+            self,
+            "website_api_integration",
+            api_id=website_intake_form_api.attr_api_id,
+            integration_type="AWS_PROXY",
+            connection_type="INTERNET",
+            description="Integration for form intake api and form intake lambda.",
+            integration_method="POST",
+            integration_uri=self.website_intake_form_lambda.function_arn,
+            payload_format_version="2.0",
+        )
+
+        self.website_intake_form_lambda.add_permission(
+            id="website_intake_form_lambda_perms",
+            principal=iam.ServicePrincipal("apigateway.amazonaws.com"),
+        )

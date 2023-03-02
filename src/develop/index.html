@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<!--
+	Read Only by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Cullan Carey</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+		<!-- Header -->
+		<section id="header">
+			<header>
+				<span class="image avatar"><img src="images/avatar.jpg" alt="" /></span>
+				<h1 id="logo"><a href="#">Cullan Carey</a></h1>
+				<p>I am a cloud engineer with a<br />
+				passion to learn.</p>
+			</header>
+			<nav id="nav">
+				<ul>
+					<li><a href="#one" class="active">About Me</a></li>
+					<li><a href="#two">About This Website</a></li>
+					<li><a href="#three">Contact</a></li>
+					<li><a href="projects.html">Projects</a></li>
+				</ul>
+			</nav>
+			<footer>
+				<ul class="icons">
+					<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+					<li><a href="https://github.com/cullancarey" target="_blank" class="icon brands fa-github"><span class="label">Github</span></a></li>
+					<li><a href="mailto: cullancarey@gmail.com" target="_blank" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+					<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank" class="icon solid fa-file"><span class="label">Resume</span></a></li>
+				</ul>
+			</footer>
+		</section>
+		<!-- Wrapper -->
+		<div id="wrapper">
+			<!-- Main -->
+			<div id="main">
+				<!-- One -->
+				<section id="one">
+					<div class="image main" data-position="center">
+						<img src="images/banner.jpg" alt="" />
+					</div>
+					<div class="container">
+						<header class="major">
+							<h2>Hi, I'm Cullan.</h2>
+							<p>About Me</p>
+						</header>
+						<p>A little background about me. I graduated from Purdue University in 2019 with a degree in Computer and Information Technology. I took a job in application support for a software company in Chicago. While in that role, I discovered my interest in the cloud. I was able to gain some valuable cloud experience and earned my first AWS certificate. My journey to the cloud started here. I am now a cloud engineer for a consulting firm specializing in cloud security and architecture. Please visit the <a href="projects.html">projects</a> page to view some of my personal projects. Here is a link to my <a href="resume/Cullan_Carey_Resume.pdf" target="_blank">resume</a>. Lastly, I am available for freelance work on <a href="https://iq.aws/e/cullancarey" target="_blank">AWS IQ</a>!</p>
+					</div>
+				</section>
+				<!-- Two -->
+				<section id="two">
+					<div class="container">
+						<h3>About this website</h3>
+						<p>First, I did not write the code that drives what you see on this website. I am not a website developer, so I used a template from <a href="http://html5up.net" target="_blank">HTML5 UP</a> and filled in the necessary details. I did, however, build the infrastructure using Amazon Web Services. cullan.click is a static AWS S3 website fronted by Cloudfront. Please see the architecture diagram below.
+						<div class="image arch">
+							<img src="images/cullancarey-website-architecture.png" alt="" />
+						</div>
+						Two GitHub Actions workflows kick off when I push changes to the GitHub repository. The first workflow focuses on code formatting and IaC security utilizing Black, Pylint, and Checkov. The second workflow deploys the terraform, pushes the website files to S3, and invalidates the Cloudfront cache, making the updates available immediately. This website is highly available. The main website bucket replicates to the failover bucket in a different region. Access to the S3 bucket is restricted to the Cloudfront OAI. All code is available for viewing in the <a href="https://github.com/cullancarey/website" target="_blank">GitHub repository</a>. Building cullan.click was a fun project and a valuable experience.</p>
+					</div>
+				</section>
+
+				<!-- Three -->
+				<section id="three">
+						<div class="container">
+							<h2>Let's Talk!</h2>
+							<p>Enter your name, email, and a message below to get in contact with me.</p>
+							<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+							<form  action="https://email.cullan.click/" method="post">
+								<div class="g-recaptcha" data-sitekey="6LcD61giAAAAAGHXBczDgl9WlAu921noVQEGUXLR" data-callback="correctCaptcha"></div>
+								<div class="fields">
+									<div class="field half">
+										<input type="text" name="CustomerName" id="name" required placeholder="Name" />
+										<input type="checkbox" name="contact_me_by_fax_only" value="1" style="display:none !important" tabindex="-1" autocomplete="off">
+									</div>
+									<div class="field half">
+										<input type="email" name="CustomerEmail" id="email" required placeholder="Email" />
+									</div>
+									<div class="field">
+										<textarea name="MessageDetails" id="message" required placeholder="Send Cullan a message!" rows="7"></textarea>
+									</div>
+								</div>
+								<ul class="actions">
+									<li><input type="submit" value="Submit" class="button primary"></li>
+								</ul>
+							</form>
+						</div>
+					</section>
+		</div>
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+		<script src="assets/js/captcha.js"></script>
+	</body>
+</html>

@@ -1,2 +1,2 @@
 [MASTER]
-disable=line-too-long,unused-argument,import-error,no-name-in-module,too-few-public-methods,wrong-import-order
+disable=line-too-long,unused-argument,import-error,no-name-in-module,too-few-public-methods,wrong-import-order,too-many-instance-attributes,too-many-arguments
