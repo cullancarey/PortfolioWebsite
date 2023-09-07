@@ -4,6 +4,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_ssm as ssm,
     Duration,
+    aws_logs as logs,
 )
 from constructs import Construct
 
@@ -31,6 +32,7 @@ class ApiGwtoLambda(Construct):
             timeout=Duration.seconds(30),
             architecture=_lambda.Architecture.X86_64,
             environment={"environment": environment, "website": domain_name},
+            log_retention=logs.RetentionDays.ONE_YEAR,
         )
 
         # API Gateway HTTP API
