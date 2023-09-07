@@ -1,0 +1,21 @@
+name: Diff-CDK-Stack/Dev
+run-name: Running ${{github.workflow}} off of ${{ github.ref_name }}
+
+on:
+  pull_request:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  diff:
+    name: Diff Development
+    uses: ./.github/workflows/diff.yaml
+    with:
+      environment: development
+
+ 
