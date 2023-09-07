@@ -49,4 +49,4 @@ jobs:
 
       - name: Diff Website
         run: |
-          cdk diff --app 'cdk.out/'  --require-approval never
+          cdk diff --app 'cdk.out/' --require-approval never

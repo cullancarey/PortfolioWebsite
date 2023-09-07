@@ -24,7 +24,7 @@ app = App()
 cloudfront_region = "us-east-1"
 
 environment = os.environ.get("ENVIRONMENT")
-environment = "development"
+# environment = "development"
 environment_config = app.node.try_get_context(environment)
 account_id = environment_config.get("account_id")
 region = environment_config.get("region")
