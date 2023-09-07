@@ -1,106 +1,200 @@
 <!DOCTYPE HTML>
-<!--
-	Read Only by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
-	<head>
-		<title>Cullan Carey</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-	</head>
-	<body class="is-preload">
-		<!-- Header -->
-		<section id="header">
-			<header>
-				<span class="image avatar"><img src="images/avatar.jpg" alt="" /></span>
-				<h1 id="logo"><a href="#">Cullan Carey</a></h1>
-				<p>I am a cloud engineer with a<br />
-				passion to learn.</p>
-			</header>
-			<nav id="nav">
-				<ul>
-					<li><a href="#one" class="active">About Me</a></li>
-					<li><a href="#two">About This Website</a></li>
-					<li><a href="#three">Contact</a></li>
-					<li><a href="projects.html">Projects</a></li>
-				</ul>
-			</nav>
-			<footer>
-				<ul class="icons">
-					<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
-					<li><a href="https://github.com/cullancarey" target="_blank" class="icon brands fa-github"><span class="label">Github</span></a></li>
-					<li><a href="mailto: cullancarey@gmail.com" target="_blank" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
-					<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank" class="icon solid fa-file"><span class="label">Resume</span></a></li>
-				</ul>
-			</footer>
-		</section>
-		<!-- Wrapper -->
-		<div id="wrapper">
-			<!-- Main -->
-			<div id="main">
-				<!-- One -->
-				<section id="one">
-					<div class="image main" data-position="center">
-						<img src="images/banner.jpg" alt="" />
-					</div>
-					<div class="container">
-						<header class="major">
-							<h2>Hi, I'm Cullan.</h2>
-							<p>About Me</p>
-						</header>
-						<p>A little background about me. I graduated from Purdue University in 2019 with a degree in Computer and Information Technology. I took a job in application support for a software company in Chicago. While in that role, I discovered my interest in the cloud. I was able to gain some valuable cloud experience and earned my first AWS certificate. My journey to the cloud started here. I am now a cloud engineer for a consulting firm specializing in cloud security and architecture. Please visit the <a href="projects.html">projects</a> page to view some of my personal projects. Here is a link to my <a href="resume/Cullan_Carey_Resume.pdf" target="_blank">resume</a>. Lastly, I am available for freelance work on <a href="https://iq.aws/e/cullancarey" target="_blank">AWS IQ</a>!</p>
-					</div>
-				</section>
-				<!-- Two -->
-				<section id="two">
-					<div class="container">
-						<h3>About this website</h3>
-						<p>First, I did not write the code that drives what you see on this website. I am not a website developer, so I used a template from <a href="http://html5up.net" target="_blank">HTML5 UP</a> and filled in the necessary details. I did, however, build the infrastructure using Amazon Web Services. cullan.click is a static AWS S3 website fronted by Cloudfront. Please see the architecture diagram below.
-						<div class="image arch">
-							<img src="images/cullancarey-website-architecture.png" alt="" />
-						</div>
-						Two GitHub Actions workflows kick off when I push changes to the GitHub repository. The first workflow focuses on code formatting and IaC security utilizing Black, Pylint, and Checkov. The second workflow deploys the terraform, pushes the website files to S3, and invalidates the Cloudfront cache, making the updates available immediately. This website is highly available. The main website bucket replicates to the failover bucket in a different region. Access to the S3 bucket is restricted to the Cloudfront OAI. All code is available for viewing in the <a href="https://github.com/cullancarey/website" target="_blank">GitHub repository</a>. Building cullan.click was a fun project and a valuable experience.</p>
-					</div>
-				</section>
+<html lang="en">
 
-				<!-- Three -->
-				<section id="three">
-						<div class="container">
-							<h2>Let's Talk!</h2>
-							<p>Enter your name, email, and a message below to get in contact with me.</p>
-							<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-							<form  action="https://email.cullan.click/" method="post">
-								<div class="g-recaptcha" data-sitekey="6LcD61giAAAAAGHXBczDgl9WlAu921noVQEGUXLR" data-callback="correctCaptcha"></div>
-								<div class="fields">
-									<div class="field half">
-										<input type="text" name="CustomerName" id="name" required placeholder="Name" />
-										<input type="checkbox" name="contact_me_by_fax_only" value="1" style="display:none !important" tabindex="-1" autocomplete="off">
-									</div>
-									<div class="field half">
-										<input type="email" name="CustomerEmail" id="email" required placeholder="Email" />
-									</div>
-									<div class="field">
-										<textarea name="MessageDetails" id="message" required placeholder="Send Cullan a message!" rows="7"></textarea>
-									</div>
-								</div>
-								<ul class="actions">
-									<li><input type="submit" value="Submit" class="button primary"></li>
-								</ul>
-							</form>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<title>Cullan Carey</title>
+	<link rel="stylesheet" href="assets/css/main.css" />
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/jquery.scrollex.min.js"></script>
+	<script src="assets/js/jquery.scrolly.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+
+<body class="is-preload">
+
+	<!-- Header -->
+	<section id="header" aria-label="Header Section">
+		<header>
+			<span class="image avatar"><img src="images/avatar.jpg" alt="Cullan Carey Avatar" /></span>
+			<h1 id="logo"><a href="#">Cullan Carey</a></h1>
+			<p>I am a cloud engineer with a<br /> passion to learn.</p>
+		</header>
+		<nav id="nav" aria-label="Main Navigation">
+			<ul>
+				<li><a href="#one" class="active">About Me</a></li>
+				<li><a href="#two">Contact</a></li>
+				<li><a href="projects.html">Projects</a></li>
+			</ul>
+		</nav>
+		<footer>
+			<ul class="icons">
+				<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank" class="icon brands fa-linkedin"
+						aria-label="LinkedIn"><span class="label">LinkedIn</span></a></li>
+				<li><a href="https://github.com/cullancarey" target="_blank" class="icon brands fa-github"
+						aria-label="Github"><span class="label">Github</span></a></li>
+				<li><a href="mailto: cullancareyconsulting@gmail.com" target="_blank" class="icon solid fa-envelope"
+						aria-label="Email"><span class="label">Email</span></a></li>
+				<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank" class="icon solid fa-file"
+						aria-label="Resume"><span class="label">Resume</span></a></li>
+			</ul>
+		</footer>
+	</section>
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Main Content -->
+		<div id="main">
+
+			<!-- About Me Section -->
+			<section id="one" aria-label="About Me Section">
+				<div class="image main" data-position="center">
+					<img src="images/banner.jpg" alt="Cullan Carey Banner" />
+				</div>
+				<div class="container">
+					<header class="major">
+						<h2>Hi, I'm Cullan.</h2>
+						<p>About Me</p>
+					</header>
+					<p>My name is Cullan, and I am an experienced cloud engineer passionate about AWS and other emerging
+						technologies. I founded Cullan Carey Consulting, LLC, to pursue my career as an independent
+						consultant in the cloud space. As my company's owner and sole employee, I bring knowledge and
+						expertise to every project I undertake.</p>
+					<p>Throughout my career, I have built, analyzed, automated, and supported AWS cloud environments
+						with a proven track record of success. I am always expanding my knowledge through work and
+						personal projects, ensuring I stay ahead of the curve in this rapidly evolving industry.</p>
+					<p>In previous consulting roles, I have developed expertise in a wide range of areas related to
+						cloud engineering. For example, I have created CI/CD deployment pipelines using GitHub Actions
+						for CDK applications, streamlining the deployment process and ensuring fast and reliable
+						application delivery. Additionally, I have designed and implemented centralized deployment
+						models utilizing CloudFormation StackSets, Python CDK, and GitHub Actions, enabling efficient
+						and scalable infrastructure deployment. I am also experienced in developing
+						infrastructure-as-code (IaC) modules using Terraform to simplify the provisioning and managing
+						of AWS resources. Furthermore, I have integrated DNS configurations across various website
+						hosting platforms and Route53, ensuring a seamless user experience.</p>
+					<p>In terms of security, I have developed automated monitoring systems using SecurityHub, GuardDuty,
+						and Inspector, ensuring that all aspects of the infrastructure are secure and compliant with
+						relevant regulations. Moreover, I have performed cost analyses on AWS environments and
+						recommended optimizing costs, maximizing efficiency, and minimizing expenses.</p>
+					<p>As an independent consultant, I bring a unique perspective to every project. I work closely with
+						my clients to understand their needs and provide customized solutions that meet and exceed their
+						expectations. With my dedication, expertise, and experience, I am confident I can help any
+						organization achieve its cloud computing goals. I'd love to discuss how I can help your
+						organizaiton.
+						Please schedule time to talk with me below.</p>
+				</div>
+
+				<!-- Calendly inline widget -->
+				<div class="calendly-inline-widget" data-url="https://calendly.com/cullancareyconsulting/meetwithcullan"
+					style="min-width:320px;height:700px;"></div>
+			</section>
+
+			<!-- Contact Section -->
+			<section id="two" aria-label="Contact Section">
+				<div class="container">
+					<h2>Let's Talk!</h2>
+					<form id="contact-form">
+						<div class="g-recaptcha" data-sitekey="6LcD61giAAAAAGHXBczDgl9WlAu921noVQEGUXLR"
+							data-callback="correctCaptcha"></div>
+						<div class="fields">
+							<div class="field half">
+								<input type="text" name="CustomerName" id="name" required placeholder="Name" />
+								<input type="checkbox" name="contact_me_by_fax_only" id="bot_check" value="1"
+									style="display:none !important" tabindex="-1" autocomplete="off">
+							</div>
+							<div class="field half">
+								<input type="email" name="CustomerEmail" id="email" required placeholder="Email" />
+							</div>
+							<div class="field">
+								<textarea name="MessageDetails" id="message" required
+									placeholder="Send Cullan a message!" rows="7"></textarea>
+							</div>
 						</div>
-					</section>
+						<ul class="actions">
+							<li><button type="button" onclick="submitForm()" class="button primary">Submit</button></li>
+						</ul>
+					</form>
+				</div>
+			</section>
+
+			<script>
+				async function submitForm() {
+					const submitButton = document.querySelector('.button.primary');
+
+					// Disable the submit button and show loading text
+					submitButton.disabled = true;
+					submitButton.textContent = "Sending...";
+
+
+					const name = document.getElementById("name").value;
+					const email = document.getElementById("email").value;
+					const message = document.getElementById("message").value;
+					const bot_check = document.getElementById("bot_check")
+					const recaptchaResponse = document.querySelector('textarea[name="g-recaptcha-response"]').value;
+
+					// Perform validation if necessary
+					if (!name || !email || !message) {
+						alert("Please fill out all the required fields.");
+						// Re-enable the submit button
+						submitButton.disabled = false;
+						submitButton.textContent = "Submit";
+						return;
+					}
+
+					const payload = {
+						CustomerName: name,
+						CustomerEmail: email,
+						MessageDetails: message,
+						"g-recaptcha-response": recaptchaResponse
+						// Add captcha details if needed
+					};
+
+					// Only include BotCheck if checkbox is checked
+					if (bot_check.checked) {
+						payload.BotCheck = bot_check.value;
+					}
+
+					try {
+						const response = await fetch('https://form.develop.cullancarey.com/', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify(payload)
+						});
+
+						const data = await response.json();
+
+						if (data.statusCode === 200) {
+							alert((data.message || 'Thank you for your message!'));
+						} else if (response.status !== 200) {
+							alert("Something went wrong. Please contact cullancarey@gmail.com.");
+						} else {
+							alert((data.error || 'Something went wrong. Please contact cullancarey@gmail.com.'));
+						}
+					} catch (error) {
+						console.error("There was a problem with the fetch operation:", error);
+					} finally {
+						// Re-enable the submit button
+						submitButton.disabled = false;
+						submitButton.textContent = "Submit";
+					}
+				}
+			</script>
+
 		</div>
-		<!-- Scripts -->
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/jquery.scrollex.min.js"></script>
-		<script src="assets/js/jquery.scrolly.min.js"></script>
-		<script src="assets/js/browser.min.js"></script>
-		<script src="assets/js/breakpoints.min.js"></script>
-		<script src="assets/js/util.js"></script>
+
+		<!-- Scripts at the bottom for improved performance -->
 		<script src="assets/js/main.js"></script>
 		<script src="assets/js/captcha.js"></script>
-	</body>
+		<script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+</body>
+
 </html>

@@ -1,92 +1,181 @@
 <!DOCTYPE HTML>
-<!--
-	Read Only by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
-	<head>
-		<title>Cullan Carey</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-	</head>
-	<body class="is-preload">
-		<!-- Header -->
-		<section id="header">
-			<header>
-				<span class="image avatar"><img src="images/avatar.jpg" alt="" /></span>
-				<h1 id="logo"><a href="#">Cullan Carey</a></h1>
-				<p>I am a cloud engineer with a<br />
-				passion to learn.</p>
-			</header>
-			<nav id="nav">
-				<ul>
-					<li><a href="#one" class="active">Inspiration</a></li>
-					<li><a href="#two">AWS S3 Static Website Terraform Module</a></li>
-					<li><a href="#three">Youtube Video Generator</a></li>
-					<li><a href="index.html">Home</a></li>
-					<li><a href="index.html#three">Contact</a></li>
-				</ul>
-			</nav>
-			<footer>
-				<ul class="icons">
-					<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
-					<li><a href="https://github.com/cullancarey" target="_blank" class="icon brands fa-github"><span class="label">Github</span></a></li>
-					<li><a href="mailto: cullancarey@gmail.com" target="_blank" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
-					<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank" class="icon solid fa-file"><span class="label">Resume</span></a></li>
-				</ul>
-			</footer>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Cullan Carey</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body class="is-preload">
+
+	<!-- Header -->
+	<section id="header" aria-label="Header Section">
+		<header>
+			<span class="image avatar"><img src="images/avatar.jpg" alt="Cullan Carey Avatar" /></span>
+			<h1 id="logo"><a href="#">Cullan Carey</a></h1>
+			<p>I am a cloud engineer with a<br /> passion to learn.</p>
+		</header>
+
+		<!-- Navigation -->
+		<nav id="nav" aria-label="Main Navigation">
+			<ul>
+				<li><a href="#inspiration" class="active">Inspiration</a></li>
+				<li><a href="#about">About This Website</a></li>
+				<li><a href="#terraform">AWS S3 Static Website Terraform Module</a></li>
+				<li><a href="#youtube">Youtube Video Generator</a></li>
+				<li><a href="#cdk">Website Infra CDK</a></li>
+				<li><a href="index.html">Home</a></li>
+				<li><a href="index.html#contact">Contact</a></li>
+			</ul>
+		</nav>
+
+		<!-- Social Links -->
+		<footer>
+			<ul class="icons">
+				<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank"
+						class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+				<li><a href="https://github.com/cullancarey" target="_blank" class="icon brands fa-github"><span
+							class="label">Github</span></a></li>
+				<li><a href="mailto: cullancareyconsulting@gmail.com" target="_blank"
+						class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+				<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank" class="icon solid fa-file"><span
+							class="label">Resume</span></a></li>
+			</ul>
+		</footer>
+	</section>
+
+	<!-- Main Content -->
+	<main id="wrapper">
+
+		<!-- Inspiration Section -->
+		<section id="inspiration">
+			<div class="image main" data-position="center">
+				<img src="images/banner.jpg" alt="Cullan Carey Banner" />
+			</div>
+			<div class="container">
+				<h2>My Projects</h2>
+				<p>Welcome to my projects page. This page contains information about some personal projects I have
+					created. Creating projects like this is a hobby of mine. I enjoy working with and learning about new
+					technologies. I am inspired to create things I can share with family and friends. It gives me the
+					motivation to see the project all the way through. I am proud of the projects below, and they are
+					worth sharing. They are not perfect, but what is? I'll continue to improve them. I am always open to
+					feedback. You can reach me via <a href="mailto: cullancarey@gmail.com" target="_blank">email</a>.
+					The projects on this page and others are all hosted on my <a href="https://github.com/cullancarey"
+						target="_blank">Github</a>.</p>
+			</div>
 		</section>
-		<!-- Wrapper -->
-		<div id="wrapper">
-			<!-- Main -->
-			<div id="main">
-				<!-- One -->
-				<section id="one">
-					<div class="image main" data-position="center">
-						<img src="images/banner.jpg" alt="" />
-					</div>
-					<div class="container">
-						<header class="major">
-							<h2>My Projects</h2>
-							<p>Inspiration</p>
-						</header>
-						<p>Welcome to my projects page. This page contains information about some personal projects I have created. Creating projects like this is a hobby of mine. I enjoy working with and learning about new technologies. I am inspired to create things I can share with family and friends. It gives me the motivation to see the project all the way through. I am proud of the projects below, and they are worth sharing. They are not perfect, but what is? I'll continue to improve them. I am always open to feedback. You can reach me via <a href="mailto: cullancarey@gmail.com" target="_blank">email</a>. The projects on this page and others are all hosted on my <a href="https://github.com/cullancarey" target="_blank">Github</a>.</p>
-					</div>
-				</section>
-				<!-- Two -->
-				<section id="two">
-					<div class="container">
-						<h3>AWS S3 Static Website Terraform Module</h3>
-						<p>For this project I created a Terraform module that will deploy a static website using AWS S3 and Cloudfront. The website is configured to be highly available utilizing two S3 buckets in different regions. Access to the S3 bucket is restricted to the Cloudfront OAI. Please see the architecture diagram below.
-						<div class="image arch2">
-							<img src="images/s3_static_website_arch.png" alt="" />
-						</div>
-						I published this module to the Terraform registry, it is available under the name <a href="https://registry.terraform.io/modules/cullancarey/static-s3-website-template/aws/latest" target="_blank">static-s3-website-template</a>. It has over 800 downloads! Further details and the code itself is available for viewing in the <a href="https://github.com/cullancarey/website" target="_blank">GitHub repository</a>.</p>
-					</div>
-				</section>
 
-				<!-- Three -->
-				<section id="three">
-						<div class="container">
-						<h3>Youtube Video Generator</h3>
-						<p>I was looking to improve various areas of my skillset in this project and hit all my areas of interest. I wanted to create something I could share with friends and family! I was doing some research and came across <a href="https://blog.sudcha.com/about" target="_blank">Sudeep Chauhan's</a> <a href="https://blog.sudcha.com/i-made-youtube-videos-using-python/" target="_blank">blog post</a> about automating the creation of Youtube videos, and I thought it was a great idea. At the end of the post, he specifies people are free to use it, so I wanted to see if I could tweak it and create my version of his idea. See an example video below.</p>
-												<iframe width="600" height="300" src="https://www.youtube.com/embed/2zIzOtzVBCk" title="Daily Quote" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-						<p>This program first scrapes Reddit r/quotes for the newest SFW post on the page. It then writes that quote to a text file and, using tts, creates an audio file of the quote. Next, it will do a google image search based on the text file to retrieve relevant images for the video. After that, it will create the video file using FFmpeg. Finally, it will call the upload_video.py file provided by Youtube <a href="https://developers.google.com/youtube/v3/guides/uploading_a_video" target="_blank">here</a>. The video will appear on my <a href="https://www.youtube.com/channel/UCGU6cW0iBDA0N3D6iHcc5zg" target="_blank">Youtube channel</a> every day at 10 am EST.</p>
+		<!-- About Section -->
+		<section id="about">
+			<div class="container">
+				<h3>About this website</h3>
+				<p>First, I did not write the code that drives what you see on this website. I am not a website
+					developer, so I used a template from <a href="http://html5up.net" target="_blank">HTML5 UP</a> and
+					filled in the necessary details. I did, however, build the infrastructure using Amazon Web Services.
+					Cullancarey.com is a static AWS S3 website fronted by Cloudfront. Please see the architecture
+					diagram below.</p>
+				<figure class="image arch">
+					<img src="images/cullancarey-website-architecture.png" alt="Website architecture diagram">
+				</figure>
+				<p>This website is highly available. The main website bucket replicates to the failover bucket in a
+					different region. Access to the S3 bucket is restricted to the Cloudfront OAI. All code is available
+					for viewing in the <a href="https://github.com/cullancarey/website" target="_blank">GitHub
+						repository</a>. Building cullancarey.com was a fun project and a valuable experience.</p>
+				<h3>Deployment Automation</h3>
+				<p>The automation for this repo's deployment utilized a Cloudformation StackSet set up for my aws
+					organization. My <a href="https://github.com/cullancarey/aws_deployment_roles"
+						target="_blank">aws_deployment-roles</a> repo holds CDK code which defines the Cloudformation
+					stack set that deploys the deployment roles to the member accounts of my organization. I have
+					created an OIDC GitHub Actions user in my management account. The actions first assume this role and
+					then use this role to assume the deployment roles in the member accounts. Below is a diagram showing
+					the flow of this architecture.</p>
+				<figure class="image arch">
+					<img src="images/website_automation_arch.png" alt="Deployment automation diagram">
+				</figure>
+			</div>
+		</section>
 
-						<p>The second part of the project tweets about the videos. It retrieves to most recent upload to the Youtube channel and tweets about the video to the <a href="https://twitter.com/VideosByPython" target="_blank">Twitter account</a> I created for it. The tweets contain the video title, link to the Youtube channel, link directly to the video, and the exact time of the tweet. See an example <a href="https://twitter.com/VideosByPython/status/1585318022528598016?cxt=HHwWgIC8zfKVl4AsAAAA" target="_blank">here</a>.</p>
-					</div>
-					</section>
-		</div>
-		<!-- Scripts -->
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/jquery.scrollex.min.js"></script>
-		<script src="assets/js/jquery.scrolly.min.js"></script>
-		<script src="assets/js/browser.min.js"></script>
-		<script src="assets/js/breakpoints.min.js"></script>
-		<script src="assets/js/util.js"></script>
-		<script src="assets/js/main.js"></script>
-		<script src="assets/js/captcha.js"></script>
-	</body>
+		<!-- Terraform Section -->
+		<section id="terraform">
+			<div class="container">
+				<h3>AWS S3 Static Website Terraform Module</h3>
+				<p>For this project I created a Terraform module that will deploy a static website using AWS S3 and
+					Cloudfront. The website is configured to be highly available utilizing two S3 buckets in different
+					regions. Access to the S3 bucket is restricted to the Cloudfront OAI. Please see the architecture
+					diagram below.
+				<figure class="image arch2">
+					<img src="images/s3_static_website_arch.png" alt="S3 static website architecture diagram">
+				</figure>
+				I published this module to the Terraform registry, it is available under the name <a
+					href="https://registry.terraform.io/modules/cullancarey/static-s3-website-template/aws/latest"
+					target="_blank">static-s3-website-template</a>. It has over 1200 downloads! Further details and the
+				code itself is available for viewing in the <a href="https://github.com/cullancarey/website"
+					target="_blank">GitHub repository</a>.</p>
+
+			</div>
+		</section>
+
+		<!-- Youtube Video Generator Section -->
+		<section id="youtube">
+			<div class="container">
+				<h3>Youtube Video Generator</h3>
+				<p>I was looking to improve various areas of my skillset in this project and hit all my areas of
+					interest. I wanted to create something I could share with friends and family! I was doing some
+					research and came across <a href="https://blog.sudcha.com/about" target="_blank">Sudeep
+						Chauhan's</a> <a href="https://blog.sudcha.com/i-made-youtube-videos-using-python/"
+						target="_blank">blog post</a> about automating the creation of Youtube videos, and I thought it
+					was a great idea. At the end of the post, he specifies people are free to use it, so I wanted to see
+					if I could tweak it and create my version of his idea. See an example video below.</p>
+				<iframe width="600" height="300" src="https://www.youtube.com/embed/2zIzOtzVBCk" title="Daily Quote"
+					frameborder="0"
+					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+					allowfullscreen></iframe>
+				<p>This program first scrapes Reddit r/quotes for the newest SFW post on the page. It then writes that
+					quote to a text file and, using tts, creates an audio file of the quote. Next, it will do a google
+					image search based on the text file to retrieve relevant images for the video. After that, it will
+					create the video file using FFmpeg. Finally, it will call the upload_video.py file provided by
+					Youtube <a href="https://developers.google.com/youtube/v3/guides/uploading_a_video"
+						target="_blank">here</a>. The video will appear on my <a
+						href="https://www.youtube.com/channel/UCGU6cW0iBDA0N3D6iHcc5zg" target="_blank">Youtube
+						channel</a> every day at 10 am EST.</p>
+
+				<p>The second part of the project tweets about the videos. It retrieves to most recent upload to the
+					Youtube channel and tweets about the video to the <a href="https://twitter.com/VideosByPython"
+						target="_blank">Twitter account</a> I created for it. The tweets contain the video title, link
+					to the Youtube channel, link directly to the video, and the exact time of the tweet. See an example
+					<a href="https://twitter.com/VideosByPython/status/1585318022528598016?cxt=HHwWgIC8zfKVl4AsAAAA"
+						target="_blank">here</a>.
+				</p>
+			</div>
+		</section>
+
+		<!-- CDK Section -->
+		<section id="cdk">
+			<div class="container">
+				<h3>Website Infra CDK</h3>
+				<p>I enjoy all things IaC and wanted to experience a different IaC technology. I decided to build a
+					replica of my website infrastructure in AWS using the Python CDK. Creating this replica of my
+					website infrastructure was a great opportunity to learn another popular tool and further my Python
+					skills. The CDK code is held in the repository for this project under the <a
+						href="https://github.com/cullancarey/website_cdk/tree/main/site_stacks"
+						target="_blank">site_stacks</a> directory. Further details and the code are available for
+					viewing in the <a href="https://github.com/cullancarey/website_cdk" target="_blank">GitHub
+						repository</a>.</p>
+			</div>
+		</section>
+	</main>
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/jquery.scrollex.min.js"></script>
+	<script src="assets/js/jquery.scrolly.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+	<script src="assets/js/captcha.js"></script>
+</body>
+
 </html>

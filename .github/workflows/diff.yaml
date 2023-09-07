@@ -1,0 +1,64 @@
+name: Diff
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: "The github environment to diff against."
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  diff:
+    name: Diff to ${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
+    env:
+      ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+      CDK_DEPLOY_ACCOUNT: ${{ vars.ACCOUNT_ID }}
+      CDK_DEPLOY_REGION: ${{ vars.REGION }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Configure AWS Creds
+      - name: Configure AWS Credentials ${{ inputs.environment }}
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.DEPLOYMENT_ROLE}}
+          role-session-name: cdk-deployment-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
+          aws-region: ${{ vars.REGION }}
+
+      - name: Cache npm
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: Cache pip
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip" # caching pip dependencies
+
+      - name: Install Dependencies
+        run: |
+          npm install -g aws-cdk
+          pip install -r requirements.txt
+
+      - name: CDK Synth
+        run: |
+          cdk synth
+
+      - name: Diff Website
+        run: |
+          cdk diff --app 'cdk.out/'  --require-approval never
