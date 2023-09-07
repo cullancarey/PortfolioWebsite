@@ -41,13 +41,11 @@ jobs:
       - name: Cache npm
         uses: actions/setup-node@v3
         with:
-          node-version: 16
           cache: "npm"
 
       - name: Cache pip
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
           cache: "pip" # caching pip dependencies
 
       - name: Install Dependencies
