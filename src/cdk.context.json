@@ -18,5 +18,13 @@
   "hosted-zone:account=693590665244:domainName=develop.cullancarey.com:region=us-east-1": {
     "Id": "/hostedzone/Z081077825HU0N2Q4H1ZC",
     "Name": "develop.cullancarey.com."
+  },
+  "hosted-zone:account=045107234435:domainName=cullancarey.com:region=us-east-1": {
+    "Id": "/hostedzone/Z064063313S42D0KDXCSO",
+    "Name": "cullancarey.com."
+  },
+  "hosted-zone:account=045107234435:domainName=cullancarey.com:region=us-east-2": {
+    "Id": "/hostedzone/Z064063313S42D0KDXCSO",
+    "Name": "cullancarey.com."
   }
 }
