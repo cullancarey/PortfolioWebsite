@@ -1,0 +1,22 @@
+{
+  "development": {
+    "account_id": "693590665244",
+    "region": "us-east-2",
+    "domain_name": "develop.cullancarey.com",
+    "file_path": "develop"
+  },
+  "production": {
+    "account_id": "045107234435",
+    "region": "us-east-2",
+    "domain_name": "cullancarey.com",
+    "file_path": "main"
+  },
+  "hosted-zone:account=693590665244:domainName=develop.cullancarey.com:region=us-east-2": {
+    "Id": "/hostedzone/Z081077825HU0N2Q4H1ZC",
+    "Name": "develop.cullancarey.com."
+  },
+  "hosted-zone:account=693590665244:domainName=develop.cullancarey.com:region=us-east-1": {
+    "Id": "/hostedzone/Z081077825HU0N2Q4H1ZC",
+    "Name": "develop.cullancarey.com."
+  }
+}

@@ -156,9 +156,9 @@ coverage/
 /tsconfig.json
 
 # CDK Context & Staging files
-cdk.context.json
 .cdk.staging/
 cdk.out/
+-rollback
 
 
 ########################
