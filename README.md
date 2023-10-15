@@ -1,12 +1,39 @@
-# Cullan's Portfolio Website Built in CDK
+# Cullan's Portfolio Website
 
 ## About
-This repository is an exact replica of [website](https://github.com/cullancarey/website) except the infrastructure is built using the Pythong CDK instead of Terraform. I enjoy all things IaC and wanted to get experience with a different technology. My website provides a good and challenging base to implement other IaC technologies. 
 
+[Cullancarey.com](https://cullancarey.com) is my personal portfolio website. It is a static AWS S3 website fronted by CloudFront. The site also features a contact form backed by a Lambda function, allowing visitors to connect with me.
 
-### CDK
-CDK fully manages the website infrastructure, as seen in the [site_stacks](./site_stacks) directory.
+## Automation
 
+The automation for this repository's deployment utilizes AWS StackSets configured for my AWS organization. My [AWS Deployment Roles](https://github.com/cullancarey/aws_deployment_roles) repository contains CDK code that defines the CloudFormation StackSet, which deploys the deployment roles to the member accounts of my organization. I have created an OIDC GitHub Actions user in my management account. GitHub Actions assume this role first and then use it to assume the deployment roles in the member accounts. For more details, see [GitHub Actions Workflows](./.github/workflows).
 
-### Disclosure
-I did not write the HTML and supporting code for this website. I am not a website developer, so I used a template from [HTML5 UP](http://html5up.net) and filled in the necessary details.
+## CDK Infrastructure
+
+The website infrastructure is fully managed by AWS CDK. The CDK code is organized into constructs and stacks.
+
+### Constructs
+
+- [ACMCertificates](src/my_constructs/acm_certificate.py): Manages ACM certificates.
+- [BackupWebsiteBucket](src/my_constructs/s3_bucket.py): Creates a backup S3 bucket.
+- [ApiGwtoLambda](src/my_constructs/apigw_to_lambda.py): Sets up API Gateway and Lambda for the contact form.
+- [CloudfrontDistribution](src/my_constructs/cloudfront_distribution.py): Manages CloudFront distributions.
+- [S3Bucket](src/my_constructs/s3_bucket.py): Creates and configures S3 buckets.
+
+For more details, see [Constructs](src/my_constructs/).
+
+### Stacks
+
+- [ACMCertificates](src/stacks/acm_certificates.py): ACM certificates stack.
+- [BackupWebsiteBucket](src/stacks/backup_website_bucket.py): Backup website bucket stack.
+- [Website](src/stacks/website.py): Main website stack.
+
+For more details, see [Stacks](src/stacks/).
+
+### Entry Point
+
+- [app.py](src/app.py): The entry point for the CDK application.
+
+## Architecture
+
+![Architecture](./src/main/images/cullancarey-website-architecture.png)
