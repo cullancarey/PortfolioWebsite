@@ -159,6 +159,7 @@ coverage/
 .cdk.staging/
 cdk.out/
 -rollback
+__snapshots__
 
 
 ########################
