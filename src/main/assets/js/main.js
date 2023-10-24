@@ -1,159 +1,149 @@
-/*
-	Read Only by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
-*/
+; (function () {
 
-(function($) {
+	'use strict';
 
-	var $window = $(window),
-		$body = $('body'),
-		$header = $('#header'),
-		$titleBar = null,
-		$nav = $('#nav'),
-		$wrapper = $('#wrapper');
+	var isMobile = {
+		Android: function () {
+			return navigator.userAgent.match(/Android/i);
+		},
+		BlackBerry: function () {
+			return navigator.userAgent.match(/BlackBerry/i);
+		},
+		iOS: function () {
+			return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+		},
+		Opera: function () {
+			return navigator.userAgent.match(/Opera Mini/i);
+		},
+		Windows: function () {
+			return navigator.userAgent.match(/IEMobile/i);
+		},
+		any: function () {
+			return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+		}
+	};
 
-	// Breakpoints.
-		breakpoints({
-			xlarge:   [ '1281px',  '1680px' ],
-			large:    [ '1025px',  '1280px' ],
-			medium:   [ '737px',   '1024px' ],
-			small:    [ '481px',   '736px'  ],
-			xsmall:   [ null,      '480px'  ],
-		});
 
-	// Play initial animations on page load.
-		$window.on('load', function() {
-			window.setTimeout(function() {
-				$body.removeClass('is-preload');
-			}, 100);
-		});
+	var fullHeight = function () {
 
-	// Tweaks/fixes.
+		if (!isMobile.any()) {
+			$('.js-fullheight').css('height', $(window).height());
+			$(window).resize(function () {
+				$('.js-fullheight').css('height', $(window).height());
+			});
+		}
+	};
 
-		// Polyfill: Object fit.
-			if (!browser.canUse('object-fit')) {
+	// Parallax
+	var parallax = function () {
+		$(window).stellar();
+	};
 
-				$('.image[data-position]').each(function() {
+	var contentWayPoint = function () {
+		var i = 0;
+		$('.animate-box').waypoint(function (direction) {
 
-					var $this = $(this),
-						$img = $this.children('img');
+			if (direction === 'down' && !$(this.element).hasClass('animated-fast')) {
 
-					// Apply img as background.
-						$this
-							.css('background-image', 'url("' + $img.attr('src') + '")')
-							.css('background-position', $this.data('position'))
-							.css('background-size', 'cover')
-							.css('background-repeat', 'no-repeat');
+				i++;
 
-					// Hide img.
-						$img
-							.css('opacity', '0');
+				$(this.element).addClass('item-animate');
+				setTimeout(function () {
 
-				});
-
-			}
-
-	// Header Panel.
-
-		// Nav.
-			var $nav_a = $nav.find('a');
-
-			$nav_a
-				.addClass('scrolly')
-				.on('click', function() {
-
-					var $this = $(this);
-
-					// External link? Bail.
-						if ($this.attr('href').charAt(0) != '#')
-							return;
-
-					// Deactivate all links.
-						$nav_a.removeClass('active');
-
-					// Activate link *and* lock it (so Scrollex doesn't try to activate other links as we're scrolling to this one's section).
-						$this
-							.addClass('active')
-							.addClass('active-locked');
-
-				})
-				.each(function() {
-
-					var	$this = $(this),
-						id = $this.attr('href'),
-						$section = $(id);
-
-					// No section for this link? Bail.
-						if ($section.length < 1)
-							return;
-
-					// Scrollex.
-						$section.scrollex({
-							mode: 'middle',
-							top: '5vh',
-							bottom: '5vh',
-							initialize: function() {
-
-								// Deactivate section.
-									$section.addClass('inactive');
-
-							},
-							enter: function() {
-
-								// Activate section.
-									$section.removeClass('inactive');
-
-								// No locked links? Deactivate all links and activate this section's one.
-									if ($nav_a.filter('.active-locked').length == 0) {
-
-										$nav_a.removeClass('active');
-										$this.addClass('active');
-
-									}
-
-								// Otherwise, if this section's link is the one that's locked, unlock it.
-									else if ($this.hasClass('active-locked'))
-										$this.removeClass('active-locked');
-
+					$('body .animate-box.item-animate').each(function (k) {
+						var el = $(this);
+						setTimeout(function () {
+							var effect = el.data('animate-effect');
+							if (effect === 'fadeIn') {
+								el.addClass('fadeIn animated-fast');
+							} else if (effect === 'fadeInLeft') {
+								el.addClass('fadeInLeft animated-fast');
+							} else if (effect === 'fadeInRight') {
+								el.addClass('fadeInRight animated-fast');
+							} else {
+								el.addClass('fadeInUp animated-fast');
 							}
-						});
 
-				});
+							el.removeClass('item-animate');
+						}, k * 100, 'easeInOutExpo');
+					});
 
-		// Title Bar.
-			$titleBar = $(
-				'<div id="titleBar">' +
-					'<a href="#header" class="toggle"></a>' +
-					'<span class="title">' + $('#logo').html() + '</span>' +
-				'</div>'
-			)
-				.appendTo($body);
-
-		// Panel.
-			$header
-				.panel({
-					delay: 500,
-					hideOnClick: true,
-					hideOnSwipe: true,
-					resetScroll: true,
-					resetForms: true,
-					side: 'right',
-					target: $body,
-					visibleClass: 'header-visible'
-				});
-
-	// Scrolly.
-		$('.scrolly').scrolly({
-			speed: 1000,
-			offset: function() {
-
-				if (breakpoints.active('<=medium'))
-					return $titleBar.height();
-
-				return 0;
+				}, 50);
 
 			}
+
+		}, { offset: '85%' });
+	};
+
+
+
+	var goToTop = function () {
+
+		$('.js-gotop').on('click', function (event) {
+
+			event.preventDefault();
+
+			$('html, body').animate({
+				scrollTop: $('html').offset().top
+			}, 500, 'easeInOutExpo');
+
+			return false;
 		});
 
-})(jQuery);
+		$(window).scroll(function () {
+
+			var $win = $(window);
+			if ($win.scrollTop() > 200) {
+				$('.js-top').addClass('active');
+			} else {
+				$('.js-top').removeClass('active');
+			}
+
+		});
+
+	};
+
+	var pieChart = function () {
+		$('.chart').easyPieChart({
+			scaleColor: false,
+			lineWidth: 4,
+			lineCap: 'butt',
+			barColor: '#007BB8',
+			trackColor: "#f5f5f5",
+			size: 160,
+			animate: 1000
+		});
+	};
+
+	var skillsWayPoint = function () {
+		if ($('#fh5co-skills').length > 0) {
+			$('#fh5co-skills').waypoint(function (direction) {
+
+				if (direction === 'down' && !$(this.element).hasClass('animated')) {
+					setTimeout(pieChart, 400);
+					$(this.element).addClass('animated');
+				}
+			}, { offset: '90%' });
+		}
+
+	};
+
+
+	// Loading page
+	var loaderPage = function () {
+		$(".fh5co-loader").fadeOut("slow");
+	};
+
+
+	$(function () {
+		contentWayPoint();
+		goToTop();
+		loaderPage();
+		fullHeight();
+		parallax();
+		// pieChart();
+		skillsWayPoint();
+	});
+
+
+}());

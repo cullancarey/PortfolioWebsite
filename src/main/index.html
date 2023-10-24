@@ -1,134 +1,570 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<html>
 
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Cullan Carey</title>
-	<link rel="stylesheet" href="assets/css/main.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Cullan Carey's personal portfolio website." />
+	<meta name="keywords"
+		content="cullan carey, cullan, carey, portfolio, cloud engineer, consultant, cullan carey consulting, freelance" />
+	<meta name="Cullan Carey" content="cullancarey.com" />
 
-	<!-- Scripts -->
-	<script src="assets/js/jquery.min.js"></script>
-	<script src="assets/js/jquery.scrollex.min.js"></script>
-	<script src="assets/js/jquery.scrolly.min.js"></script>
-	<script src="assets/js/browser.min.js"></script>
-	<script src="assets/js/breakpoints.min.js"></script>
-	<script src="assets/js/util.js"></script>
+	<!-- 
+	//////////////////////////////////////////////////////
+
+	FREE HTML5 TEMPLATE 
+	DESIGNED & DEVELOPED by FreeHTML5.co
+		
+	Website: 		http://freehtml5.co/
+	Email: 			info@freehtml5.co
+	Twitter: 		http://twitter.com/fh5co
+	Facebook: 		https://www.facebook.com/fh5co
+
+	//////////////////////////////////////////////////////
+	 -->
+
+	<!-- Facebook and Twitter integration -->
+	<meta property="og:title" content="" />
+	<meta property="og:image" content="" />
+	<meta property="og:url" content="" />
+	<meta property="og:site_name" content="" />
+	<meta property="og:description" content="" />
+	<meta name="twitter:title" content="" />
+	<meta name="twitter:image" content="" />
+	<meta name="twitter:url" content="" />
+	<meta name="twitter:card" content="" />
+
+	<link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Kaushan+Script" rel="stylesheet">
+
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="assets/css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="assets/css/icomoon.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="assets/css/bootstrap.css">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="assets/css/style.css">
+
+	<!-- Modernizr JS -->
+	<script src="assets/js/modernizr-2.6.2.min.js"></script>
+	<!-- FOR IE9 below -->
+	<!--[if lt IE 9]>
+	<script src="js/respond.min.js"></script>
+	<![endif]-->
+
 	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8738875399920144"
-		crossorigin="anonymous"></script>
+
 </head>
 
-<body class="is-preload">
+<body>
 
-	<!-- Header -->
-	<section id="header" aria-label="Header Section">
-		<header>
-			<span class="image avatar"><img src="images/avatar.jpg" alt="Cullan Carey Avatar" /></span>
-			<h1 id="logo"><a href="#">Cullan Carey</a></h1>
-			<p>I am a cloud engineer with a<br /> passion to learn.</p>
-		</header>
-		<nav id="nav" aria-label="Main Navigation">
-			<ul>
-				<li><a href="#one" class="active">About Me</a></li>
-				<li><a href="#two">Contact</a></li>
-				<li><a href="projects.html">Projects</a></li>
-			</ul>
-		</nav>
-		<footer>
-			<ul class="icons">
-				<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank" class="icon brands fa-linkedin"
-						aria-label="LinkedIn"><span class="label">LinkedIn</span></a></li>
-				<li><a href="https://github.com/cullancarey" target="_blank" class="icon brands fa-github"
-						aria-label="Github"><span class="label">Github</span></a></li>
-				<li><a href="mailto: cullancareyconsulting@gmail.com" target="_blank" class="icon solid fa-envelope"
-						aria-label="Email"><span class="label">Email</span></a></li>
-				<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank" class="icon solid fa-file"
-						aria-label="Resume"><span class="label">Resume</span></a></li>
-			</ul>
-		</footer>
-	</section>
+	<div class="fh5co-loader"></div>
 
-	<!-- Wrapper -->
-	<div id="wrapper">
-
-		<!-- Main Content -->
-		<div id="main">
-
-			<!-- About Me Section -->
-			<section id="one" aria-label="About Me Section">
-				<div class="image main" data-position="center">
-					<img src="images/banner.jpg" alt="Cullan Carey Banner" />
-				</div>
-				<div class="container">
-					<header class="major">
-						<h2>Hi, I'm Cullan.</h2>
-						<p>About Me</p>
-					</header>
-					<p>My name is Cullan, and I am an experienced cloud engineer passionate about AWS and other emerging
-						technologies. I founded Cullan Carey Consulting, LLC, to pursue my career as an independent
-						consultant in the cloud space. As my company's owner and sole employee, I bring knowledge and
-						expertise to every project I undertake.</p>
-					<p>Throughout my career, I have built, analyzed, automated, and supported AWS cloud environments
-						with a proven track record of success. I am always expanding my knowledge through work and
-						personal projects, ensuring I stay ahead of the curve in this rapidly evolving industry.</p>
-					<p>In previous consulting roles, I have developed expertise in a wide range of areas related to
-						cloud engineering. For example, I have created CI/CD deployment pipelines using GitHub Actions
-						for CDK applications, streamlining the deployment process and ensuring fast and reliable
-						application delivery. Additionally, I have designed and implemented centralized deployment
-						models utilizing CloudFormation StackSets, Python CDK, and GitHub Actions, enabling efficient
-						and scalable infrastructure deployment. I am also experienced in developing
-						infrastructure-as-code (IaC) modules using Terraform to simplify the provisioning and managing
-						of AWS resources. Furthermore, I have integrated DNS configurations across various website
-						hosting platforms and Route53, ensuring a seamless user experience.</p>
-					<p>In terms of security, I have developed automated monitoring systems using SecurityHub, GuardDuty,
-						and Inspector, ensuring that all aspects of the infrastructure are secure and compliant with
-						relevant regulations. Moreover, I have performed cost analyses on AWS environments and
-						recommended optimizing costs, maximizing efficiency, and minimizing expenses.</p>
-					<p>As an independent consultant, I bring a unique perspective to every project. I work closely with
-						my clients to understand their needs and provide customized solutions that meet and exceed their
-						expectations. With my dedication, expertise, and experience, I am confident I can help any
-						organization achieve its cloud computing goals. I'd love to discuss how I can help your
-						organizaiton.
-						Please schedule time to talk with me below.</p>
-				</div>
-
-				<!-- Calendly inline widget -->
-				<div class="calendly-inline-widget" data-url="https://calendly.com/cullancareyconsulting/meetwithcullan"
-					style="min-width:320px;height:700px;"></div>
-			</section>
-
-			<!-- Contact Section -->
-			<section id="two" aria-label="Contact Section">
-				<div class="container">
-					<h2>Let's Talk!</h2>
-					<form id="contact-form">
-						<div class="g-recaptcha" data-sitekey="6Lfc9fIhAAAAAHGN_83s5xAzYLWK3TyRmGXO7Vmy"
-							data-callback="correctCaptcha"></div>
-						<div class="fields">
-							<div class="field half">
-								<input type="text" name="CustomerName" id="name" required placeholder="Name" />
-								<input type="checkbox" name="contact_me_by_fax_only" id="bot_check" value="1"
-									style="display:none !important" tabindex="-1" autocomplete="off">
-							</div>
-							<div class="field half">
-								<input type="email" name="CustomerEmail" id="email" required placeholder="Email" />
-							</div>
-							<div class="field">
-								<textarea name="MessageDetails" id="message" required
-									placeholder="Send Cullan a message!" rows="7"></textarea>
+	<div id="page">
+		<header id="fh5co-header" class="fh5co-cover js-fullheight" role="banner"
+			style="background-image:url(images/cover_bg_3.jpg);" data-stellar-background-ratio="0.5">
+			<div class="overlay"></div>
+			<div class="container">
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2 text-center">
+						<div class="display-t js-fullheight">
+							<div class="display-tc js-fullheight animate-box" data-animate-effect="fadeIn">
+								<div class="profile-thumb" style="background: url(images/user-3.jpg);"></div>
+								<h1><span>Cullan Carey</span></h1>
+								<h3><span>Cloud Engineer | Independant Contractor</span></h3>
+								<p>
+								<ul class="fh5co-social-icons">
+									<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank"><i
+												class="icon-linkedin2"></i></a></li>
+									<li><a href="https://github.com/cullancarey" target="_blank"><i
+												class="icon-github2"></i></a></li>
+									<li><a href="https://cullancarey.medium.com/" target="_blank"><i
+												class="icon-feather"></i></a></li>
+									<li><a href="https://twitter.com/cullan__" target="_blank"><i
+												class="icon-twitter2"></i></a></li>
+									<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank"><i
+												class="icon-file-text2"></i></a></li>
+								</ul>
+								</p>
 							</div>
 						</div>
-						<ul class="actions">
-							<li><button type="button" onclick="submitForm()" class="button primary">Submit</button></li>
-						</ul>
-					</form>
+					</div>
 				</div>
-			</section>
+			</div>
+		</header>
+
+		<div id="fh5co-about" class="animate-box">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+						<h2>About Me</h2>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">
+						<ul class="info">
+							<li><span class="first-block">Full Name:</span><span class="second-block">Cullan James
+									Carey</span></li>
+							<li><span class="first-block">Phone:</span><span class="second-block">+1 219 730 9320</span>
+							</li>
+							<li><span class="first-block">Email:</span><span
+									class="second-block">cullancarey@gmail.com</span></li>
+							<li><span class="first-block">Location:</span><span class="second-block">Indianapolis,
+									IN</span></li>
+						</ul>
+					</div>
+					<div class="col-md-8">
+						<h2>Hello There!</h2>
+						<p>My name is Cullan, and I am an experienced cloud engineer passionate about AWS and other
+							emerging
+							technologies. I founded Cullan Carey Consulting, LLC, to pursue my career as an independent
+							consultant in the cloud space. As my company's owner and sole employee, I bring knowledge
+							and
+							expertise to every project I undertake.</p>
+						<p>Throughout my career, I have built, analyzed, automated, and supported AWS cloud environments
+							with a proven track record of success. I am always expanding my knowledge through work and
+							personal projects, ensuring I stay ahead of the curve in this rapidly evolving industry.</p>
+						<p>
+						<ul class="fh5co-social-icons">
+							<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank"><i
+										class="icon-linkedin2"></i></a></li>
+							<li><a href="https://github.com/cullancarey" target="_blank"><i
+										class="icon-github2"></i></a></li>
+							<li><a href="https://cullancarey.medium.com/" target="_blank"><i
+										class="icon-feather"></i></a></li>
+							<li><a href="https://twitter.com/cullan__" target="_blank"><i class="icon-twitter2"></i></a>
+							</li>
+							<li><a href="resume/Cullan_Carey_Resume.pdf" target="_blank"><i
+										class="icon-file-text2"></i></a></li>
+						</ul>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="fh5co-resume" class="fh5co-bg-color">
+			<div class="container">
+				<div class="row animate-box">
+					<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+						<h2>My Resume</h2>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-md-offset-0">
+						<ul class="timeline">
+							<li class="timeline-heading text-center animate-box">
+								<div>
+									<h3>Work Experience</h3>
+								</div>
+							</li>
+							<li class="animate-box timeline-unverted">
+								<div class="timeline-badge"><i class="icon-suitcase"></i></div>
+								<div class="timeline-panel">
+									<div class="timeline-heading">
+										<h3 class="timeline-title">Cloud/DevOps Engineer</h3>
+										<span class="company">Big Cloud Country - June 2023 - Current</span>
+									</div>
+								</div>
+							</li>
+							<li class="timeline-inverted animate-box">
+								<div class="timeline-badge"><i class="icon-suitcase"></i></div>
+								<div class="timeline-panel">
+									<div class="timeline-heading">
+										<h3 class="timeline-title">Cloud Engineer</h3>
+										<span class="company">Booz Allen Hamilton - Jan 2022 - June 2023</span>
+									</div>
+								</div>
+							</li>
+							<li class="animate-box timeline-unverted">
+								<div class="timeline-badge"><i class="icon-suitcase"></i></div>
+								<div class="timeline-panel">
+									<div class="timeline-heading">
+										<h3 class="timeline-title">Technical Support Specialist</h3>
+										<span class="company">CSG - May 2018 - Dec 2022</span>
+									</div>
+								</div>
+							</li>
+
+							<br>
+							<li class="timeline-heading text-center animate-box">
+								<div>
+									<h3>Education</h3>
+								</div>
+							</li>
+							<li class="animate-box timeline-unverted">
+								<div class="timeline-badge"><i class="icon-graduation-cap"></i></div>
+								<div class="timeline-panel">
+									<div class="timeline-heading">
+										<h3 class="timeline-title">Bachelors Degree</h3>
+										<span class="company">Purdue University - 2015 - 2019</span>
+									</div>
+									<div class="timeline-body">
+										<p>Graduated with a Bachelors of Science in Computer and Information Technology.
+										</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="fh5co-features" class="animate-box">
+			<div class="container">
+				<div class="services-padding">
+					<div class="row">
+						<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+							<h2>My Services</h2>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-paintbrush"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>Cloud Architecture</h3>
+									<p>Planning, designing, and building cloud-based systems and infrastructure to
+										enable efficient, scalable, and cost-effective solutions for businesses.</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-briefcase"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>Custom Development</h3>
+									<p>Development of custom-written code, applications, or software components to
+										address specific business challenges or to enhance existing systems.</p>
+								</div>
+							</div>
+
+						</div>
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-search"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>Development Operations Engineering</h3>
+									<p>Delivery of software, improve its quality, and enhance the overall agility of an
+										organization.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-md-4 text-center">
+
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-bargraph"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>Site Reliability Engineering</h3>
+									<p>Ensuring the reliability, availability, and performance of software systems and
+										infrastructure in a consistent and scalable manner.</p>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-genius"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>Security Assessment</h3>
+									<p>Identify vulnerabilities, assess risks, and implement protective measures to
+										safeguard cloud infrastructure and assets.</p>
+								</div>
+							</div>
+
+						</div>
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-chat"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>Cost Analysis</h3>
+									<p>Provide insights into how cloud resources are utilized and identify opportunities
+										to reduce costs while maintaining performance and efficiency.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="fh5co-skills" class="animate-box">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+						<h2>Skills</h2>
+					</div>
+				</div>
+				<div class="row row-pb-md">
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="90"><span><strong>AWS</strong>90%</span></div>
+					</div>
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="90"><span><strong>Python</strong>90%</span></div>
+					</div>
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="20"><span><strong>Typescript</strong>20%</span></div>
+					</div>
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="25"><span><strong>Javascript</strong>25%</span></div>
+					</div>
+
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="95"><span><strong>Terraform</strong>95%</span></div>
+					</div>
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="80"><span><strong>CDK</strong>80%</span></div>
+					</div>
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="70"><span><strong>Cloudformation</strong>70%</span></div>
+					</div>
+					<div class="col-md-3 col-sm-6 col-xs-12 text-center">
+						<div class="chart" data-percent="85"><span><strong>Github Actions</strong>85%</span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- <div id="fh5co-work" class="fh5co-bg-dark">
+			<div class="container">
+				<div class="row animate-box">
+					<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+						<h2>Work</h2>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-3 text-center col-padding animate-box">
+						<a href="https://numberguessinggame.com" target="_blank" class="work"
+							style="background-image: url(images/numberguessinggame.jpg);">
+							<div class="desc">
+								<h3>Number Guessing Game</h3>
+								<span>Wordle but with numbers!</span>
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="fh5co-blog">
+			<div class="container">
+				<div class="row animate-box">
+					<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+						<h2>Post on Medium</h2>
+						<p>Dignissimos asperiores vitae velit veniam totam fuga molestias accusamus alias autem
+							provident. Odit ab aliquam dolor eius.</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">
+						<div class="fh5co-blog animate-box">
+							<a href="#" class="blog-bg" style="background-image: url(images/portfolio-1.jpg);"></a>
+							<div class="blog-text">
+								<span class="posted_on">Mar. 15th 2016</span>
+								<h3><a href="#">Photoshoot On The Street</a></h3>
+								<p>Far far away, behind the word mountains, far from the countries Vokalia and
+									Consonantia, there live the blind texts.</p>
+								<ul class="stuff">
+									<li><i class="icon-heart2"></i>249</li>
+									<li><i class="icon-eye2"></i>308</li>
+									<li><a href="#">Read More<i class="icon-arrow-right22"></i></a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="fh5co-blog animate-box">
+							<a href="#" class="blog-bg" style="background-image: url(images/portfolio-2.jpg);"></a>
+							<div class="blog-text">
+								<span class="posted_on">Mar. 15th 2016</span>
+								<h3><a href="#">Surfing at Philippines</a></h3>
+								<p>Far far away, behind the word mountains, far from the countries Vokalia and
+									Consonantia, there live the blind texts.</p>
+								<ul class="stuff">
+									<li><i class="icon-heart2"></i>249</li>
+									<li><i class="icon-eye2"></i>308</li>
+									<li><a href="#">Read More<i class="icon-arrow-right22"></i></a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="fh5co-blog animate-box">
+							<a href="#" class="blog-bg" style="background-image: url(images/portfolio-3.jpg);"></a>
+							<div class="blog-text">
+								<span class="posted_on">Mar. 15th 2016</span>
+								<h3><a href="#">Capture Living On Uderwater</a></h3>
+								<p>Far far away, behind the word mountains, far from the countries Vokalia and
+									Consonantia, there live the blind texts.</p>
+								<ul class="stuff">
+									<li><i class="icon-heart2"></i>249</li>
+									<li><i class="icon-eye2"></i>308</li>
+									<li><a href="#">Read More<i class="icon-arrow-right22"></i></a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> -->
+
+		<div id="fh5co-features" class="animate-box">
+			<div class="container">
+				<div class="services-padding">
+					<div class="row">
+						<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+							<h2>Testimonials</h2>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-quote2"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>AWS IQ Review</h3>
+									<p>"Cullan was extremely helpful and I would 100% work with him again on any future
+										tech
+										issues. Cullan was very responsive, flexible with his timing and was able to
+										resolve the
+										issue very efficiently. Great customer service experience!"</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-quote2"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>AWS IQ Review</h3>
+									<p>"Cullan was extremely helpful and knowledgeable. He fixed the problem and
+										suggested
+										solutions. I am planning on reaching out to him again for future projects.
+										Highly
+										recommended."</p>
+								</div>
+							</div>
+
+						</div>
+						<div class="col-md-4 text-center">
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-search"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>AWS IQ Review</h3>
+									<p>"He is smart and hardworking. Helped me to figure out issues with aws ec2
+										instances and
+										load balancers. Exceptional communication, I could not ask for more. Definitely
+										recommended to work with Cullan!"</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-md-4 text-center">
+
+							<div class="feature-left">
+								<span class="icon">
+									<i class="icon-bargraph"></i>
+								</span>
+								<div class="feature-copy">
+									<h3>LinkedIn Review</h3>
+									<p>"Cullan has been an amazing collaborator. He knows AWS inside and out and is a
+										great communicator. He also works quickly and diligently and has gone above and
+										beyond numerous times. We trusted Cullan to work on our mission-critical big
+										data ETL pipelines, consuming up to 150+ million impressions/day. Cullan was
+										able to templatize big portions of our pipelines using Terraform in order to
+										make our services more scalable and also fully integrated our AWS and Github
+										accounts into a CI/CD process."</p>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="fh5co-consult">
+			<!-- Calendly inline widget -->
+			<div class="calendly-inline-widget" data-url="https://calendly.com/cullancareyconsulting/meetwithcullan"
+				style="min-width:320px;height:700px;">
+				<div class="overlay"></div>
+			</div>
+			<div class="choose animate-box">
+				<h2>Contact</h2>
+				<form>
+					<div class="g-recaptcha" data-sitekey="6Lfc9fIhAAAAAHGN_83s5xAzYLWK3TyRmGXO7Vmy"
+						data-callback="correctCaptcha"></div>
+					<div class="row form-group">
+						<div class="col-md-6">
+							<input type="text" id="name" class="form-control" placeholder="Your name">
+						</div>
+					</div>
+
+					<div class="row form-group">
+						<div class="col-md-12">
+							<input type="text" id="email" class="form-control" placeholder="Your email address">
+						</div>
+					</div>
+
+					<div class="row form-group">
+						<div class="col-md-12">
+							<textarea name="message" id="message" cols="30" rows="10" class="form-control"
+								placeholder="Your message to me"></textarea>
+						</div>
+					</div>
+
+					<div class="row form-group">
+						<div class="col-md-12">
+							<input type="checkbox" id="bot_check" class="form-control" value="1"
+								style="display:none !important" tabindex="-1" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<button type="button" onclick="submitForm()" class="btn btn-primary">Submit</button>
+					</div>
+
+				</form>
+			</div>
 
 			<script>
 				async function submitForm() {
-					const submitButton = document.querySelector('.button.primary');
+					const submitButton = document.querySelector('.btn-primary');
+					const baseURL = window.location.hostname.includes('develop') ? 'https://form.develop.cullancarey.com/' : 'https://form.develop.cullancarey.com/';
+					console.log(baseURL);
 
 					// Disable the submit button and show loading text
 					submitButton.disabled = true;
@@ -139,7 +575,7 @@
 					const name = document.getElementById("name").value;
 					const email = document.getElementById("email").value;
 					const message = document.getElementById("message").value;
-					const bot_check = document.getElementById("bot_check")
+					const bot_check = document.getElementById("bot_check");
 					const recaptchaResponse = document.querySelector('textarea[name="g-recaptcha-response"]').value;
 
 					// Perform validation if necessary
@@ -165,7 +601,7 @@
 					}
 
 					try {
-						const response = await fetch('https://form.cullancarey.com/', {
+						const response = await fetch(baseURL, {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
@@ -193,10 +629,44 @@
 			</script>
 		</div>
 
-		<!-- Scripts at the bottom for improved performance -->
-		<script src="assets/js/main.js"></script>
-		<script src="assets/js/captcha.js"></script>
-		<script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+
+	</div>
+
+	<div id="fh5co-footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<p><a href="privacy_policy.html" target="_blank">Privacy Policy</a> </p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="gototop js-top">
+		<a href="#" class="js-gotop"><i class="icon-arrow-up22"></i></a>
+	</div>
+
+	<!-- jQuery -->
+	<script src="assets/js/jquery.min.js"></script>
+	<!-- jQuery Easing -->
+	<script src="assets/js/jquery.easing.1.3.js"></script>
+	<!-- Bootstrap -->
+	<script src="assets/js/bootstrap.min.js"></script>
+	<!-- Waypoints -->
+	<script src="assets/js/jquery.waypoints.min.js"></script>
+	<!-- Stellar Parallax -->
+	<script src="assets/js/jquery.stellar.min.js"></script>
+	<!-- Easy PieChart -->
+	<script src="assets/js/jquery.easypiechart.min.js"></script>
+
+	<!-- Main -->
+	<script src="assets/js/main.js"></script>
+
+	<script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+
+	<script src="assets/js/captcha.js"></script>
+
+
 </body>
 
 </html>
