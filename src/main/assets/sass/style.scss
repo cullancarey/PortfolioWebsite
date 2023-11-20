@@ -294,7 +294,7 @@ h1, h2, h3, h4, h5, h6, figure {
 }
 
 
-#fh5co-features {
+#services {
 	background: $brand-primary;
 	h2 {
 		color: $brand-white;
@@ -346,6 +346,57 @@ h1, h2, h3, h4, h5, h6, figure {
 	}
 }
 
+#reviews {
+	background: $brand-primary;
+	h2 {
+		color: $brand-white;
+	}
+	.services-padding{
+		padding: 7em 0;
+	}
+	.feature-left {
+		margin-bottom: 40px;
+		float: left;
+		@media screen and (max-width: $screen-md) {
+			margin-bottom: 30px;
+		}
+		.icon {
+			display: table;
+			text-align: center;
+			width: 100px;
+			height: 100px;
+			margin: 0 auto;
+			background: $brand-white;
+			margin-bottom: 20px;
+			@include border-radius(50%);
+			i{
+				font-size: 50px;
+				display: table-cell;
+				vertical-align: middle;
+				height: 100px;
+				color: $brand-primary !important;
+			}
+		}
+		.feature-copy {
+			width: 100%;
+		}
+		h3 {
+			font-size: 24px;
+			font-weight: 400;
+			color: $brand-white;
+		}
+		p {
+			font-size: 16px;
+			color: rgba(255,255,255,.7);
+			&:last-child {
+				margin-bottom: 0;
+			}
+			a{
+				color: $brand-black !important;
+			}
+		}
+	}
+}
 
 #fh5co-about,
 #fh5co-resume,
