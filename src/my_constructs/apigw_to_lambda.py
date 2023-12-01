@@ -102,6 +102,7 @@ class ApiGwtoLambda(Construct):
                 f"arn:aws:ses:us-east-2:{account_id}:identity/{domain_name.replace('form.', '')}",
                 f"arn:aws:ses:us-east-2:{account_id}:identity/cullancarey@yahoo.com",
                 f"arn:aws:ses:us-east-2:{account_id}:identity/cullancareyconsulting@gmail.com",
+                f"arn:aws:ses:us-east-2:{account_id}:identity/cullan@cullancarey.com",
             ],
         )
 
