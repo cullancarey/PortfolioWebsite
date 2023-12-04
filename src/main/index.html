@@ -564,6 +564,19 @@
 
 			<script>
 				async function submitForm() {
+
+					const recaptchaResponse = document.querySelector('textarea[name="g-recaptcha-response"]').value;
+
+					// Ensure captcha is complete before submit button is enabled
+					if (!recaptchaResponse) {
+						alert("Please fill out captcha.");
+						// Re-enable the submit button
+						submitButton.disabled = true;
+						submitButton.textContent = "Submit";
+						return;
+					}
+
+
 					const submitButton = document.querySelector('.btn-primary');
 					const baseURL = window.location.hostname.includes('develop') ? 'https://form.develop.cullancarey.com/' : 'https://form.cullancarey.com/';
 					console.log(baseURL);
@@ -578,7 +591,6 @@
 					const email = document.getElementById("email").value;
 					const message = document.getElementById("message").value;
 					const bot_check = document.getElementById("bot_check");
-					const recaptchaResponse = document.querySelector('textarea[name="g-recaptcha-response"]').value;
 
 					// Perform validation if necessary
 					if (!name || !email || !message) {
