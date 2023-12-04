@@ -566,6 +566,7 @@
 				async function submitForm() {
 
 					const recaptchaResponse = document.querySelector('textarea[name="g-recaptcha-response"]').value;
+					const submitButton = document.querySelector('.btn-primary');
 
 					// Ensure captcha is complete before submit button is enabled
 					if (!recaptchaResponse) {
@@ -577,7 +578,7 @@
 					}
 
 
-					const submitButton = document.querySelector('.btn-primary');
+
 					const baseURL = window.location.hostname.includes('develop') ? 'https://form.develop.cullancarey.com/' : 'https://form.cullancarey.com/';
 					console.log(baseURL);
 
