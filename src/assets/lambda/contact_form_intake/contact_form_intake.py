@@ -103,14 +103,16 @@ def send_email(customer_email, customer_message):
 """
 
     client.send_email(
-        Source=f"noreply@{os.environ['website']}",
+        Source=f"noreply@{os.environ['website'].replace('form.', '')}",
         Destination={
             "ToAddresses": [
-                "cullancareyconsulting@gmail.com",
+                "cullan@cullancarey.com",
             ]
         },
         Message={
-            "Subject": {"Data": f"Inquiry from {os.environ['website']}"},
+            "Subject": {
+                "Data": f"Inquiry from {os.environ['website'].replace('form.', '')}"
+            },
             "Body": {"Text": {"Data": text_email}, "Html": {"Data": html_email}},
         },
         ReplyToAddresses=[
@@ -141,7 +143,7 @@ def verify_captcha(captcha_response, source_ip):
         server_response = json.dumps(
             {
                 "statusCode": 403,
-                "error": "Something went wrong. Please contact cullancarey@gmail.com.",
+                "error": "Something went wrong. Please contact cullan@cullancarey.com.",
             }
         )
         return captcha_success, server_response

@@ -114,7 +114,7 @@
 							<li><span class="first-block">Phone:</span><span class="second-block">+1 219 730 9320</span>
 							</li>
 							<li><span class="first-block">Email:</span><span
-									class="second-block">cullancarey@gmail.com</span></li>
+									class="second-block">cullan@cullancarey.com</span></li>
 							<li><span class="first-block">Location:</span><span class="second-block">Indianapolis,
 									IN</span></li>
 						</ul>
@@ -564,8 +564,9 @@
 
 			<script>
 				async function submitForm() {
-					const submitButton = document.querySelector('.btn-primary');
+
 					const baseURL = window.location.hostname.includes('develop') ? 'https://form.develop.cullancarey.com/' : 'https://form.cullancarey.com/';
+					const submitButton = document.querySelector('.btn-primary');
 					console.log(baseURL);
 
 					// Disable the submit button and show loading text
@@ -581,7 +582,7 @@
 					const recaptchaResponse = document.querySelector('textarea[name="g-recaptcha-response"]').value;
 
 					// Perform validation if necessary
-					if (!name || !email || !message) {
+					if (!name || !email || !message || !recaptchaResponse) {
 						alert("Please fill out all the required fields.");
 						// Re-enable the submit button
 						submitButton.disabled = false;
@@ -616,9 +617,9 @@
 						if (data.statusCode === 200) {
 							alert((data.message || 'Thank you for your message!'));
 						} else if (response.status !== 200) {
-							alert("Something went wrong. Please contact cullancarey@gmail.com.");
+							alert("Something went wrong. Please contact cullan@cullancarey.com.");
 						} else {
-							alert((data.error || 'Something went wrong. Please contact cullancarey@gmail.com.'));
+							alert((data.error || 'Something went wrong. Please contact cullan@cullancarey.com.'));
 						}
 					} catch (error) {
 						console.error("There was a problem with the fetch operation:", error);
