@@ -103,6 +103,7 @@ class ApiGwtoLambda(Construct):
                 f"arn:aws:ses:us-east-2:{account_id}:identity/cullancarey@yahoo.com",
                 f"arn:aws:ses:us-east-2:{account_id}:identity/cullancareyconsulting@gmail.com",
                 f"arn:aws:ses:us-east-2:{account_id}:identity/cullan@cullancarey.com",
+                f"arn:aws:ses:us-east-2:{account_id}:configuration-set/cullancarey",
             ],
         )
 
