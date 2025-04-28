@@ -53,39 +53,39 @@ class CloudfrontDistribution(Construct):
                 enable_accept_encoding_gzip=True,
             )
 
-            self.response_headers_policy = cloudfront.ResponseHeadersPolicy(
+            response_headers_policy = cloudfront.ResponseHeadersPolicy(
                 self,
-                "WebsiteResponseHeadersPolicy",
-                comment="Custom security headers for website",
+                "ResponseHeadersPolicy",
+                comment=f"Response headers policy for {domain_name}",
+                cors_behavior=cloudfront.ResponseHeadersCorsBehavior(
+                    access_control_allow_credentials=False,
+                    access_control_allow_headers=["*"],
+                    access_control_allow_methods=["POST", "OPTIONS"],
+                    access_control_allow_origins=["*"],
+                    origin_override=True,
+                ),
                 security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
                     content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
-                        content_security_policy="default-src 'self'; "
-                        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://assets.calendly.com https://pagead2.googlesyndication.com; "
-                        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-                        "img-src 'self' data: https://pagead2.googlesyndication.com; "
-                        "font-src 'self' https://fonts.gstatic.com; "
-                        "frame-src https://www.google.com/recaptcha/ https://assets.calendly.com; "
-                        "connect-src 'self' https://www.google.com/recaptcha/ https://form.cullancarey.com https://form.develop.cullancarey.com; "
-                        "base-uri 'self'; "
-                        "form-action 'self'; "
-                        "upgrade-insecure-requests;",
+                        content_security_policy=f"""
+                default-src 'self';
+                script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://assets.calendly.com https://pagead2.googlesyndication.com;
+                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                img-src 'self' data: https://pagead2.googlesyndication.com;
+                font-src 'self' https://fonts.gstatic.com;
+                frame-src https://www.google.com/recaptcha/ https://assets.calendly.com https://calendly.com;
+                connect-src 'self' https://www.google.com/recaptcha/ https://form.cullancarey.com https://form.develop.cullancarey.com;
+                base-uri 'self';
+                form-action 'self';
+                upgrade-insecure-requests;
+            """.strip(),
                         override=True,
                     ),
+                    frame_options=cloudfront.ResponseHeadersFrameOptions.DENY,
+                    referrer_policy=cloudfront.ResponseHeadersReferrerPolicy.NO_REFERRER,
                     strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
                         access_control_max_age=Duration.days(365),
                         include_subdomains=True,
                         preload=True,
-                        override=True,
-                    ),
-                    content_type_options=cloudfront.ResponseHeadersContentTypeOptions(
-                        override=True
-                    ),
-                    frame_options=cloudfront.ResponseHeadersFrameOptions(
-                        frame_option=cloudfront.HeadersFrameOption.DENY,
-                        override=True,
-                    ),
-                    referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
-                        referrer_policy=cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
                         override=True,
                     ),
                     xss_protection=cloudfront.ResponseHeadersXSSProtection(
