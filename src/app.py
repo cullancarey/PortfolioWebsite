@@ -77,7 +77,7 @@ Website(
     environment=environment,
     website_certificate=certificates.website_certificate.certificate,
     contact_form_certificate=certificates.contact_form_certificate.certificate,
-    backup_website_bucket=backup_website_bucket.backup_website_bucket.bucket,
+    backup_website_bucket=backup_website_bucket.bucket,
     env=env,
     cross_region_references=True,
     description="Stack to deploy the website resources",

@@ -7,4 +7,5 @@ class BackupWebsiteBucket(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        self.backup_website_bucket = S3Bucket(self, "BackupWebsiteBucket")
+        # Expose the real S3 Bucket
+        self.bucket = S3Bucket(self, "BackupWebsiteBucket").bucket
