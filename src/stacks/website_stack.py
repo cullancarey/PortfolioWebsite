@@ -135,6 +135,7 @@ class Website(Stack):
             sources=[s3deploy.Source.asset(source_file_path)],
             destination_bucket=website_bucket.bucket,
             distribution=website_distribution.cf_distribution,
+            distribution_paths=["/*"],
             log_retention=logs.RetentionDays.ONE_YEAR,
             retain_on_delete=False,
         )
@@ -147,6 +148,7 @@ class Website(Stack):
                 self, "BackupBucketDeploymentRef", backup_bucket_name
             ),
             distribution=website_distribution.cf_distribution,
+            distribution_paths=["/*"],
             log_retention=logs.RetentionDays.ONE_YEAR,
             retain_on_delete=False,
         )
