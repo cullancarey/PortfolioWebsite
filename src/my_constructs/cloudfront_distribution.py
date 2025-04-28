@@ -8,6 +8,7 @@ from aws_cdk import (
     Duration,
 )
 from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
+from aws_cdk.aws_cloudfront import HeadersFrameOption, HeadersReferrerPolicy
 from constructs import Construct
 
 
@@ -53,7 +54,7 @@ class CloudfrontDistribution(Construct):
                 enable_accept_encoding_gzip=True,
             )
 
-            response_headers_policy = cloudfront.ResponseHeadersPolicy(
+            self.response_headers_policy = cloudfront.ResponseHeadersPolicy(
                 self,
                 "ResponseHeadersPolicy",
                 comment=f"Response headers policy for {domain_name}",
@@ -80,8 +81,14 @@ class CloudfrontDistribution(Construct):
             """.strip(),
                         override=True,
                     ),
-                    frame_options=cloudfront.ResponseHeadersFrameOptions.DENY,
-                    referrer_policy=cloudfront.ResponseHeadersReferrerPolicy.NO_REFERRER,
+                    frame_options=cloudfront.ResponseHeadersFrameOptions(
+                        frame_option=HeadersFrameOption.DENY,
+                        override=True,
+                    ),
+                    referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
+                        referrer_policy=HeadersReferrerPolicy.NO_REFERRER,
+                        override=True,
+                    ),
                     strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
                         access_control_max_age=Duration.days(365),
                         include_subdomains=True,
