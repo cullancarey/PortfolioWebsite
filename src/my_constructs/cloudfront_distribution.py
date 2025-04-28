@@ -173,7 +173,7 @@ class CloudfrontDistribution(Construct):
                 f"ContactFormIntakeDistribution",
                 default_behavior=cloudfront.BehaviorOptions(
                     origin=HttpOrigin(
-                        domain_name=f"{api_gateway.attr_api_id}.execute-api.{Aws.REGION}.amazonaws.com",
+                        domain_name=f"{api_gateway.http_api_id}.execute-api.{Aws.REGION}.amazonaws.com",
                         protocol_policy=cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
                         http_port=80,
                         https_port=443,
