@@ -119,23 +119,20 @@ def send_email(customer_email, customer_message):
     )
 
 
-def success_response(message):
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-        },
-        "body": json.dumps({"message": message}),
-    }
-
-
-def error_response(message, status_code):
+def response(status_code, body_dict):
     return {
         "statusCode": status_code,
         "headers": {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
         },
-        "body": json.dumps({"error": message}),
+        "body": json.dumps(body_dict),
     }
+
+
+def success_response(message):
+    return response(200, {"message": message})
+
+
+def error_response(message, status_code):
+    return response(status_code, {"error": message})
