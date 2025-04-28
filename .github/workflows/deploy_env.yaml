@@ -2,10 +2,10 @@ name: Deploy CDK
 run-name: Running ${{github.workflow}} off of ${{ github.ref_name }}
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  #     - develop
+  push:
+    branches:
+      - main
+      - develop
   workflow_dispatch:
 
 permissions:
