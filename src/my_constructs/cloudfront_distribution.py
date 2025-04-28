@@ -53,6 +53,49 @@ class CloudfrontDistribution(Construct):
                 enable_accept_encoding_gzip=True,
             )
 
+            self.response_headers_policy = cloudfront.ResponseHeadersPolicy(
+                self,
+                "WebsiteResponseHeadersPolicy",
+                comment="Custom security headers for website",
+                security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
+                    content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
+                        content_security_policy="default-src 'self'; "
+                        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://assets.calendly.com https://pagead2.googlesyndication.com; "
+                        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                        "img-src 'self' data: https://pagead2.googlesyndication.com; "
+                        "font-src 'self' https://fonts.gstatic.com; "
+                        "frame-src https://www.google.com/recaptcha/ https://assets.calendly.com; "
+                        "connect-src 'self' https://www.google.com/recaptcha/ https://form.cullancarey.com https://form.develop.cullancarey.com; "
+                        "base-uri 'self'; "
+                        "form-action 'self'; "
+                        "upgrade-insecure-requests;",
+                        override=True,
+                    ),
+                    strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
+                        access_control_max_age=Duration.days(365),
+                        include_subdomains=True,
+                        preload=True,
+                        override=True,
+                    ),
+                    content_type_options=cloudfront.ResponseHeadersContentTypeOptions(
+                        override=True
+                    ),
+                    frame_options=cloudfront.ResponseHeadersFrameOptions(
+                        frame_option=cloudfront.HeadersFrameOption.DENY,
+                        override=True,
+                    ),
+                    referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
+                        referrer_policy=cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+                        override=True,
+                    ),
+                    xss_protection=cloudfront.ResponseHeadersXSSProtection(
+                        protection=True,
+                        mode_block=True,
+                        override=True,
+                    ),
+                ),
+            )
+
             self.cf_distribution = cloudfront.Distribution(
                 self,
                 f"WebsiteDistribution",
@@ -69,7 +112,7 @@ class CloudfrontDistribution(Construct):
                     allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
                     cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
                     cache_policy=self.website_cache_policy,
-                    response_headers_policy=cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+                    response_headers_policy=self.response_headers_policy,
                 ),
                 error_responses=[
                     cloudfront.ErrorResponse(
