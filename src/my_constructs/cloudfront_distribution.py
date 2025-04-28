@@ -1,12 +1,12 @@
 from aws_cdk import (
     aws_s3 as s3,
     aws_cloudfront as cloudfront,
-    aws_cloudfront_origins as origins,
     aws_certificatemanager as acm,
     aws_apigatewayv2 as apigw,
     RemovalPolicy,
     Aws,
 )
+from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
 
 from constructs import Construct
 
@@ -36,7 +36,6 @@ class CloudfrontDistribution(Construct):
                     origin_access_control_origin_type=origin_type,
                     signing_behavior="always",
                     signing_protocol="sigv4",
-                    # the properties below are optional
                     description=f"Origin Access Control for {domain_name}.",
                 ),
             )
@@ -45,11 +44,9 @@ class CloudfrontDistribution(Construct):
                 self,
                 f"WebsiteDistribution",
                 default_behavior=cloudfront.BehaviorOptions(
-                    origin=origins.OriginGroup(
-                        primary_origin=origins.S3Origin(bucket=website_s3_bucket),
-                        fallback_origin=origins.S3Origin(
-                            bucket=backup_website_s3_bucket
-                        ),
+                    origin=OriginGroup(
+                        primary_origin=S3BucketOrigin(website_s3_bucket),
+                        fallback_origin=S3BucketOrigin(backup_website_s3_bucket),
                     ),
                     viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                     allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
@@ -78,21 +75,16 @@ class CloudfrontDistribution(Construct):
 
             self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
 
-            # Get the L1 CloudFormation resource
+            # L1 override stuff for Origin Access Control
             cfn_website_distribution = self.cf_distribution.node.default_child
-
-            # Add OAC configuration
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.OriginAccessControlId",
                 cf_oac.get_att("Id"),
             )
-
-            # Remove OAI configuration
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity",
                 "",
             )
-
         if origin_type == "http":
             response_headers_policy = cloudfront.ResponseHeadersPolicy(
                 self,
@@ -112,7 +104,7 @@ class CloudfrontDistribution(Construct):
                 self,
                 f"ContactFormIntakeDistribution",
                 default_behavior=cloudfront.BehaviorOptions(
-                    origin=origins.HttpOrigin(
+                    origin=HttpOrigin(
                         domain_name=f"{api_gateway.attr_api_id}.execute-api.{Aws.REGION}.amazonaws.com",
                         protocol_policy=cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
                         http_port=80,

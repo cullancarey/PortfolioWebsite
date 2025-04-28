@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Pin to v4 (stable)
+        uses: actions/checkout@v4
 
       - name: Cache Python packages
         uses: actions/cache@v4
@@ -54,8 +54,8 @@ jobs:
 
       - name: CDK Synth
         run: |
-          cdk synth
+          cdk synth --context environment=${{ inputs.environment }}
 
       - name: Diff CDK Stacks
         run: |
-          cdk diff --app 'cdk.out/' --all --require-approval never
+          cdk diff --app 'cdk.out/' --all --require-approval never --context environment=${{ inputs.environment }}
