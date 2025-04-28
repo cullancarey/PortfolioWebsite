@@ -5,6 +5,7 @@ from aws_cdk import (
     aws_apigatewayv2 as apigw,
     RemovalPolicy,
     Aws,
+    Duration,
 )
 from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
 from constructs import Construct
@@ -38,6 +39,20 @@ class CloudfrontDistribution(Construct):
                 ),
             )
 
+            self.website_cache_policy = cloudfront.CachePolicy(
+                self,
+                "WebsiteCachePolicy",
+                comment="Custom cache policy for website assets",
+                default_ttl=Duration.days(30),
+                max_ttl=Duration.days(365),
+                min_ttl=Duration.seconds(0),
+                cookie_behavior=cloudfront.CacheCookieBehavior.none(),
+                header_behavior=cloudfront.CacheHeaderBehavior.none(),
+                query_string_behavior=cloudfront.CacheQueryStringBehavior.none(),
+                enable_accept_encoding_brotli=True,
+                enable_accept_encoding_gzip=True,
+            )
+
             self.cf_distribution = cloudfront.Distribution(
                 self,
                 f"WebsiteDistribution",
@@ -53,7 +68,7 @@ class CloudfrontDistribution(Construct):
                     viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                     allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
                     cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
-                    cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
+                    cache_policy=self.website_cache_policy,
                     response_headers_policy=cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
                 ),
                 error_responses=[

@@ -1,12 +1,17 @@
-"""Lambda to send intake form emails"""
+"""Lambda to send intake form emails after captcha verification."""
+
 import logging
 import json
 import os
 import base64
-import sys
 from urllib.parse import unquote
 import boto3
 import urllib3
+
+# Global clients to speed up cold starts
+ses_client = boto3.client("ses")
+ssm_client = boto3.client("ssm")
+http = urllib3.PoolManager()
 
 # Set up logging
 logger = logging.getLogger()
@@ -14,154 +19,147 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
-    """Main lambda function for execution"""
+    """Main Lambda handler."""
     logger.info(f"Event received: {json.dumps(event)}")
-    if event["isBase64Encoded"]:
-        try:
-            string_dict = decode_body_to_dict(event["body"])
-        except KeyError as error:
-            logger.error(f"Error find key 'body': {error}")
-            sys.exit()
-        else:
-            logger.info(f"Decoded body to dictionary: {string_dict}")
-    else:
-        string_dict = json.loads(event["body"])
-        logger.info(string_dict)
 
-    # Catch bots
-    if string_dict.get("BotCheck", False):
-        logger.info("Honeypot field filled out, bot detected.")
-        return html_response("Ha! Found ya! Get lost, bot.")
+    try:
+        string_dict = parse_event_body(event)
+    except Exception as e:
+        logger.error(f"Failed to parse event body: {e}")
+        return error_response(400, "Invalid request payload.")
 
-    source_ip = event["requestContext"]["http"]["sourceIp"]
-    captcha = string_dict["g-recaptcha-response"]
-    captcha_success, server_response = verify_captcha(captcha, source_ip)
+    if string_dict.get("BotCheck"):
+        logger.warning("Bot detected by honeypot field.")
+        return success_response("Nice try, bot.")
 
+    captcha_response = string_dict.get("g-recaptcha-response")
     customer_email = string_dict.get("CustomerEmail", "")
     customer_message = string_dict.get("MessageDetails", "")
-    if captcha_success:
-        logger.info("Captcha successful, sending email...")
-        send_email(customer_email, customer_message)
 
-    return server_response
+    if not captcha_response:
+        logger.error("Missing captcha token.")
+        return error_response(400, "Captcha verification failed.")
 
+    source_ip = (
+        event.get("requestContext", {}).get("http", {}).get("sourceIp", "Unknown")
+    )
+    captcha_success = verify_captcha(captcha_response, source_ip)
 
-def decode_body_to_dict(encoded_body):
-    """function to decode message"""
-    base64_bytes = encoded_body.encode("utf8")
-    encoded_body_bytes = base64.b64decode(base64_bytes)
-    decoded_body = encoded_body_bytes.decode("utf8")
+    if not captcha_success:
+        logger.warning("Captcha verification failed.")
+        return error_response(403, "Captcha verification failed.")
 
-    string_dict = {
-        key: unquote(value.replace("+", " "))
-        for key, value in [
-            map(str.strip, item.split("=", 1))
-            for item in decoded_body.split("&")
-            if "=" in item
-        ]
-    }
-    return string_dict
+    if not validate_email(customer_email):
+        logger.error(f"Invalid email provided: {customer_email}")
+        return error_response(400, "Invalid email address.")
 
-
-def html_response(body_content):
-    """function to create html response"""
-    return {
-        "statusCode": 200,
-        "body": f"""\
-<html>
-<head></head>
-  <body>
-    <p>{body_content}</p>
-  </body>
-</html>
-""",
-        "headers": {
-            "Content-Type": "text/html",
-        },
-    }
-
-
-def send_email(customer_email, customer_message):
-    """Sends email to myself with details of message from contact form"""
-    client = boto3.client("ses")
-    text_email = f"""Hi Cullan!\n
-    You've received a message from {customer_email}.\n
-    They said: "{customer_message}".\n
-    To reply, just reply to this email!"""
-
-    html_email = f"""\
-<html>
-  <head></head>
-  <body>
-    <p>Hi Cullan!<br>
-       You've received a message from {customer_email}<br>
-       They said: "{customer_message}".<br>
-       To reply, just reply to this email!
-    </p>
-  </body>
-</html>
-"""
-
-    client.send_email(
-        Source=f"noreply@{os.environ['website'].replace('form.', '')}",
-        Destination={
-            "ToAddresses": [
-                "cullan@cullancarey.com",
-            ]
-        },
-        Message={
-            "Subject": {
-                "Data": f"Inquiry from {os.environ['website'].replace('form.', '')}"
-            },
-            "Body": {"Text": {"Data": text_email}, "Html": {"Data": html_email}},
-        },
-        ReplyToAddresses=[
-            customer_email,
-        ],
+    send_email(customer_email, customer_message)
+    logger.info("Email sent successfully.")
+    return success_response(
+        "Thank you for your message! I will get back to you shortly."
     )
 
 
+def parse_event_body(event):
+    """Decode event body."""
+    body = event.get("body", "")
+    if event.get("isBase64Encoded", False):
+        body = base64.b64decode(body).decode("utf-8")
+
+    # Try JSON first, fallback to form-url-encoded
+    try:
+        return json.loads(body)
+    except json.JSONDecodeError:
+        logger.info("Falling back to URL-decoded body parsing.")
+        return {
+            key: unquote(value.replace("+", " "))
+            for key, value in (
+                map(str.strip, item.split("=", 1))
+                for item in body.split("&")
+                if "=" in item
+            )
+        }
+
+
 def verify_captcha(captcha_response, source_ip):
-    """Function to verify the google captcha response"""
-    http = urllib3.PoolManager()
-    captcha_secret = get_param()
-    request_response = http.request(
+    """Verify captcha with Google."""
+    secret = get_captcha_secret()
+    resp = http.request(
         "POST",
         "https://www.google.com/recaptcha/api/siteverify",
         fields={
-            "secret": captcha_secret,
+            "secret": secret,
             "response": captcha_response,
             "remoteip": source_ip,
         },
     )
-    request_values = json.loads(request_response.data.decode("utf-8"))
-    if not request_values.get("success"):
-        logger.error(
-            f"Captcha failed due to error: {request_values.get('error-codes')}"
-        )
-        captcha_success = False
-        server_response = json.dumps(
-            {
-                "statusCode": 403,
-                "error": "Something went wrong. Please contact cullan@cullancarey.com.",
-            }
-        )
-        return captcha_success, server_response
-    captcha_success = True
-    server_response = json.dumps(
-        {
-            "statusCode": 200,
-            "message": "Thank you for your message! Cullan will get back to you shortly!",
-        }
-    )
-    return captcha_success, server_response
+    result = json.loads(resp.data.decode("utf-8"))
+    success = result.get("success", False)
+    if not success:
+        logger.error(f"Captcha verification failed: {result.get('error-codes')}")
+    return success
 
 
-def get_param():
-    """Function to get parameter value from parameter store for captcha verification"""
-    client = boto3.client("ssm")
-    logger.info("Getting captcha parameter...")
-    response = client.get_parameter(
-        Name=f"{os.environ['environment']}_google_captcha_secret", WithDecryption=True
+def send_email(customer_email, customer_message):
+    """Send an email via AWS SES."""
+    domain = os.environ["website"].replace("form.", "")
+    source_email = f"noreply@{domain}"
+    subject = f"Inquiry from {domain}"
+    body_text = f"""Hi Cullan!
+
+You've received a message from {customer_email}:
+"{customer_message}"
+
+You can reply directly to this email."""
+
+    body_html = f"""<html>
+<body>
+<p>Hi Cullan!<br>
+You've received a message from <strong>{customer_email}</strong>.<br>
+Message: "{customer_message}".<br>
+Just hit reply to respond!</p>
+</body>
+</html>"""
+
+    ses_client.send_email(
+        Source=source_email,
+        Destination={"ToAddresses": ["cullan@cullancarey.com"]},
+        Message={
+            "Subject": {"Data": subject},
+            "Body": {
+                "Text": {"Data": body_text},
+                "Html": {"Data": body_html},
+            },
+        },
+        ReplyToAddresses=[customer_email],
     )
+
+
+def get_captcha_secret():
+    """Retrieve captcha secret from SSM Parameter Store."""
+    param_name = f"{os.environ['environment']}_google_captcha_secret"
+    response = ssm_client.get_parameter(Name=param_name, WithDecryption=True)
     return response["Parameter"]["Value"]
+
+
+def validate_email(email):
+    """Very basic email validation."""
+    return "@" in email and "." in email
+
+
+def success_response(message):
+    """Helper for 200 responses."""
+    return {
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"message": message}),
+    }
+
+
+def error_response(status_code, message):
+    """Helper for error responses."""
+    return {
+        "statusCode": status_code,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"error": message}),
+    }
