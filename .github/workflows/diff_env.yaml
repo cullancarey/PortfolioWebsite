@@ -1,10 +1,11 @@
-name: Diff-CDK-Stack/Prod
+name: Diff CDK
 run-name: Running ${{github.workflow}} off of ${{ github.ref_name }}
 
 on:
   pull_request:
     branches:
       - main
+      - develop
   workflow_dispatch:
 
 permissions:
@@ -12,8 +13,15 @@ permissions:
   contents: read  # This is required for actions/checkout
 
 jobs:
-  diff:
+  diffdev:
+    name: Diff Development
+    if: github.ref_name == 'develop'
+    uses: ./.github/workflows/diff.yaml
+    with:
+      environment: development
+  diffprod:
     name: Diff Production
+    if: github.ref_name == 'main'
     uses: ./.github/workflows/diff.yaml
     with:
       environment: production

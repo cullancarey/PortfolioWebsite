@@ -7,10 +7,10 @@ on:
         required: true
         type: string
         description: "The github environment to deploy against."
-        
+
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read # This is required for actions/checkout
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
@@ -26,15 +26,21 @@ jobs:
         working-directory: src
 
     steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Pin to v4 (stable)
 
-      # Configure AWS Creds
-      - name: Configure AWS Credentials ${{ inputs.environment }}
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Cache Python packages
+        uses: actions/cache@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.DEPLOYMENT_ROLE}}
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.DEPLOYMENT_ROLE }}
           role-session-name: cdk-deployment-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
           aws-region: ${{ vars.REGION }}
 
@@ -43,10 +49,13 @@ jobs:
           npm install -g aws-cdk
           pip install -r requirements.txt
 
+      - name: Show CDK Version
+        run: cdk --version
+
       - name: CDK Synth
         run: |
           cdk synth
 
-      - name: Deploy Website
+      - name: Deploy CDK Stacks
         run: |
           cdk deploy --app 'cdk.out/' --all --require-approval never

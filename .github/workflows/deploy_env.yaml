@@ -1,18 +1,26 @@
-name: Deploy-CDK-Stack/Prod
+name: Deploy CDK
 run-name: Running ${{github.workflow}} off of ${{ github.ref_name }}
 
 on:
   push:
     branches:
       - main
+      - develop
 
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read  # This is required for actions/checkout
 
 jobs:
-  deploy:
+  deploydev:
+    name: Deploy Development
+    if: github.ref_name == 'develop'
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: development
+  deployprod:
     name: Deploy Production
+    if: github.ref_name == 'main'
     uses: ./.github/workflows/deploy.yaml
     with:
       environment: production
