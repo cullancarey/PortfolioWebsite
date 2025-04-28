@@ -7,7 +7,6 @@ from aws_cdk import (
     Aws,
 )
 from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
-
 from constructs import Construct
 
 
@@ -19,15 +18,14 @@ class CloudfrontDistribution(Construct):
         domain_name: str,
         origin_type: str,
         certificate: acm.Certificate,
-        website_s3_bucket: s3.Bucket = None,
-        backup_website_s3_bucket: s3.Bucket = None,
+        website_s3_bucket: s3.IBucket = None,
+        backup_bucket_name: str = None,
         api_gateway: apigw.CfnApi = None,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
         if origin_type == "s3":
-            # Create OAC for cloudfront to access S3
             cf_oac = cloudfront.CfnOriginAccessControl(
                 self,
                 f"OriginAccessControl",
@@ -46,7 +44,11 @@ class CloudfrontDistribution(Construct):
                 default_behavior=cloudfront.BehaviorOptions(
                     origin=OriginGroup(
                         primary_origin=S3BucketOrigin(website_s3_bucket),
-                        fallback_origin=S3BucketOrigin(backup_website_s3_bucket),
+                        fallback_origin=S3BucketOrigin(
+                            s3.Bucket.from_bucket_name(
+                                scope, "BackupWebsiteBucketOrigin", backup_bucket_name
+                            )
+                        ),
                     ),
                     viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                     allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
@@ -56,12 +58,10 @@ class CloudfrontDistribution(Construct):
                 ),
                 error_responses=[
                     cloudfront.ErrorResponse(
-                        http_status=404,
-                        response_page_path="/error.html",
+                        http_status=404, response_page_path="/error.html"
                     ),
                     cloudfront.ErrorResponse(
-                        http_status=403,
-                        response_page_path="/error.html",
+                        http_status=403, response_page_path="/error.html"
                     ),
                 ],
                 domain_names=[domain_name, f"www.{domain_name}"],
@@ -75,14 +75,24 @@ class CloudfrontDistribution(Construct):
 
             self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
 
-            # L1 override stuff for Origin Access Control
             cfn_website_distribution = self.cf_distribution.node.default_child
+            # Apply OAC to the primary origin (Origins[0])
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.OriginAccessControlId",
                 cf_oac.get_att("Id"),
             )
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity",
+                "",
+            )
+
+            # Apply OAC to the backup origin (Origins[1])
+            cfn_website_distribution.add_property_override(
+                "DistributionConfig.Origins.1.OriginAccessControlId",
+                cf_oac.get_att("Id"),
+            )
+            cfn_website_distribution.add_property_override(
+                "DistributionConfig.Origins.1.S3OriginConfig.OriginAccessIdentity",
                 "",
             )
         if origin_type == "http":
