@@ -1,0 +1,27 @@
+name: Diff CDK
+run-name: Running CDK Diff for PR into ${{ github.event.pull_request.base.ref }}
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  diffdev:
+    name: Diff Development
+    if: github.event.pull_request.base.ref == 'develop'
+    uses: ./.github/workflows/diff.yaml
+    with:
+      environment: development
+
+  diffprod:
+    name: Diff Production
+    if: github.event.pull_request.base.ref == 'main'
+    uses: ./.github/workflows/diff.yaml
+    with:
+      environment: production

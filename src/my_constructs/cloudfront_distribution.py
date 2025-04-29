@@ -1,13 +1,14 @@
 from aws_cdk import (
     aws_s3 as s3,
     aws_cloudfront as cloudfront,
-    aws_cloudfront_origins as origins,
     aws_certificatemanager as acm,
     aws_apigatewayv2 as apigw,
     RemovalPolicy,
     Aws,
+    Duration,
 )
-
+from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
+from aws_cdk.aws_cloudfront import HeadersFrameOption, HeadersReferrerPolicy
 from constructs import Construct
 
 
@@ -19,15 +20,14 @@ class CloudfrontDistribution(Construct):
         domain_name: str,
         origin_type: str,
         certificate: acm.Certificate,
-        website_s3_bucket: s3.Bucket = None,
-        backup_website_s3_bucket: s3.Bucket = None,
+        website_s3_bucket: s3.IBucket = None,
+        backup_bucket_name: str = None,
         api_gateway: apigw.CfnApi = None,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
         if origin_type == "s3":
-            # Create OAC for cloudfront to access S3
             cf_oac = cloudfront.CfnOriginAccessControl(
                 self,
                 f"OriginAccessControl",
@@ -36,8 +36,61 @@ class CloudfrontDistribution(Construct):
                     origin_access_control_origin_type=origin_type,
                     signing_behavior="always",
                     signing_protocol="sigv4",
-                    # the properties below are optional
                     description=f"Origin Access Control for {domain_name}.",
+                ),
+            )
+
+            self.website_cache_policy = cloudfront.CachePolicy(
+                self,
+                "WebsiteCachePolicy",
+                comment="Custom cache policy for website assets",
+                default_ttl=Duration.days(30),
+                max_ttl=Duration.days(365),
+                min_ttl=Duration.seconds(0),
+                cookie_behavior=cloudfront.CacheCookieBehavior.none(),
+                header_behavior=cloudfront.CacheHeaderBehavior.none(),
+                query_string_behavior=cloudfront.CacheQueryStringBehavior.none(),
+                enable_accept_encoding_brotli=True,
+                enable_accept_encoding_gzip=True,
+            )
+
+            self.response_headers_policy = cloudfront.ResponseHeadersPolicy(
+                self,
+                "ResponseHeadersPolicy",
+                comment=f"Response headers policy for {domain_name}",
+                cors_behavior=cloudfront.ResponseHeadersCorsBehavior(
+                    access_control_allow_credentials=False,
+                    access_control_allow_headers=["*"],
+                    access_control_allow_methods=["POST", "OPTIONS"],
+                    access_control_allow_origins=["*"],
+                    origin_override=True,
+                ),
+                security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
+                    content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
+                        content_security_policy=(
+                            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://assets.calendly.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://pagead2.googlesyndication.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.google.com/recaptcha/ https://assets.calendly.com https://calendly.com; connect-src 'self' https://www.google.com/recaptcha/ https://form.cullancarey.com https://form.develop.cullancarey.com; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
+                        ),
+                        override=True,
+                    ),
+                    frame_options=cloudfront.ResponseHeadersFrameOptions(
+                        frame_option=HeadersFrameOption.DENY,
+                        override=True,
+                    ),
+                    referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
+                        referrer_policy=HeadersReferrerPolicy.NO_REFERRER,
+                        override=True,
+                    ),
+                    strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
+                        access_control_max_age=Duration.days(365),
+                        include_subdomains=True,
+                        preload=True,
+                        override=True,
+                    ),
+                    xss_protection=cloudfront.ResponseHeadersXSSProtection(
+                        protection=True,
+                        mode_block=True,
+                        override=True,
+                    ),
                 ),
             )
 
@@ -45,26 +98,26 @@ class CloudfrontDistribution(Construct):
                 self,
                 f"WebsiteDistribution",
                 default_behavior=cloudfront.BehaviorOptions(
-                    origin=origins.OriginGroup(
-                        primary_origin=origins.S3Origin(bucket=website_s3_bucket),
-                        fallback_origin=origins.S3Origin(
-                            bucket=backup_website_s3_bucket
+                    origin=OriginGroup(
+                        primary_origin=S3BucketOrigin(website_s3_bucket),
+                        fallback_origin=S3BucketOrigin(
+                            s3.Bucket.from_bucket_name(
+                                scope, "BackupWebsiteBucketOrigin", backup_bucket_name
+                            )
                         ),
                     ),
                     viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                     allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
                     cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
-                    cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
-                    response_headers_policy=cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+                    cache_policy=self.website_cache_policy,
+                    response_headers_policy=self.response_headers_policy,
                 ),
                 error_responses=[
                     cloudfront.ErrorResponse(
-                        http_status=404,
-                        response_page_path="/error.html",
+                        http_status=404, response_page_path="/error.html"
                     ),
                     cloudfront.ErrorResponse(
-                        http_status=403,
-                        response_page_path="/error.html",
+                        http_status=403, response_page_path="/error.html"
                     ),
                 ],
                 domain_names=[domain_name, f"www.{domain_name}"],
@@ -78,21 +131,26 @@ class CloudfrontDistribution(Construct):
 
             self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
 
-            # Get the L1 CloudFormation resource
             cfn_website_distribution = self.cf_distribution.node.default_child
-
-            # Add OAC configuration
+            # Apply OAC to the primary origin (Origins[0])
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.OriginAccessControlId",
                 cf_oac.get_att("Id"),
             )
-
-            # Remove OAI configuration
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity",
                 "",
             )
 
+            # Apply OAC to the backup origin (Origins[1])
+            cfn_website_distribution.add_property_override(
+                "DistributionConfig.Origins.1.OriginAccessControlId",
+                cf_oac.get_att("Id"),
+            )
+            cfn_website_distribution.add_property_override(
+                "DistributionConfig.Origins.1.S3OriginConfig.OriginAccessIdentity",
+                "",
+            )
         if origin_type == "http":
             response_headers_policy = cloudfront.ResponseHeadersPolicy(
                 self,
@@ -112,8 +170,8 @@ class CloudfrontDistribution(Construct):
                 self,
                 f"ContactFormIntakeDistribution",
                 default_behavior=cloudfront.BehaviorOptions(
-                    origin=origins.HttpOrigin(
-                        domain_name=f"{api_gateway.attr_api_id}.execute-api.{Aws.REGION}.amazonaws.com",
+                    origin=HttpOrigin(
+                        domain_name=f"{api_gateway.http_api_id}.execute-api.{Aws.REGION}.amazonaws.com",
                         protocol_policy=cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
                         http_port=80,
                         https_port=443,

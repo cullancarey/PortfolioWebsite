@@ -8,3 +8,7 @@ class BackupWebsiteBucket(Stack):
         super().__init__(scope, id, **kwargs)
 
         self.backup_website_bucket = S3Bucket(self, "BackupWebsiteBucket")
+
+        # Expose bucket_name and bucket_arn for use in app.py
+        self.bucket_name = self.backup_website_bucket.bucket.bucket_name
+        self.bucket_arn = self.backup_website_bucket.bucket.bucket_arn

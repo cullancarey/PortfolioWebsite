@@ -1,10 +1,11 @@
 from aws_cdk import (
+    Duration,
     aws_apigatewayv2 as apigw,
+    aws_apigatewayv2_integrations as apigw_integrations,
     aws_lambda as _lambda,
+    aws_logs as logs,
     aws_iam as iam,
     aws_ssm as ssm,
-    Duration,
-    aws_logs as logs,
 )
 from constructs import Construct
 
@@ -22,10 +23,10 @@ class ApiGwtoLambda(Construct):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        # Lambda Function (Assuming that this is previously created)
+        # Lambda for contact form intake
         contact_form_lambda = _lambda.DockerImageFunction(
             self,
-            f"ContactFormLambda",
+            "ContactFormLambda",
             code=_lambda.DockerImageCode.from_image_asset(
                 "assets/lambda/contact_form_intake/"
             ),
@@ -36,64 +37,61 @@ class ApiGwtoLambda(Construct):
         )
 
         # API Gateway HTTP API
-        self.contact_form_api = apigw.CfnApi(
+        self.contact_form_api = apigw.HttpApi(
             self,
-            f"ContactFormApi",
-            name="ContactFormApi",
+            "ContactFormApi",
             description=f"API gateway resource for intake of the contact form on {domain_name}",
-            cors_configuration=apigw.CfnApi.CorsProperty(
-                allow_credentials=False,
+            cors_preflight=apigw.CorsPreflightOptions(
                 allow_headers=["*"],
-                allow_methods=["POST", "OPTIONS"],
+                allow_methods=[apigw.CorsHttpMethod.POST, apigw.CorsHttpMethod.OPTIONS],
                 allow_origins=["*"],
+                allow_credentials=False,
             ),
-            protocol_type="HTTP",
         )
 
-        apigw.CfnStage(
-            self,
-            "ContactFormApiStage",
-            api_id=self.contact_form_api.attr_api_id,
-            stage_name="$default",
-            auto_deploy=True,
-            description="Stage for api gateway resource that intakes the websites contact form.",
+        # Access Log Group for API Gateway
+        api_log_group = logs.LogGroup(
+            self, "ContactFormApiLogGroup", retention=logs.RetentionDays.ONE_YEAR
         )
 
-        # API Gateway Integration
-        contact_form_integration = apigw.CfnIntegration(
-            self,
-            f"ContactFormApiIntegration",
-            api_id=self.contact_form_api.attr_api_id,
-            description="Integration for form intake api and form intake lambda.",
-            integration_type="AWS_PROXY",
-            integration_method="POST",
-            connection_type="INTERNET",
-            integration_uri=contact_form_lambda.function_arn,
-            payload_format_version="2.0",
+        # Enable logging on default stage
+        self.contact_form_api.default_stage.node.default_child.add_override(
+            "Properties.AccessLogSettings",
+            {
+                "DestinationArn": api_log_group.log_group_arn,
+                "Format": '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}',
+            },
         )
 
-        cfn_route = apigw.CfnRoute(
-            self,
-            f"ContactFormApiRoute",
-            api_id=self.contact_form_api.attr_api_id,
-            route_key="POST /",
-            target=f"integrations/{contact_form_integration.ref}",
+        # API Gateway Integration with Lambda
+        contact_form_integration = apigw_integrations.HttpLambdaIntegration(
+            "ContactFormApiIntegration", handler=contact_form_lambda
         )
 
+        # Attach Route
+        self.contact_form_api.add_routes(
+            path="/",
+            methods=[apigw.HttpMethod.POST],
+            integration=contact_form_integration,
+        )
+
+        # Allow API Gateway to invoke the Lambda
         contact_form_lambda.add_permission(
-            id="AllowAPIgatewayInvokation",
+            "AllowAPIgatewayInvocation",
             principal=iam.ServicePrincipal("apigateway.amazonaws.com"),
             action="lambda:InvokeFunction",
             source_account=account_id,
-            source_arn=f"arn:aws:execute-api:{region}:{account_id}:{self.contact_form_api.attr_api_id}/*/*/",
+            source_arn=f"arn:aws:execute-api:{region}:{account_id}:{self.contact_form_api.http_api_id}/*/*/",
         )
 
+        # Allow Lambda to read Captcha Secret from SSM
         ssm.StringParameter.from_secure_string_parameter_attributes(
             self,
-            id="GoogleCaptchaParam",
+            "GoogleCaptchaParam",
             parameter_name=f"{environment}_google_captcha_secret",
         ).grant_read(contact_form_lambda)
 
+        # Allow Lambda to send emails via SES
         ses_policy_statement = iam.PolicyStatement(
             sid="SESPermissions",
             effect=iam.Effect.ALLOW,
@@ -107,4 +105,4 @@ class ApiGwtoLambda(Construct):
             ],
         )
 
-        contact_form_lambda.add_to_role_policy(statement=ses_policy_statement)
+        contact_form_lambda.add_to_role_policy(ses_policy_statement)

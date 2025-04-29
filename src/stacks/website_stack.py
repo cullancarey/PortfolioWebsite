@@ -27,7 +27,8 @@ class Website(Stack):
         environment: str,
         website_certificate: acm.Certificate,
         contact_form_certificate: acm.Certificate,
-        backup_website_bucket: s3.Bucket,
+        backup_bucket_name: str,
+        backup_bucket_arn: str,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -57,7 +58,7 @@ class Website(Stack):
             origin_type="s3",
             certificate=website_certificate,
             website_s3_bucket=website_bucket.bucket,
-            backup_website_s3_bucket=backup_website_bucket,
+            backup_bucket_name=backup_bucket_name,
         )
 
         website_bucket_policy_statement = iam.PolicyStatement(
@@ -76,13 +77,30 @@ class Website(Stack):
         )
 
         website_bucket.bucket.add_to_resource_policy(website_bucket_policy_statement)
-        # backup_website_bucket.add_to_resource_policy(website_bucket_policy_statement)
 
-        # Add main domain
+        backup_bucket_policy_statement = iam.PolicyStatement(
+            sid="AllowCloudFrontServicePrincipalReadOnlyBackup",
+            effect=iam.Effect.ALLOW,
+            principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
+            actions=["s3:GetObject"],
+            resources=[
+                f"{backup_bucket_arn}/*",
+            ],
+            conditions={
+                "StringEquals": {
+                    "AWS:SourceArn": f"arn:aws:cloudfront::{account_id}:distribution/{website_distribution.cf_distribution.distribution_id}"
+                }
+            },
+        )
+
+        s3.Bucket.from_bucket_name(
+            self, "BackupBucketRef", backup_bucket_name
+        ).add_to_resource_policy(backup_bucket_policy_statement)
+
         _add_route53_record(
             record_name=domain_name, cf_dist=website_distribution.cf_distribution
         )
-        # Add sub domain
+
         _add_route53_record(
             record_name=f"www.{domain_name}",
             cf_dist=website_distribution.cf_distribution,
@@ -106,15 +124,10 @@ class Website(Stack):
             api_gateway=apigw.contact_form_api,
         )
 
-        # Add contact form record
         _add_route53_record(
             record_name=_contact_form_domain_name,
             cf_dist=contact_form_distribution.cf_distribution,
         )
-
-        # website_bucket.bucket.grant_read(
-        #     iam.ServicePrincipal("cloudfront.amazonaws.com")
-        # )
 
         s3deploy.BucketDeployment(
             self,
@@ -122,6 +135,7 @@ class Website(Stack):
             sources=[s3deploy.Source.asset(source_file_path)],
             destination_bucket=website_bucket.bucket,
             distribution=website_distribution.cf_distribution,
+            distribution_paths=["/*"],
             log_retention=logs.RetentionDays.ONE_YEAR,
             retain_on_delete=False,
         )
@@ -130,8 +144,11 @@ class Website(Stack):
             self,
             f"{id}-BackupWebsiteFilesDeployment",
             sources=[s3deploy.Source.asset(source_file_path)],
-            destination_bucket=backup_website_bucket,
+            destination_bucket=s3.Bucket.from_bucket_name(
+                self, "BackupBucketDeploymentRef", backup_bucket_name
+            ),
             distribution=website_distribution.cf_distribution,
+            distribution_paths=["/*"],
             log_retention=logs.RetentionDays.ONE_YEAR,
             retain_on_delete=False,
         )
