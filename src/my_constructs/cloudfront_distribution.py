@@ -3,6 +3,7 @@ from aws_cdk import (
     aws_cloudfront as cloudfront,
     aws_certificatemanager as acm,
     aws_apigatewayv2 as apigw,
+    aws_ssm as ssm,
     RemovalPolicy,
     Aws,
     Duration,
@@ -21,11 +22,18 @@ class CloudfrontDistribution(Construct):
         origin_type: str,
         certificate: acm.Certificate,
         website_s3_bucket: s3.IBucket = None,
-        backup_bucket_name: str = None,
         api_gateway: apigw.CfnApi = None,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
+
+        backup_bucket_name_param = ssm.StringParameter.from_string_parameter_attributes(
+            self,
+            "BackupBucketNameParam",
+            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
+            region="us-east-1",
+        )
+        backup_bucket_name = backup_bucket_name_param.string_value
 
         if origin_type == "s3":
             cf_oac = cloudfront.CfnOriginAccessControl(
@@ -110,7 +118,7 @@ class CloudfrontDistribution(Construct):
                         primary_origin=S3BucketOrigin(website_s3_bucket),
                         fallback_origin=S3BucketOrigin(
                             s3.Bucket.from_bucket_name(
-                                scope, "BackupWebsiteBucketOrigin", backup_bucket_name
+                                self, "BackupWebsiteBucketOrigin", backup_bucket_name
                             )
                         ),
                     ),

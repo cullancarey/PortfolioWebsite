@@ -8,6 +8,7 @@ from aws_cdk import (
     aws_logs as logs,
     aws_iam as iam,
     aws_certificatemanager as acm,
+    aws_ssm as ssm,
 )
 from constructs import Construct
 from my_constructs.cloudfront_distribution import CloudfrontDistribution
@@ -27,8 +28,6 @@ class Website(Stack):
         environment: str,
         website_certificate: acm.Certificate,
         contact_form_certificate: acm.Certificate,
-        backup_bucket_name: str,
-        backup_bucket_arn: str,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -37,6 +36,23 @@ class Website(Stack):
             self, f"{id}-HostedZone", domain_name=domain_name
         )
         _contact_form_domain_name = f"form.{domain_name}"
+
+        # ✅ Use from_string_parameter_attributes to avoid Fn::ImportValue and allow cross-region reads
+        backup_bucket_arn_param = ssm.StringParameter.from_string_parameter_attributes(
+            self,
+            "BackupBucketArnParam",
+            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketArn",
+            region="us-east-1",
+        )
+        backup_bucket_arn = backup_bucket_arn_param.string_value
+
+        backup_bucket_name_param = ssm.StringParameter.from_string_parameter_attributes(
+            self,
+            "BackupBucketNameParam",
+            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
+            region="us-east-1",
+        )
+        backup_bucket_name = backup_bucket_name_param.string_value
 
         def _add_route53_record(record_name: str, cf_dist: cloudfront.Distribution):
             route53.ARecord(
@@ -58,7 +74,6 @@ class Website(Stack):
             origin_type="s3",
             certificate=website_certificate,
             website_s3_bucket=website_bucket.bucket,
-            backup_bucket_name=backup_bucket_name,
         )
 
         website_bucket_policy_statement = iam.PolicyStatement(

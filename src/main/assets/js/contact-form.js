@@ -44,7 +44,7 @@ async function submitForm() {
         if (response.ok) {  // response.ok means 200-299
             alert((data.message || 'Thank you for your message!'));
         } else {
-            alert((data.error || 'Something went wrong. Please contact cullan@cullancarey.com.'));
+            alert((data.error || 'Something went wrong. Please contact cullancareyconsulting@gmail.com.'));
         }
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
