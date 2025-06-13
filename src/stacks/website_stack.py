@@ -131,6 +131,7 @@ class Website(Stack):
             origin_type="http",
             certificate=contact_form_certificate,
             api_gateway=apigw.contact_form_api,
+            cloudfront_env=cloudfront_env,  # ✅ Add this
         )
 
         _add_route53_record(
