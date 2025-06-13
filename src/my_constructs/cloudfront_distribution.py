@@ -31,7 +31,7 @@ class CloudfrontDistribution(Construct):
             self,
             "BackupBucketNameParam",
             parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
-            region="us-east-1",
+            simple_name=False,
         )
         backup_bucket_name = backup_bucket_name_param.string_value
 
