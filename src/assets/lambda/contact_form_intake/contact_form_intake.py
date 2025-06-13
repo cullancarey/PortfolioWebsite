@@ -107,7 +107,7 @@ def send_email(customer_email, customer_message):
 
     ses.send_email(
         Source=f"noreply@{domain}",
-        Destination={"ToAddresses": ["cullan@cullancarey.com"]},
+        Destination={"ToAddresses": ["cullancareyconsulting@gmail.com"]},
         Message={
             "Subject": {"Data": subject},
             "Body": {

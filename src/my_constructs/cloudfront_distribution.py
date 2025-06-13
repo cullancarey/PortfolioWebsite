@@ -3,9 +3,11 @@ from aws_cdk import (
     aws_cloudfront as cloudfront,
     aws_certificatemanager as acm,
     aws_apigatewayv2 as apigw,
+    aws_ssm as ssm,
     RemovalPolicy,
     Aws,
     Duration,
+    Environment,
 )
 from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
 from aws_cdk.aws_cloudfront import HeadersFrameOption, HeadersReferrerPolicy
@@ -20,8 +22,8 @@ class CloudfrontDistribution(Construct):
         domain_name: str,
         origin_type: str,
         certificate: acm.Certificate,
-        website_s3_bucket: s3.IBucket = None,
         backup_bucket_name: str = None,
+        website_s3_bucket: s3.IBucket = None,
         api_gateway: apigw.CfnApi = None,
         **kwargs,
     ) -> None:
@@ -110,7 +112,7 @@ class CloudfrontDistribution(Construct):
                         primary_origin=S3BucketOrigin(website_s3_bucket),
                         fallback_origin=S3BucketOrigin(
                             s3.Bucket.from_bucket_name(
-                                scope, "BackupWebsiteBucketOrigin", backup_bucket_name
+                                self, "BackupWebsiteBucketOrigin", backup_bucket_name
                             )
                         ),
                     ),
@@ -140,7 +142,6 @@ class CloudfrontDistribution(Construct):
             self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
 
             cfn_website_distribution = self.cf_distribution.node.default_child
-            # Apply OAC to the primary origin (Origins[0])
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.OriginAccessControlId",
                 cf_oac.get_att("Id"),
@@ -149,8 +150,6 @@ class CloudfrontDistribution(Construct):
                 "DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity",
                 "",
             )
-
-            # Apply OAC to the backup origin (Origins[1])
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.1.OriginAccessControlId",
                 cf_oac.get_att("Id"),
@@ -159,6 +158,7 @@ class CloudfrontDistribution(Construct):
                 "DistributionConfig.Origins.1.S3OriginConfig.OriginAccessIdentity",
                 "",
             )
+
         if origin_type == "http":
             response_headers_policy = cloudfront.ResponseHeadersPolicy(
                 self,
@@ -173,7 +173,6 @@ class CloudfrontDistribution(Construct):
                 ),
             )
 
-            # CloudFront Distribution for API Gateway
             self.cf_distribution = cloudfront.Distribution(
                 self,
                 f"ContactFormIntakeDistribution",
