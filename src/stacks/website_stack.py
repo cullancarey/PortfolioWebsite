@@ -1,6 +1,5 @@
 from aws_cdk import (
     Stack,
-    Environment,
     aws_s3 as s3,
     aws_cloudfront as cloudfront,
     aws_route53 as route53,
@@ -27,9 +26,8 @@ class Website(Stack):
         domain_name: str,
         source_file_path: str,
         environment: str,
-        website_certificate: acm.Certificate,
-        contact_form_certificate: acm.Certificate,
-        cloudfront_env: Environment,
+        acm_ssm_params: dict,
+        backup_website_bucket_ssm_params: dict,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -39,12 +37,27 @@ class Website(Stack):
         )
         _contact_form_domain_name = f"form.{domain_name}"
 
-        backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
-            self, "/BackupWebsiteBucket/BackupWebsiteBucketArn"
+        # Load ACM cert ARNs from SSM
+        website_certificate_arn = ssm.StringParameter.value_for_string_parameter(
+            self, acm_ssm_params["website_cert_arn_param"]
+        )
+        contact_form_certificate_arn = ssm.StringParameter.value_for_string_parameter(
+            self, acm_ssm_params["contact_form_cert_arn_param"]
         )
 
+        website_certificate = acm.Certificate.from_certificate_arn(
+            self, "WebsiteCertificate", website_certificate_arn
+        )
+        contact_form_certificate = acm.Certificate.from_certificate_arn(
+            self, "ContactFormCertificate", contact_form_certificate_arn
+        )
+
+        # Load backup bucket data from SSM
+        backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
+            self, backup_website_bucket_ssm_params["backup_website_bucket_arn_param"]
+        )
         backup_bucket_name = ssm.StringParameter.value_for_string_parameter(
-            self, "/BackupWebsiteBucket/BackupWebsiteBucketName"
+            self, backup_website_bucket_ssm_params["backup_website_bucket_name_param"]
         )
 
         def _add_route53_record(record_name: str, cf_dist: cloudfront.Distribution):
@@ -67,7 +80,7 @@ class Website(Stack):
             origin_type="s3",
             certificate=website_certificate,
             website_s3_bucket=website_bucket.bucket,
-            cloudfront_env=cloudfront_env,
+            backup_bucket_name=backup_bucket_name,
         )
 
         website_bucket_policy_statement = iam.PolicyStatement(
@@ -84,7 +97,6 @@ class Website(Stack):
                 }
             },
         )
-
         website_bucket.bucket.add_to_resource_policy(website_bucket_policy_statement)
 
         backup_bucket_policy_statement = iam.PolicyStatement(
@@ -109,7 +121,6 @@ class Website(Stack):
         _add_route53_record(
             record_name=domain_name, cf_dist=website_distribution.cf_distribution
         )
-
         _add_route53_record(
             record_name=f"www.{domain_name}",
             cf_dist=website_distribution.cf_distribution,
@@ -131,7 +142,6 @@ class Website(Stack):
             origin_type="http",
             certificate=contact_form_certificate,
             api_gateway=apigw.contact_form_api,
-            cloudfront_env=cloudfront_env,  # ✅ Add this
         )
 
         _add_route53_record(

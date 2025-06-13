@@ -6,12 +6,10 @@ from stacks.acm_certificates_stack import ACMCertificates
 from stacks.backup_website_bucket import BackupWebsiteBucket
 
 
-def add_tags(stack: Stack = None, app: App = None, default_tags: dict = None):
-    if app:
-        for k, v in default_tags.items():
-            Tags.of(app).add(k, v)
-    if stack:
-        Tags.of(stack).add("stack_name", stack.stack_name)
+def add_tags(stack: Stack, default_tags: dict):
+    for k, v in default_tags.items():
+        Tags.of(stack).add(k, v)
+    Tags.of(stack).add("stack_name", stack.stack_name)
 
 
 app = App()
@@ -25,10 +23,14 @@ environment = (
 )
 environment_config = app.node.try_get_context(environment)
 
-account_id = environment_config.get("account_id")
-region = environment_config.get("region")
-domain_name = environment_config.get("domain_name")
-source_file_path = environment_config.get("file_path")
+account_id = environment_config["account_id"]
+region = environment_config["region"]
+domain_name = environment_config["domain_name"]
+source_file_path = environment_config["file_path"]
+acm_ssm_params = environment_config["acm_ssm_params"]
+backup_website_bucket_ssm_params = environment_config[
+    "backup_website_bucket_ssm_params"
+]
 
 env = Environment(account=account_id, region=region)
 cloudfront_env = Environment(account=account_id, region=cloudfront_region)
@@ -38,29 +40,31 @@ default_tags = {
     "project": "personal website",
     "website": domain_name,
     "owner": "Cullan Carey",
+    "created_by": "cdk",
+    "managed_by": "aws-cdk",
 }
-
-add_tags(app=app, default_tags=default_tags)
 
 certificates = ACMCertificates(
     scope=app,
     id="ACMCertificates",
     account_id=account_id,
     domain_name=domain_name,
+    env_region=cloudfront_region,
+    ssm_params=acm_ssm_params,
     env=cloudfront_env,
-    cross_region_references=True,
     description=f"Stack to create ACM certificates in {cloudfront_env.region} for Cloudfront",
 )
 
 backup_bucket_stack = BackupWebsiteBucket(
     scope=app,
     id="BackupWebsiteBucket",
+    ssm_params=backup_website_bucket_ssm_params,
+    region=region,
     env=cloudfront_env,
-    cross_region_references=True,
     description=f"Stack to deploy the website's failover bucket in {cloudfront_env.region}",
 )
 
-Website(
+website_stack = Website(
     scope=app,
     id="Website",
     account_id=account_id,
@@ -68,12 +72,17 @@ Website(
     domain_name=domain_name,
     source_file_path=source_file_path,
     environment=environment,
-    website_certificate=certificates.website_certificate.certificate,
-    contact_form_certificate=certificates.contact_form_certificate.certificate,
-    cloudfront_env=cloudfront_env,
+    acm_ssm_params=acm_ssm_params,
+    backup_website_bucket_ssm_params=backup_website_bucket_ssm_params,
     env=env,
-    cross_region_references=True,
     description="Stack to deploy the website resources",
 )
+
+website_stack.add_dependency(certificates)
+website_stack.add_dependency(backup_bucket_stack)
+
+add_tags(certificates, default_tags)
+add_tags(backup_bucket_stack, default_tags)
+add_tags(website_stack, default_tags)
 
 app.synth()
