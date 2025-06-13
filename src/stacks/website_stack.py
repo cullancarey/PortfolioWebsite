@@ -1,5 +1,6 @@
 from aws_cdk import (
     Stack,
+    Environment,
     aws_s3 as s3,
     aws_cloudfront as cloudfront,
     aws_route53 as route53,
@@ -28,6 +29,7 @@ class Website(Stack):
         environment: str,
         website_certificate: acm.Certificate,
         contact_form_certificate: acm.Certificate,
+        cloudfront_env: Environment,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -65,6 +67,7 @@ class Website(Stack):
             origin_type="s3",
             certificate=website_certificate,
             website_s3_bucket=website_bucket.bucket,
+            cloudfront_env=cloudfront_env,
         )
 
         website_bucket_policy_statement = iam.PolicyStatement(

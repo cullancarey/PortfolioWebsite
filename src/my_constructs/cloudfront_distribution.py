@@ -7,6 +7,7 @@ from aws_cdk import (
     RemovalPolicy,
     Aws,
     Duration,
+    Environment,
 )
 from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
 from aws_cdk.aws_cloudfront import HeadersFrameOption, HeadersReferrerPolicy
@@ -21,6 +22,7 @@ class CloudfrontDistribution(Construct):
         domain_name: str,
         origin_type: str,
         certificate: acm.Certificate,
+        cloudfront_env: Environment,
         website_s3_bucket: s3.IBucket = None,
         api_gateway: apigw.CfnApi = None,
         **kwargs,
@@ -31,7 +33,8 @@ class CloudfrontDistribution(Construct):
             self,
             "BackupBucketNameParam",
             parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
-            region="us-east-1",
+            simple_name=False,
+            env=cloudfront_env,
         )
         backup_bucket_name = backup_bucket_param.string_value
 

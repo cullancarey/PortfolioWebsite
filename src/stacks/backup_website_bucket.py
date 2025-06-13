@@ -24,7 +24,7 @@ class BackupWebsiteBucket(Stack):
         ssm.StringParameter(
             self,
             "BackupBucketArnParam",
-            parameter_name=f"/{website_stack_name}/BackupWebsiteBucketArn",
+            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketArn",
             string_value=bucket_arn,
         )
 
@@ -32,7 +32,7 @@ class BackupWebsiteBucket(Stack):
         ssm.StringParameter(
             self,
             "BackupBucketDomainNameParam",
-            parameter_name=f"/{website_stack_name}/BackupWebsiteBucketDomainName",
+            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketDomainName",
             string_value=bucket_domain_name,
         )
 
@@ -40,6 +40,6 @@ class BackupWebsiteBucket(Stack):
         ssm.StringParameter(
             self,
             "BackupBucketNameParam",
-            parameter_name=f"/{website_stack_name}/BackupWebsiteBucketName",
+            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
             string_value=bucket_name,
         )

@@ -70,6 +70,7 @@ Website(
     environment=environment,
     website_certificate=certificates.website_certificate.certificate,
     contact_form_certificate=certificates.contact_form_certificate.certificate,
+    cloudfront_env=cloudfront_env,
     env=env,
     cross_region_references=True,
     description="Stack to deploy the website resources",
