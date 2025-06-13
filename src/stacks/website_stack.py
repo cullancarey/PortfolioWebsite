@@ -42,7 +42,7 @@ class Website(Stack):
             self,
             "BackupBucketArnParam",
             parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketArn",
-            region="us-east-1",
+            simple_name=False,
         )
         backup_bucket_arn = backup_bucket_arn_param.string_value
 
@@ -50,7 +50,7 @@ class Website(Stack):
             self,
             "BackupBucketNameParam",
             parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
-            region="us-east-1",
+            simple_name=False,
         )
         backup_bucket_name = backup_bucket_name_param.string_value
 
