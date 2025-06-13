@@ -37,22 +37,13 @@ class Website(Stack):
         )
         _contact_form_domain_name = f"form.{domain_name}"
 
-        # ✅ Use from_string_parameter_attributes to avoid Fn::ImportValue and allow cross-region reads
-        backup_bucket_arn_param = ssm.StringParameter.from_string_parameter_attributes(
-            self,
-            "BackupBucketArnParam",
-            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketArn",
-            simple_name=False,
+        backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
+            self, "/BackupWebsiteBucket/BackupWebsiteBucketArn"
         )
-        backup_bucket_arn = backup_bucket_arn_param.string_value
 
-        backup_bucket_name_param = ssm.StringParameter.from_string_parameter_attributes(
-            self,
-            "BackupBucketNameParam",
-            parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
-            simple_name=False,
+        backup_bucket_name = ssm.StringParameter.value_for_string_parameter(
+            self, "/BackupWebsiteBucket/BackupWebsiteBucketName"
         )
-        backup_bucket_name = backup_bucket_name_param.string_value
 
         def _add_route53_record(record_name: str, cf_dist: cloudfront.Distribution):
             route53.ARecord(

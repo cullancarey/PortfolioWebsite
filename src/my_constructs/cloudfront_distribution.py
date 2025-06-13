@@ -27,13 +27,13 @@ class CloudfrontDistribution(Construct):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        backup_bucket_name_param = ssm.StringParameter.from_string_parameter_attributes(
+        backup_bucket_param = ssm.StringParameter.from_string_parameter_attributes(
             self,
             "BackupBucketNameParam",
             parameter_name="/BackupWebsiteBucket/BackupWebsiteBucketName",
-            simple_name=False,
+            region="us-east-1",
         )
-        backup_bucket_name = backup_bucket_name_param.string_value
+        backup_bucket_name = backup_bucket_param.string_value
 
         if origin_type == "s3":
             cf_oac = cloudfront.CfnOriginAccessControl(
