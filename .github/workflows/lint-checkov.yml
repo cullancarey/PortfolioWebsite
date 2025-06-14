@@ -59,7 +59,6 @@ jobs:
       - name: Run checkov with GitHub Annotations
         continue-on-error: true
         run: |
-          for template in cdk.out/*.template.json; do
-            echo "Scanning $template with checkov"
-            checkov --output github_failed_only -f "$template"
-          done
+            for template in cdk.out/*.template.json; do
+            checkov -f "$template"
+            done

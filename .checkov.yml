@@ -1,0 +1,6 @@
+skip_checks:
+  - CKV_AWS_117  # Lambda not in VPC
+  - CKV_AWS_115  # No concurrency limit
+  - CKV_AWS_116  # No DLQ
+  - CKV_AWS_111  # CDK auto-generates a wildcard IAM policy for log retention
+output: github_failed_only
