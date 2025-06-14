@@ -59,7 +59,7 @@ backup_bucket_stack = BackupWebsiteBucket(
     scope=app,
     id="BackupWebsiteBucket",
     ssm_params=backup_website_bucket_ssm_params,
-    region=region,
+    region=cloudfront_region,
     env=cloudfront_env,
     description=f"Stack to deploy the website's failover bucket in {cloudfront_env.region}",
 )
