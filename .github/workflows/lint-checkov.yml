@@ -60,5 +60,5 @@ jobs:
         continue-on-error: true
         run: |
             for template in cdk.out/*.template.json; do
-            checkov -f "$template"
+            checkov --config-file ../.checkov.yml -f "$template"
             done
