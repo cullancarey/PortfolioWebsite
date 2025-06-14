@@ -1347,4 +1347,9 @@ input[type="text"] {
   opacity: 0;
 }
 
+.info li .second-block {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
 /*# sourceMappingURL=style.css.map */
