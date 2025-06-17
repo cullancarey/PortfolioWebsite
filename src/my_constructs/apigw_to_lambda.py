@@ -36,7 +36,12 @@ class ApiGwtoLambda(Construct):
             log_retention=logs.RetentionDays.ONE_YEAR,
         )
 
-        # API Gateway HTTP API (no default stage)
+        # Access Log Group for API Gateway
+        api_log_group = logs.LogGroup(
+            self, "ContactFormApiLogGroup", retention=logs.RetentionDays.ONE_YEAR
+        )
+
+        # API Gateway HTTP API (uses default stage)
         self.contact_form_api = apigw.HttpApi(
             self,
             "ContactFormApi",
@@ -47,33 +52,22 @@ class ApiGwtoLambda(Construct):
                 allow_origins=["*"],
                 allow_credentials=False,
             ),
-            create_default_stage=False,
-        )
-
-        # Access Log Group for API Gateway
-        api_log_group = logs.LogGroup(
-            self, "ContactFormApiLogGroup", retention=logs.RetentionDays.ONE_YEAR
-        )
-
-        # Explicit API Gateway stage with access logging
-        apigw.CfnStage(
-            self,
-            "ContactFormApiStage",
-            api_id=self.contact_form_api.http_api_id,
-            stage_name="ContactFormApiStage",
-            auto_deploy=True,
-            access_log_settings=apigw.CfnStage.AccessLogSettingsProperty(
-                destination_arn=api_log_group.log_group_arn,
-                format=(
-                    '{"requestId":"$context.requestId",'
-                    '"ip":"$context.identity.sourceIp",'
-                    '"user":"$context.identity.user",'
-                    '"requestTime":"$context.requestTime",'
-                    '"httpMethod":"$context.httpMethod",'
-                    '"path":"$context.path",'
-                    '"status":"$context.status",'
-                    '"protocol":"$context.protocol",'
-                    '"responseLength":"$context.responseLength"}'
+            default_stage=apigw.HttpStageOptions(
+                stage_name="$default",
+                auto_deploy=True,
+                access_log_settings=apigw.AccessLogSettings(
+                    destination=api_log_group,
+                    format=(
+                        '{"requestId":"$context.requestId",'
+                        '"ip":"$context.identity.sourceIp",'
+                        '"user":"$context.identity.user",'
+                        '"requestTime":"$context.requestTime",'
+                        '"httpMethod":"$context.httpMethod",'
+                        '"path":"$context.path",'
+                        '"status":"$context.status",'
+                        '"protocol":"$context.protocol",'
+                        '"responseLength":"$context.responseLength"}'
+                    ),
                 ),
             ),
         )
