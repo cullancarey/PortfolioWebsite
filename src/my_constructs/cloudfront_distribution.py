@@ -7,7 +7,6 @@ from aws_cdk import (
     RemovalPolicy,
     Aws,
     Duration,
-    Environment,
 )
 from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
 from aws_cdk.aws_cloudfront import HeadersFrameOption, HeadersReferrerPolicy
@@ -34,7 +33,7 @@ class CloudfrontDistribution(Construct):
                 self,
                 f"OriginAccessControl",
                 origin_access_control_config=cloudfront.CfnOriginAccessControl.OriginAccessControlConfigProperty(
-                    name=f"OriginAccessControl",
+                    name="OriginAccessControl",
                     origin_access_control_origin_type=origin_type,
                     signing_behavior="always",
                     signing_protocol="sigv4",
@@ -104,18 +103,23 @@ class CloudfrontDistribution(Construct):
                     ),
                 ),
             )
+
+            # Using OriginGroup for primary + fallback origin handling with shared behavior
+            origin_group = OriginGroup(
+                primary_origin=S3BucketOrigin(website_s3_bucket),
+                fallback_origin=S3BucketOrigin(
+                    s3.Bucket.from_bucket_name(
+                        self, "BackupWebsiteBucketOrigin", backup_bucket_name
+                    )
+                ),
+                fallback_status_codes=[500, 502, 503, 504],
+            )
+
             self.cf_distribution = cloudfront.Distribution(
                 self,
                 f"WebsiteDistribution",
                 default_behavior=cloudfront.BehaviorOptions(
-                    origin=OriginGroup(
-                        primary_origin=S3BucketOrigin(website_s3_bucket),
-                        fallback_origin=S3BucketOrigin(
-                            s3.Bucket.from_bucket_name(
-                                self, "BackupWebsiteBucketOrigin", backup_bucket_name
-                            )
-                        ),
-                    ),
+                    origin=origin_group,
                     viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                     allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
                     cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
@@ -124,10 +128,22 @@ class CloudfrontDistribution(Construct):
                 ),
                 error_responses=[
                     cloudfront.ErrorResponse(
+                        http_status=403, response_page_path="/error.html"
+                    ),
+                    cloudfront.ErrorResponse(
                         http_status=404, response_page_path="/error.html"
                     ),
                     cloudfront.ErrorResponse(
-                        http_status=403, response_page_path="/error.html"
+                        http_status=500, response_page_path="/error.html"
+                    ),
+                    cloudfront.ErrorResponse(
+                        http_status=502, response_page_path="/error.html"
+                    ),
+                    cloudfront.ErrorResponse(
+                        http_status=503, response_page_path="/error.html"
+                    ),
+                    cloudfront.ErrorResponse(
+                        http_status=504, response_page_path="/error.html"
                     ),
                 ],
                 domain_names=[domain_name, f"www.{domain_name}"],
@@ -142,6 +158,8 @@ class CloudfrontDistribution(Construct):
             self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
 
             cfn_website_distribution = self.cf_distribution.node.default_child
+
+            # CDK does not yet natively support OAC, so we manually apply property overrides
             cfn_website_distribution.add_property_override(
                 "DistributionConfig.Origins.0.OriginAccessControlId",
                 cf_oac.get_att("Id"),

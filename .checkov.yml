@@ -1,7 +1,0 @@
-skip_checks:
-  - CKV_AWS_117  # Lambda not in VPC
-  - CKV_AWS_115  # No concurrency limit
-  - CKV_AWS_116  # No DLQ
-  - CKV_AWS_111  # CDK LogRetention policy
-  - CKV_AWS_173  # Lambda env var encryption (if you don't use sensitive env vars)
-output: github_failed_only
