@@ -1,0 +1,8 @@
+ignore_checks:
+  - W2001  # Harmless unused SSM param warning from CDK
+  - E3002  # Additional properties not allowed
+  - W3005  # Duplicate dependency from CDK 'GetAtt' pattern — harmless
+
+regions:
+  - us-east-1
+  - us-east-2

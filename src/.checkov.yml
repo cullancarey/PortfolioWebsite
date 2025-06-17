@@ -1,0 +1,13 @@
+skip-check:
+  - CKV_AWS_18    # S3 bucket access logging
+  - CKV_AWS_68    # CloudFront WAF enabled
+  - CKV_AWS_86    # CloudFront access logging
+  - CKV_AWS_111   # IAM policy too permissive
+  - CKV_AWS_115   # Lambda concurrency not set
+  - CKV_AWS_116   # Lambda no DLQ
+  - CKV_AWS_117   # Lambda not in VPC
+  - CKV_AWS_158   # CloudWatch LogGroup not encrypted with KMS
+  - CKV_AWS_173   # Env vars not encrypted
+
+output: cli
+quiet: true

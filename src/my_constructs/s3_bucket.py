@@ -1,10 +1,10 @@
 from aws_cdk import (
     aws_s3 as s3,
+    aws_iam as iam,
     RemovalPolicy,
     Duration,
     PhysicalName,
 )
-
 from constructs import Construct
 
 
@@ -15,7 +15,7 @@ class S3Bucket(Construct):
         # Create the S3 bucket
         self.bucket = s3.Bucket(
             self,
-            f"BucketResource",
+            "BucketResource",
             versioned=True,
             removal_policy=RemovalPolicy.DESTROY,
             block_public_access=s3.BlockPublicAccess(
@@ -30,4 +30,19 @@ class S3Bucket(Construct):
         self.bucket.add_lifecycle_rule(
             noncurrent_version_expiration=Duration.days(2),
             enabled=True,
+        )
+
+        # Enforce TLS (HTTPS-only access)
+        self.bucket.add_to_resource_policy(
+            iam.PolicyStatement(
+                sid="EnforceTLS",
+                effect=iam.Effect.DENY,
+                principals=[iam.AnyPrincipal()],
+                actions=["s3:*"],
+                resources=[
+                    self.bucket.bucket_arn,
+                    f"{self.bucket.bucket_arn}/*",
+                ],
+                conditions={"Bool": {"aws:SecureTransport": "false"}},
+            )
         )

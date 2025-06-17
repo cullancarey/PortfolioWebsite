@@ -1,9 +1,9 @@
 from aws_cdk import (
     Duration,
     aws_lambda as _lambda,
-    custom_resources as cr,
-    aws_logs as logs,
     aws_iam as iam,
+    aws_logs as logs,
+    custom_resources as cr,
     CustomResource,
 )
 from constructs import Construct
@@ -36,6 +36,18 @@ class SsmParameterReplicator(Construct):
                 "PARAMETERS": json.dumps(parameters),
             },
             log_retention=logs.RetentionDays.ONE_YEAR,
+        )
+
+        # Add required permissions to the auto-generated role
+        replicate_ssm_lambda.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=[
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                ],
+                resources=["arn:aws:logs:*:*:*"],
+            )
         )
 
         replicate_ssm_lambda.add_to_role_policy(
