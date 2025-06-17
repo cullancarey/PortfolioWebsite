@@ -60,7 +60,7 @@ class ApiGwtoLambda(Construct):
             self,
             "ContactFormApiStage",
             api_id=self.contact_form_api.http_api_id,
-            stage_name="$default",
+            stage_name="ContactFormApiStage",
             auto_deploy=True,
             access_log_settings=apigw.CfnStage.AccessLogSettingsProperty(
                 destination_arn=api_log_group.log_group_arn,
