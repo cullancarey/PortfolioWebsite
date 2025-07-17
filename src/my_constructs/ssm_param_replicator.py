@@ -26,7 +26,7 @@ class SsmParameterReplicator(Construct):
             self,
             "SSMParamReplicatorLambda",
             code=_lambda.DockerImageCode.from_image_asset(
-                "assets/lambda/ssm_param_replicator/"
+                "assets/lambdas/ssm_param_replicator/"
             ),
             timeout=Duration.seconds(60),
             architecture=_lambda.Architecture.X86_64,

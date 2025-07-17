@@ -33,8 +33,11 @@ cdk-diff:
 	@echo "Running cdk diff..."
 	cdk diff --context environment=$(ENV)
 
+test:
+	PYTHONPATH=. pytest tests/
+
 lint: checkov cfnlint
 
-link: install-deps cdk-version synth lint
+link: install-deps cdk-version synth lint test
 
 diff: install-deps cdk-version synth cdk-diff

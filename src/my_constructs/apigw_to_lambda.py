@@ -28,7 +28,7 @@ class ApiGwtoLambda(Construct):
             self,
             "ContactFormLambda",
             code=_lambda.DockerImageCode.from_image_asset(
-                "assets/lambda/contact_form_intake/"
+                "assets/lambdas/contact_form_intake/"
             ),
             timeout=Duration.seconds(30),
             architecture=_lambda.Architecture.X86_64,
