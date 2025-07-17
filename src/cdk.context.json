@@ -44,5 +44,8 @@
   "hosted-zone:account=045107234435:domainName=cullancarey.com:region=us-east-2": {
     "Id": "/hostedzone/Z064063313S42D0KDXCSO",
     "Name": "cullancarey.com."
-  }
+  },
+  "acknowledged-issue-numbers": [
+    34892
+  ]
 }

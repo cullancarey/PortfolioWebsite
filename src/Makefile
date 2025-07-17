@@ -29,6 +29,12 @@ cfnlint:
 		cfn-lint "$$f"; \
 	done
 
+cdk-diff:
+	@echo "Running cdk diff..."
+	cdk diff --context environment=$(ENV)
+
 lint: checkov cfnlint
 
 link: install-deps cdk-version synth lint
+
+diff: install-deps cdk-version synth cdk-diff

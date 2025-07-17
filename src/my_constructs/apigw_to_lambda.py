@@ -63,6 +63,15 @@ class ApiGwtoLambda(Construct):
             },
         )
 
+        # Set throttling limits on the default stage
+        self.contact_form_api.default_stage.node.default_child.add_override(
+            "Properties.Throttle",
+            {
+                "BurstLimit": 5,  # max 5 requests allowed to burst in a short period
+                "RateLimit": 2,  # sustained 2 requests per second (per account per region)
+            },
+        )
+
         # API Gateway Integration with Lambda
         contact_form_integration = apigw_integrations.HttpLambdaIntegration(
             "ContactFormApiIntegration", handler=contact_form_lambda
