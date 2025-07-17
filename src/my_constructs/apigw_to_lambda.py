@@ -65,7 +65,7 @@ class ApiGwtoLambda(Construct):
 
         # Set throttling limits on the default stage
         self.contact_form_api.default_stage.node.default_child.add_override(
-            "Properties.Throttle",
+            "Properties.ThrottleSettings",
             {
                 "BurstLimit": 5,  # max 5 requests allowed to burst in a short period
                 "RateLimit": 2,  # sustained 2 requests per second (per account per region)
