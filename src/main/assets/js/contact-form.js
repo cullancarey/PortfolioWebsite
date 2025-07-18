@@ -25,7 +25,7 @@ async function submitForm() {
     if (!name || !email || !message || !recaptchaResponse) {
         formAlert.textContent = "Please fill out all required fields.";
         formAlert.style.display = 'block';
-        resetButton();
+        resetButton(submitButton);
         return;
     }
 
@@ -33,7 +33,7 @@ async function submitForm() {
     if (!emailRegex.test(email)) {
         formAlert.textContent = "Please enter a valid email address.";
         formAlert.style.display = 'block';
-        resetButton();
+        resetButton(submitButton);
         return;
     }
 
@@ -76,11 +76,11 @@ async function submitForm() {
         formAlert.style.display = 'block';
         console.error(err);
     } finally {
-        resetButton();
+        resetButton(submitButton);
     }
+}
 
-    function resetButton() {
-        submitButton.disabled = false;
-        submitButton.textContent = "Submit";
-    }
+function resetButton(submitButton) {
+    submitButton.disabled = false;
+    submitButton.textContent = "Submit";
 }

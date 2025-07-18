@@ -76,5 +76,7 @@ def test_lambda_handler_botcheck_field(valid_event):
         }
     )
     response = lambda_handler(valid_event, None)
+    body = json.loads(response["body"])
+
     assert response["statusCode"] == 200
-    assert "bot detected" in response["body"]
+    assert body["message"] == "Bot activity detected. Request ignored."

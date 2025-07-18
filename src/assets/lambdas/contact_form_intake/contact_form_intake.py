@@ -48,7 +48,7 @@ def lambda_handler(event, context):
 
     if body.get("BotCheck"):
         logger.info("Honeypot triggered. Bot detected.")
-        return success_response("Thanks, bot detected. Submission ignored.")
+        return success_response("Bot activity detected. Request ignored.")
 
     captcha_token = body.get("g-recaptcha-response")
     if not captcha_token:
