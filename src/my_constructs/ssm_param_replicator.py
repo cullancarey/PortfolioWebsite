@@ -22,6 +22,10 @@ class SsmParameterReplicator(Construct):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
+        replicate_ssm_log_group = logs.LogGroup(
+            self, "SSMParamReplicatorLogGroup", retention=logs.RetentionDays.ONE_YEAR
+        )
+
         replicate_ssm_lambda = _lambda.DockerImageFunction(
             self,
             "SSMParamReplicatorLambda",
@@ -35,7 +39,7 @@ class SsmParameterReplicator(Construct):
                 "TARGET_REGION": target_region,
                 "PARAMETERS": json.dumps(parameters),
             },
-            log_retention=logs.RetentionDays.ONE_YEAR,
+            log_group=replicate_ssm_log_group,
         )
 
         # Add required permissions to the auto-generated role
