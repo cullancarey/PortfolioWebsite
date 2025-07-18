@@ -64,6 +64,13 @@
 								<div class="profile-thumb" style="background: url(images/user-3.jpg);"></div>
 								<h1><span>Cullan Carey</span></h1>
 								<h3><span>Cloud | DevOps Engineer</span></h3>
+								<!-- Google AdSense Display Ad -->
+								<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8738875399920144"
+									data-ad-slot="7292146511" data-ad-format="auto"
+									data-full-width-responsive="true"></ins>
+								<script>
+									(adsbygoogle = window.adsbygoogle || []).push({});
+								</script>
 								<p>
 								<ul class="fh5co-social-icons">
 									<li><a href="https://www.linkedin.com/in/cullancarey/" target="_blank"><i
@@ -505,7 +512,10 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
-					<p><a href="privacy_policy.html" target="_blank">Privacy Policy</a> </p>
+					<p>
+						<a href="privacy_policy.html" target="_blank">Privacy Policy</a> |
+						<a href="terms_of_service.html" target="_blank">Terms of Service</a>
+					</p>
 				</div>
 			</div>
 		</div>
@@ -528,6 +538,29 @@
 	<!-- External Widgets -->
 	<script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
 
+	<!-- Cookie Consent Banner -->
+	<div id="cookie-banner"
+		style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#222;color:#fff;padding:15px;text-align:center;font-size:14px;">
+		This site uses cookies from Google and third-party services to analyze traffic and serve ads. By using this
+		site, you agree to our
+		<a href="/privacy_policy.html" style="color:#00c3ff;text-decoration:underline;">Privacy Policy</a> and
+		<a href="/terms_of_service.html" style="color:#00c3ff;text-decoration:underline;">Terms of Service</a>.
+		<button onclick="acceptCookies()"
+			style="margin-left:15px;padding:5px 10px;background:#00c3ff;border:none;color:white;cursor:pointer;">Accept</button>
+	</div>
+
+	<script>
+		function acceptCookies() {
+			document.getElementById('cookie-banner').style.display = 'none';
+			localStorage.setItem('cookiesAccepted', 'true');
+		}
+
+		window.onload = function () {
+			if (localStorage.getItem('cookiesAccepted') === 'true') {
+				document.getElementById('cookie-banner').style.display = 'none';
+			}
+		};
+	</script>
 
 </body>
 

@@ -10,6 +10,8 @@
   <meta name="keywords"
     content="cullan carey, cullan, carey, portfolio, cloud engineer, consultant, cullan carey consulting, freelance" />
   <meta name="Cullan Carey" content="cullancarey.com" />
+  <!-- Add to <head> if not already present -->
+  <meta name="robots" content="noindex">
 
   <!-- 
 	//////////////////////////////////////////////////////
@@ -98,6 +100,19 @@
     </header>
   </div>
 
+  <div id="fh5co-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <p>
+            <a href="privacy_policy.html" target="_blank">Privacy Policy</a> |
+            <a href="terms_of_service.html" target="_blank">Terms of Service</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="gototop js-top">
     <a href="#" class="js-gotop"><i class="icon-arrow-up22"></i></a>
   </div>
@@ -122,6 +137,29 @@
 
   <script src="assets/js/captcha.js"></script>
 
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-banner"
+    style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#222;color:#fff;padding:15px;text-align:center;font-size:14px;">
+    This site uses cookies from Google and third-party services to analyze traffic and serve ads. By using this site,
+    you agree to our
+    <a href="/privacy_policy.html" style="color:#00c3ff;text-decoration:underline;">Privacy Policy</a> and
+    <a href="/terms_of_service.html" style="color:#00c3ff;text-decoration:underline;">Terms of Service</a>.
+    <button onclick="acceptCookies()"
+      style="margin-left:15px;padding:5px 10px;background:#00c3ff;border:none;color:white;cursor:pointer;">Accept</button>
+  </div>
+
+  <script>
+    function acceptCookies() {
+      document.getElementById('cookie-banner').style.display = 'none';
+      localStorage.setItem('cookiesAccepted', 'true');
+    }
+
+    window.onload = function () {
+      if (localStorage.getItem('cookiesAccepted') === 'true') {
+        document.getElementById('cookie-banner').style.display = 'none';
+      }
+    };
+  </script>
 
 </body>
 
