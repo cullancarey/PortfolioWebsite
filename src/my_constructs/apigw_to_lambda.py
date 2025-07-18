@@ -24,6 +24,10 @@ class ApiGwtoLambda(Construct):
         super().__init__(scope, id, **kwargs)
 
         # Lambda for contact form intake
+        contact_form_log_group = logs.LogGroup(
+            self, "ContactFormLogGroup", retention=logs.RetentionDays.ONE_YEAR
+        )
+
         contact_form_lambda = _lambda.DockerImageFunction(
             self,
             "ContactFormLambda",
@@ -33,7 +37,7 @@ class ApiGwtoLambda(Construct):
             timeout=Duration.seconds(30),
             architecture=_lambda.Architecture.X86_64,
             environment={"environment": environment, "website": domain_name},
-            log_retention=logs.RetentionDays.ONE_YEAR,
+            log_group=contact_form_log_group,
         )
 
         # API Gateway HTTP API

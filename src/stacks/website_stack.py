@@ -149,6 +149,17 @@ class Website(Stack):
             cf_dist=contact_form_distribution.cf_distribution,
         )
 
+        website_log_group = logs.LogGroup(
+            self, f"{id}-WebsiteFilesLogGroup", retention=logs.RetentionDays.ONE_YEAR
+        )
+
+        backup_log_group = logs.LogGroup(
+            self,
+            f"{id}-BackupWebsiteFilesLogGroup",
+            retention=logs.RetentionDays.ONE_YEAR,
+        )
+
+        # Website deployment
         s3deploy.BucketDeployment(
             self,
             f"{id}-WebsiteFilesDeployment",
@@ -156,10 +167,11 @@ class Website(Stack):
             destination_bucket=website_bucket.bucket,
             distribution=website_distribution.cf_distribution,
             distribution_paths=["/*"],
-            log_retention=logs.RetentionDays.ONE_YEAR,
+            log_group=website_log_group,
             retain_on_delete=False,
         )
 
+        # Backup deployment
         s3deploy.BucketDeployment(
             self,
             f"{id}-BackupWebsiteFilesDeployment",
@@ -169,6 +181,6 @@ class Website(Stack):
             ),
             distribution=website_distribution.cf_distribution,
             distribution_paths=["/*"],
-            log_retention=logs.RetentionDays.ONE_YEAR,
+            log_group=backup_log_group,
             retain_on_delete=False,
         )
