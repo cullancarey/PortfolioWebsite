@@ -14,12 +14,32 @@ http = urllib3.PoolManager()
 
 def lambda_handler(event, context):
     logger.info(f"Event received: {json.dumps(event)}")
+    headers = event.get("headers", {})
+    content_type = {k.lower(): v for k, v in headers.items()}.get("content-type", "")
+
+    if "application/json" not in content_type:
+        logger.warning("Invalid content-type: possible bot.")
+        return error_response("Invalid content type.", 400)
 
     try:
         if event.get("isBase64Encoded"):
             body = decode_body_to_dict(event["body"])
         else:
-            body = json.loads(event["body"])
+            try:
+                body = json.loads(event["body"])
+            except json.JSONDecodeError:
+                return error_response("Invalid JSON payload.", 400)
+
+        # Reject anything that doesn't match your expected keys
+        required_keys = {
+            "CustomerEmail",
+            "CustomerName",
+            "MessageDetails",
+            "g-recaptcha-response",
+        }
+        if not required_keys.issubset(set(body.keys())):
+            logger.warning(f"Missing expected keys in body: {body.keys()}")
+            return error_response("Missing or invalid fields.", 400)
     except Exception as e:
         logger.error(f"Error parsing body: {e}")
         return error_response("Invalid request payload.", 400)
@@ -28,7 +48,7 @@ def lambda_handler(event, context):
 
     if body.get("BotCheck"):
         logger.info("Honeypot triggered. Bot detected.")
-        return success_response("Thanks, bot detected. Submission ignored.")
+        return success_response("Bot activity detected. Request ignored.")
 
     captcha_token = body.get("g-recaptcha-response")
     if not captcha_token:

@@ -75,7 +75,7 @@ class CloudfrontDistribution(Construct):
                             "img-src 'self' data: https://pagead2.googlesyndication.com; "
                             "font-src 'self' https://fonts.gstatic.com; "
                             "frame-src 'self' https://www.google.com/recaptcha/ https://assets.calendly.com https://calendly.com https://pagead2.googlesyndication.com; "
-                            "connect-src 'self' https://www.google.com/recaptcha/ https://form.cullancarey.com https://form.develop.cullancarey.com https://pagead2.googlesyndication.com; "
+                            "connect-src 'self' https://www.google.com/recaptcha/ https://form.cullancarey.com https://form.develop.cullancarey.com https://assets.calendly.com https://calendly.com https://pagead2.googlesyndication.com; "
                             "base-uri 'self'; "
                             "form-action 'self'; "
                             "upgrade-insecure-requests;"

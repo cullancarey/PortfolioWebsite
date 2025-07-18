@@ -1352,4 +1352,18 @@ input[type="text"] {
   overflow-wrap: break-word;
   white-space: normal;
 }
+
+.alert {
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+.alert-success {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+.alert-danger {
+    background-color: #f2dede;
+    color: #a94442;
+}
 /*# sourceMappingURL=style.css.map */
