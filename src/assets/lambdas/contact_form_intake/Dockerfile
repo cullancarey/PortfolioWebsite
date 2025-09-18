@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.11
+FROM public.ecr.aws/lambda/python:3.13
 
 # Copy function code
 COPY contact_form_intake.py ${LAMBDA_TASK_ROOT}
