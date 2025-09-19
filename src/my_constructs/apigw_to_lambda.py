@@ -38,6 +38,7 @@ class ApiGwtoLambda(Construct):
             architecture=_lambda.Architecture.X86_64,
             environment={"environment": environment, "website": domain_name},
             log_group=contact_form_log_group,
+            reserved_concurrent_executions=5,
         )
 
         # API Gateway HTTP API

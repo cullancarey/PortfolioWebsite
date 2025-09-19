@@ -1,8 +1,60 @@
 import json
+import base64
 import pytest
 from unittest.mock import patch
+from assets.lambdas.contact_form_intake.contact_form_intake import (
+    lambda_handler,
+    decode_body_to_dict,
+)
 
-from assets.lambdas.contact_form_intake.contact_form_intake import lambda_handler
+
+def test_lambda_handler_invalid_json():
+    """Should return 400 when body is not valid JSON."""
+    event = {
+        "headers": {"content-type": "application/json"},
+        "body": "{invalid_json}",
+        "isBase64Encoded": False,
+        "requestContext": {"http": {"sourceIp": "127.0.0.1"}},
+    }
+    response = lambda_handler(event, None)
+    body = json.loads(response["body"])
+    assert response["statusCode"] == 400
+    assert "Invalid JSON" in body["error"]
+
+
+def test_decode_body_to_dict_base64():
+    """Should decode application/x-www-form-urlencoded style body correctly."""
+    encoded = "CustomerName=Tester&CustomerEmail=test%40example.com"
+    b64 = base64.b64encode(encoded.encode("utf-8")).decode("utf-8")
+    result = decode_body_to_dict(b64)
+
+    assert result["CustomerName"] == "Tester"
+    assert result["CustomerEmail"] == "test@example.com"
+
+
+@patch("assets.lambdas.contact_form_intake.contact_form_intake.verify_captcha")
+@patch("assets.lambdas.contact_form_intake.contact_form_intake.send_email")
+def test_lambda_handler_ses_failure(mock_send, mock_verify, valid_event):
+    """Should return 500 when SES send_email fails."""
+    mock_verify.return_value = True
+    mock_send.side_effect = Exception("SES send failed")
+
+    response = lambda_handler(valid_event, None)
+    body = json.loads(response["body"])
+
+    assert response["statusCode"] == 500
+    assert "Error sending message" in body["error"]
+
+
+@patch("assets.lambdas.contact_form_intake.contact_form_intake.verify_captcha")
+def test_lambda_handler_captcha_api_edge_case(mock_verify, valid_event):
+    """Should fail gracefully if captcha API returns unexpected response."""
+    mock_verify.return_value = None  # Simulate weird API response
+    response = lambda_handler(valid_event, None)
+    body = json.loads(response["body"])
+
+    assert response["statusCode"] == 403
+    assert "Captcha verification failed." in body["error"]
 
 
 @pytest.fixture

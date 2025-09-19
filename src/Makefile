@@ -3,18 +3,17 @@ TEMPLATE_DIR=cdk.out
 TEMPLATES=$(wildcard $(TEMPLATE_DIR)/*.template.json)
 ENV ?= development
 
-.PHONY: install-deps cdk-version synth deploy checkov cfnlint lint link
+.PHONY: install-deps cdk-version synth deploy checkov cfnlint lint link diff
 
 install-deps:
-	npm install -g aws-cdk
 	pip install --upgrade pip
 	pip install --upgrade -r requirements.txt
 
 cdk-version:
-	cdk --version
+	npx cdk --version
 
 synth:
-	cdk synth --context environment=$(ENV)
+	npx cdk synth --context environment=$(ENV)
 
 checkov:
 	@echo "Running Checkov on $(TEMPLATE_DIR)..."
@@ -32,7 +31,7 @@ cfnlint:
 
 cdk-diff:
 	@echo "Running cdk diff..."
-	cdk diff --context environment=$(ENV)
+	npx cdk diff --context environment=$(ENV)
 
 test:
 	PYTHONPATH=. pytest tests/

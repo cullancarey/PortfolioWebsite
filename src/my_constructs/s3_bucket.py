@@ -16,6 +16,7 @@ class S3Bucket(Construct):
         self.bucket = s3.Bucket(
             self,
             "BucketResource",
+            encryption=s3.BucketEncryption.S3_MANAGED,
             versioned=True,
             removal_policy=RemovalPolicy.DESTROY,
             block_public_access=s3.BlockPublicAccess(

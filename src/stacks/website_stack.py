@@ -83,41 +83,6 @@ class Website(Stack):
             backup_bucket_name=backup_bucket_name,
         )
 
-        website_bucket_policy_statement = iam.PolicyStatement(
-            sid="AllowCloudFrontServicePrincipalReadOnly",
-            effect=iam.Effect.ALLOW,
-            principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
-            actions=["s3:GetObject"],
-            resources=[
-                f"{website_bucket.bucket.bucket_arn}/*",
-            ],
-            conditions={
-                "StringEquals": {
-                    "AWS:SourceArn": f"arn:aws:cloudfront::{account_id}:distribution/{website_distribution.cf_distribution.distribution_id}"
-                }
-            },
-        )
-        website_bucket.bucket.add_to_resource_policy(website_bucket_policy_statement)
-
-        backup_bucket_policy_statement = iam.PolicyStatement(
-            sid="AllowCloudFrontServicePrincipalReadOnlyBackup",
-            effect=iam.Effect.ALLOW,
-            principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
-            actions=["s3:GetObject"],
-            resources=[
-                f"{backup_bucket_arn}/*",
-            ],
-            conditions={
-                "StringEquals": {
-                    "AWS:SourceArn": f"arn:aws:cloudfront::{account_id}:distribution/{website_distribution.cf_distribution.distribution_id}"
-                }
-            },
-        )
-
-        s3.Bucket.from_bucket_name(
-            self, "BackupBucketRef", backup_bucket_name
-        ).add_to_resource_policy(backup_bucket_policy_statement)
-
         _add_route53_record(
             record_name=domain_name, cf_dist=website_distribution.cf_distribution
         )
