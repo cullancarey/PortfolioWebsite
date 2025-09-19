@@ -17,11 +17,13 @@ class ACMCertificates(Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # Lookup hosted zone for the domain
         hosted_zone = route53.HostedZone.from_lookup(
             self, f"{id}-HostedZone", domain_name=domain_name
         )
 
-        website_cert = AcmCertificate(
+        # Certificates (exposed as stack attributes for use in other stacks/tests)
+        self.website_certificate = AcmCertificate(
             self,
             "WebsiteCertificate",
             account_id=account_id,
@@ -29,7 +31,7 @@ class ACMCertificates(Stack):
             hosted_zone=hosted_zone,
         )
 
-        contact_form_cert = AcmCertificate(
+        self.contact_form_certificate = AcmCertificate(
             self,
             "ContactFormCertificate",
             account_id=account_id,
@@ -37,20 +39,22 @@ class ACMCertificates(Stack):
             hosted_zone=hosted_zone,
         )
 
+        # Store certificate ARNs in SSM Parameters
         website_cert_arn_param = ssm.StringParameter(
             self,
             "WebsiteCertArnParam",
             parameter_name=ssm_params["website_cert_arn_param"],
-            string_value=website_cert.certificate.certificate_arn,
+            string_value=self.website_certificate.certificate.certificate_arn,
         )
 
         contact_form_cert_arn_param = ssm.StringParameter(
             self,
             "ContactFormCertArnParam",
             parameter_name=ssm_params["contact_form_cert_arn_param"],
-            string_value=contact_form_cert.certificate.certificate_arn,
+            string_value=self.contact_form_certificate.certificate.certificate_arn,
         )
 
+        # Replicate SSM Parameters to a secondary region
         SsmParameterReplicator(
             self,
             "ACMCertsSSMReplicator",

@@ -160,6 +160,8 @@ coverage/
 cdk.out/
 -rollback
 __snapshots__
+src/tests/assets/
+src/tests/snapshots/
 
 
 ########################
