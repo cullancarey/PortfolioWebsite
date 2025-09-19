@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.11
+FROM public.ecr.aws/lambda/python:3.13
 
 # Copy function code
 COPY ssm_param_replicator.py ${LAMBDA_TASK_ROOT}

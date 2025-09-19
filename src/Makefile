@@ -7,6 +7,7 @@ ENV ?= development
 
 install-deps:
 	npm install -g aws-cdk
+	pip install --upgrade pip
 	pip install --upgrade -r requirements.txt
 
 cdk-version:
