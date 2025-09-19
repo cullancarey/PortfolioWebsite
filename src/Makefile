@@ -3,11 +3,12 @@ TEMPLATE_DIR=cdk.out
 TEMPLATES=$(wildcard $(TEMPLATE_DIR)/*.template.json)
 ENV ?= development
 
-.PHONY: install-deps cdk-version synth deploy checkov cfnlint lint link diff
+.PHONY: install-deps cdk-version synth deploy checkov cfnlint bandit lint link diff
 
 install-deps:
 	pip install --upgrade pip
 	pip install --upgrade -r requirements.txt
+	pip install bandit
 
 cdk-version:
 	npx cdk --version
@@ -29,6 +30,10 @@ cfnlint:
 		cfn-lint "$$f"; \
 	done
 
+bandit:
+	@echo "Running Bandit (Python security scanner)..."
+	bandit -r -x ./cdk.out,./tests .
+
 cdk-diff:
 	@echo "Running cdk diff..."
 	npx cdk diff --context environment=$(ENV)
@@ -36,7 +41,7 @@ cdk-diff:
 test:
 	PYTHONPATH=. pytest tests/
 
-lint: checkov cfnlint
+lint: install-deps checkov cfnlint bandit
 
 link: install-deps cdk-version synth lint test
 

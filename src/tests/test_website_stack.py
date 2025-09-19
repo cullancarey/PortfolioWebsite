@@ -85,27 +85,21 @@ def test_bucket_deployments_exist(website_stack):
 
 
 def test_bucket_policy_enforces_tls(website_stack):
-    """
-    Ensure the Website bucket still enforces TLS-only access.
-    """
     template = Template.from_stack(website_stack)
 
-    template.has_resource_properties(
-        "AWS::S3::BucketPolicy",
-        {
-            "PolicyDocument": {
-                "Statement": [
-                    {
-                        "Sid": "EnforceTLS",
-                        "Effect": "Deny",
-                        "Action": "s3:*",
-                        "Principal": {"AWS": "*"},
-                        "Condition": {"Bool": {"aws:SecureTransport": "false"}},
-                    }
-                ]
-            }
-        },
-    )
+    policies = template.find_resources("AWS::S3::BucketPolicy")
+    found_tls = False
+
+    for _, policy in policies.items():
+        for stmt in policy["Properties"]["PolicyDocument"]["Statement"]:
+            if stmt.get("Sid") == "EnforceTLS":
+                found_tls = True
+                assert stmt["Effect"] == "Deny"
+                assert stmt["Action"] == "s3:*"
+                assert stmt["Principal"] == {"AWS": "*"}
+                assert stmt["Condition"] == {"Bool": {"aws:SecureTransport": "false"}}
+
+    assert found_tls, "No EnforceTLS statement found in bucket policies"
 
 
 def test_cloudfront_uses_oac(website_stack):

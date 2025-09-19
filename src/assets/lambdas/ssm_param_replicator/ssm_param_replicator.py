@@ -2,6 +2,7 @@ import boto3
 import os
 import json
 import urllib.request
+from urllib.parse import urlparse
 
 
 def send_cfn_response(event, context, status, reason=None, data=None):
@@ -20,13 +21,19 @@ def send_cfn_response(event, context, status, reason=None, data=None):
     headers = {"content-type": "", "content-length": str(len(json_response_body))}
 
     try:
+        # Parse and validate the ResponseURL
+        response_url = event["ResponseURL"]
+        parsed = urlparse(response_url)
+        if parsed.scheme != "https":
+            raise ValueError(f"Insecure scheme in ResponseURL: {parsed.scheme}")
+
         request = urllib.request.Request(
-            url=event["ResponseURL"],
+            url=response_url,
             data=json_response_body.encode("utf-8"),
             headers=headers,
             method="PUT",
         )
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(request) as response:  # nosec B310
             print(f"CFN response status: {response.status}, reason: {response.reason}")
     except Exception as e:
         print(f"Failed to send CFN response: {e}")
