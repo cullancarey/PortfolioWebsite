@@ -40,7 +40,6 @@ class SsmParameterReplicator(Construct):
                 "PARAMETERS": json.dumps(parameters),
             },
             log_group=replicate_ssm_log_group,
-            reserved_concurrent_executions=5,
         )
 
         # Add required permissions to the auto-generated role
