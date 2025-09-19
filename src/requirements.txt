@@ -3,3 +3,4 @@ constructs
 cfn-lint
 pytest
 pytest-snapshot
+bandit
