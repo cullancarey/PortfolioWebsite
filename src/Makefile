@@ -3,7 +3,7 @@ TEMPLATE_DIR=cdk.out
 TEMPLATES=$(wildcard $(TEMPLATE_DIR)/*.template.json)
 ENV ?= development
 
-.PHONY: install-deps cdk-version synth deploy checkov cfnlint bandit lint link diff
+.PHONY: install-deps cdk-version synth deploy checkov cfnlint bandit lint link diff drift
 
 install-deps:
 	pip install --upgrade pip
@@ -38,6 +38,10 @@ cdk-diff:
 	@echo "Running cdk diff..."
 	npx cdk diff --context environment=$(ENV)
 
+cdk-drift:
+	@echo "Checking for CloudFormation drift via AWS CDK..."
+	npx cdk drift --context environment=$(ENV) --no-color || true
+
 test:
 	PYTHONPATH=. pytest tests/
 
@@ -46,3 +50,5 @@ lint: install-deps checkov cfnlint bandit
 link: install-deps cdk-version synth lint test
 
 diff: install-deps cdk-version synth cdk-diff
+
+drift: install-deps cdk-version synth cdk-drift
