@@ -1,20 +1,13 @@
 async function submitForm() {
-    const baseURL = window.location.hostname.includes('develop')
-        ? 'https://form.develop.cullancarey.com/'
-        : 'https://form.cullancarey.com/';
+    const isDev = window.location.hostname.includes('develop');
+    const baseURL = `https://${isDev ? 'form.develop.cullancarey.com' : 'form.cullancarey.com'}/`;
 
     const submitButton = document.querySelector('.btn-primary');
     const formAlert = document.getElementById('form-alert');
     const formSuccess = document.getElementById('form-success');
 
-    // Reset alert areas
-    formAlert.style.display = 'none';
-    formSuccess.style.display = 'none';
-    formAlert.textContent = '';
-    formSuccess.textContent = '';
-
-    submitButton.disabled = true;
-    submitButton.textContent = "Sending...";
+    resetAlerts(formAlert, formSuccess);
+    disableButton(submitButton, "Sending...");
 
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -23,64 +16,92 @@ async function submitForm() {
     const recaptchaResponse = document.querySelector('textarea[name="g-recaptcha-response"]').value;
 
     if (!name || !email || !message || !recaptchaResponse) {
-        formAlert.textContent = "Please fill out all required fields.";
-        formAlert.style.display = 'block';
-        resetButton(submitButton);
-        return;
+        showAlert(formAlert, "Please fill out all required fields.");
+        return resetButton(submitButton);
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        formAlert.textContent = "Please enter a valid email address.";
-        formAlert.style.display = 'block';
-        resetButton(submitButton);
-        return;
+        showAlert(formAlert, "Please enter a valid email address.");
+        return resetButton(submitButton);
+    }
+
+    if (message.length > 2000) {
+        showAlert(formAlert, "Message too long (max 2000 characters).");
+        return resetButton(submitButton);
     }
 
     const payload = {
         CustomerName: name,
         CustomerEmail: email,
         MessageDetails: message,
-        "g-recaptcha-response": recaptchaResponse
+        "g-recaptcha-response": recaptchaResponse,
     };
 
-    if (botCheck.checked) {
-        payload.BotCheck = botCheck.value;
-    }
+    if (botCheck.checked) payload.BotCheck = botCheck.value;
 
     try {
-        const response = await fetch(baseURL, {
+        const response = await fetchWithTimeout(baseURL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        let data;
-        try {
-            data = await response.json();
-        } catch {
-            const text = await response.text();
-            data = { error: text };
-        }
-
+        const data = await parseResponse(response);
         if (response.ok) {
-            formSuccess.textContent = data.message || "Thank you for your message! Cullan will reach out to you soon.";
-            formSuccess.style.display = 'block';
+            showAlert(formSuccess, data.message || "Thank you for your message!");
             document.querySelector("form").reset();
+            if (typeof grecaptcha !== "undefined") grecaptcha.reset();
         } else {
-            formAlert.textContent = data.error || "Something went wrong. Please email cullancareyconsulting@gmail.com.";
-            formAlert.style.display = 'block';
+            showAlert(formAlert, data.error || "Something went wrong. Please email cullancareyconsulting@gmail.com.");
         }
     } catch (err) {
-        formAlert.textContent = "A network error occurred. Please try again later.";
-        formAlert.style.display = 'block';
         console.error(err);
+        showAlert(formAlert, "A network error occurred. Please try again later.");
     } finally {
         resetButton(submitButton);
     }
 }
 
-function resetButton(submitButton) {
-    submitButton.disabled = false;
-    submitButton.textContent = "Submit";
+function resetAlerts(...elements) {
+    elements.forEach(el => {
+        el.style.display = 'none';
+        el.textContent = '';
+    });
+}
+
+function disableButton(btn, text) {
+    btn.disabled = true;
+    btn.textContent = text;
+}
+
+function resetButton(btn) {
+    btn.disabled = false;
+    btn.textContent = "Submit";
+}
+
+function showAlert(el, message) {
+    el.textContent = message;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function fetchWithTimeout(resource, options = {}, timeout = 10000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const res = await fetch(resource, { ...options, signal: controller.signal });
+        return res;
+    } finally {
+        clearTimeout(id);
+    }
+}
+
+async function parseResponse(response) {
+    try {
+        return await response.json();
+    } catch {
+        const text = await response.text();
+        return { error: text };
+    }
 }
