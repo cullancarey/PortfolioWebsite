@@ -6,7 +6,6 @@ on:
       environment:
         required: true
         type: string
-        description: "The github environment to deploy against."
 
 permissions:
   id-token: write
@@ -21,9 +20,6 @@ jobs:
       CDK_DEPLOY_ACCOUNT: ${{ vars.ACCOUNT_ID }}
       CDK_DEPLOY_REGION: ${{ vars.REGION }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src
 
     steps:
       - name: Checkout repository
@@ -36,7 +32,20 @@ jobs:
           role-session-name: cdk-deployment-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
           aws-region: ${{ vars.REGION }}
 
-      - name: Install Dependencies
+      # -------------------------
+      # Build React Frontend
+      # -------------------------
+      - name: Build React Website
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      # -------------------------
+      # Install CDK Dependencies
+      # -------------------------
+      - name: Install CDK Dependencies
+        working-directory: cdk
         run: |
           npm install -g aws-cdk
           pip install -r requirements.txt
@@ -44,16 +53,18 @@ jobs:
       - name: Show CDK Version
         run: cdk --version
 
-      - name: Build React Website
-        run: |
-          cd frontend
-          npm ci
-          npm run build
-
+      # -------------------------
+      # CDK Synth
+      # -------------------------
       - name: CDK Synth
+        working-directory: cdk
         run: |
           cdk synth --context environment=${{ inputs.environment }}
 
+      # -------------------------
+      # CDK Deploy
+      # -------------------------
       - name: Deploy CDK Stacks
+        working-directory: cdk
         run: |
-          cdk deploy --app 'cdk.out/' --all --require-approval never --context environment=${{ inputs.environment }}
+          cdk deploy --all --require-approval never --context environment=${{ inputs.environment }}
