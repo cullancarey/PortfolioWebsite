@@ -1,0 +1,200 @@
+/* src/App.css */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(
+      circle at 50% 20%,
+      rgba(60, 60, 65, 0.25) 0%,
+      rgba(20, 20, 22, 0.9) 40%,
+      #0e0e0f 85%
+    ),
+    #0e0e0f;
+  color: #e4e4e7;
+}
+
+/* Theme: DARK */
+body[data-theme="dark"] {
+  background: radial-gradient(
+      circle at 50% 20%,
+      rgba(60, 60, 65, 0.25) 0%,
+      rgba(20, 20, 22, 0.9) 40%,
+      #0e0e0f 85%
+    ),
+    #0e0e0f;
+  color: #e4e4e7;
+}
+
+body[data-theme="light"] {
+  background: linear-gradient(180deg, #fafafa, #eaeaea);
+  color: #111;
+}
+
+body[data-theme="light"] .card {
+  background: #ffffff;
+  border-color: #e3e3e3;
+  box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.07),
+    0 0 60px rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="light"] .links a {
+  background: #f4f4f4;
+  border-color: #ddd;
+  color: #111;
+}
+
+body[data-theme="light"] .about p {
+  color: #444;
+}
+
+body[data-theme="light"] .about h2 {
+  color: #111;
+}
+
+body[data-theme="light"] .title {
+  color: #111;
+}
+
+body[data-theme="light"] .subtitle {
+  color: #444;
+}
+
+body[data-theme="dark"] .profile-pic {
+  border: 3px solid #f4f4f4;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px; /* reduced from 32px */
+}
+
+.card {
+  background: #18181b;
+  padding: 32px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+  border: 1px solid #27272a;
+
+  /* NEW glow */
+  box-shadow:
+    0 0 30px rgba(120, 120, 255, 0.06),
+    0 0 80px rgba(120, 120, 255, 0.12),
+    0 0 24px rgba(0, 0, 0, 0.4); /* keeps original depth */
+}
+
+/* ---- Profile Picture ---- */
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 16px;
+  border: 3px solid #27272a;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.profile-pic:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 12px rgba(130, 130, 255, 0.25),
+    0 0 24px rgba(130, 130, 255, 0.4);
+}
+
+/* ---- Title + Subtitle ---- */
+.title {
+  font-size: 30px; /* reduced from 36px */
+  margin-bottom: 4px; /* reduced from 8px */
+  color: #fafafa;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 16px; /* reduced from 18px */
+  margin-bottom: 24px; /* reduced from 36px */
+  color: #a1a1aa;
+}
+
+/* ---- About Me ---- */
+.about {
+  margin-top: 20px; /* reduced from 36px */
+  padding-top: 16px; /* reduced from 24px */
+  border-top: 1px solid #27272a;
+}
+
+.about h2 {
+  font-size: 20px; /* slightly reduced */
+  margin-bottom: 10px; /* reduced from 16px */
+  color: #fafafa;
+}
+
+.about p {
+  color: #a1a1aa;
+  line-height: 1.5; /* tightened from 1.7 */
+  font-size: 15px; /* reduced from 17px */
+  max-width: 550px; /* reduced from 600px */
+  margin: 0 auto;
+}
+
+/* ---- Links ---- */
+.links {
+  margin-top: 20px; /* reduced */
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* reduced from 14px */
+}
+
+.links a {
+  background: #27272a;
+  padding: 10px; /* reduced from 14px */
+  text-decoration: none;
+  color: #e4e4e7;
+  font-weight: 500;
+  border-radius: 10px;
+  border: 1px solid #3f3f46;
+  transition: all 0.2s ease;
+  font-size: 15px; /* reduced */
+}
+
+.links a:hover {
+  background: #323235;
+  border-color: #52525b;
+  transform: translateY(-2px);
+}
+
+/* ---- Icons ---- */
+.icon {
+  font-size: 18px; /* reduced from 20px */
+  margin-right: 8px; /* reduced from 10px */
+  vertical-align: middle;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.footer {
+  text-align: center;
+  margin-top: 1rem;
+  opacity: 0.6;
+  font-size: 0.85rem;
+}

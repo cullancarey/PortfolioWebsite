@@ -1,6 +1,0 @@
-aws-cdk-lib
-constructs
-cfn-lint
-pytest
-pytest-snapshot
-bandit
