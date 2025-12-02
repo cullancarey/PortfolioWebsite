@@ -7,7 +7,6 @@ class AcmCertificate(Construct):
         self,
         scope: Construct,
         id: str,
-        account_id: str,
         domain_name: str,
         hosted_zone: route53.HostedZone,
         **kwargs,

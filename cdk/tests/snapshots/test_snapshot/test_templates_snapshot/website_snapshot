@@ -525,7 +525,7 @@
                 "EventType": "viewer-request",
                 "FunctionARN": {
                   "Fn::GetAtt": [
-                    "WebsiteDistributionResumeRedirectFunction4A99777F",
+                    "WebsiteDistributionResumeRewriteFunctionA33982BD",
                     "FunctionARN"
                   ]
                 }
@@ -701,15 +701,15 @@
       },
       "Type": "AWS::CloudFront::ResponseHeadersPolicy"
     },
-    "WebsiteDistributionResumeRedirectFunction4A99777F": {
+    "WebsiteDistributionResumeRewriteFunctionA33982BD": {
       "Properties": {
         "AutoPublish": true,
-        "FunctionCode": "\n        function handler(event) {\n            var request = event.request;\n            var uri = request.uri;\n\n            // If path is exactly /resume (or /resume/)\n            if (uri === \"/resume\" || uri === \"/resume/\") {\n                return {\n                    statusCode: 302,\n                    statusDescription: \"Found\",\n                    headers: {\n                        \"location\": { \"value\": \"/resume.pdf\" }\n                    }\n                };\n            }\n\n            return request;\n        }\n                ",
+        "FunctionCode": "\n                function handler(event) {\n                    var request = event.request;\n                    var uri = request.uri;\n\n                    // Handle /resume \u2192 rewrite\n                    if (uri === \"/resume\" || uri === \"/resume/\") {\n                        request.uri = \"/resume.pdf\";\n                        return request;\n                    }\n\n                    return request;\n                    }\n                ",
         "FunctionConfig": {
-          "Comment": "us-east-1TestWebsiteWebsiRedirectFunction1AA61B9C",
+          "Comment": "us-east-1TestWebsiteWebsieRewriteFunctionDD11443E",
           "Runtime": "cloudfront-js-1.0"
         },
-        "Name": "us-east-1TestWebsiteWebsiRedirectFunction1AA61B9C"
+        "Name": "us-east-1TestWebsiteWebsieRewriteFunctionDD11443E"
       },
       "Type": "AWS::CloudFront::Function"
     },

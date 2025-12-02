@@ -36,7 +36,6 @@ def stacks():
     acm_stack = ACMCertificates(
         scope=app,
         id="TestACMCertificates",
-        account_id=account_id,
         domain_name="example.com",
         env_region=region,
         ssm_params=acm_ssm_params,
@@ -48,10 +47,8 @@ def stacks():
         scope=app,
         id="TestWebsite",
         account_id=account_id,
-        region=region,
         domain_name="example.com",
         source_file_path="tests/assets",
-        environment="development",
         acm_ssm_params=acm_ssm_params,
         backup_website_bucket_ssm_params=backup_ssm_params,
         env=env,

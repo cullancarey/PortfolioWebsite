@@ -74,4 +74,6 @@ link: install-deps build-frontend cdk-version synth lint test
 
 diff: install-deps build-frontend cdk-version synth cdk-diff
 
+deploy: install-deps build-frontend cdk-version synth deploy
+
 drift: install-deps build-frontend cdk-version synth cdk-drift

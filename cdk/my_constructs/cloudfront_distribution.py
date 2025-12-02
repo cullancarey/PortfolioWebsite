@@ -22,7 +22,6 @@ class CloudfrontDistribution(Construct):
         certificate: acm.Certificate,
         backup_bucket_name: str = None,
         website_s3_bucket: s3.IBucket = None,
-        api_gateway: apigw.CfnApi = None,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)

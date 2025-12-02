@@ -9,7 +9,6 @@ class ACMCertificates(Stack):
         self,
         scope: Construct,
         id: str,
-        account_id: str,
         domain_name: str,
         env_region: str,
         ssm_params: dict,
@@ -26,7 +25,6 @@ class ACMCertificates(Stack):
         self.website_certificate = AcmCertificate(
             self,
             "WebsiteCertificate",
-            account_id=account_id,
             domain_name=domain_name,
             hosted_zone=hosted_zone,
         )

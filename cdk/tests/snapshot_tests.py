@@ -46,7 +46,6 @@ def test_acm_certificates_stack(snapshot):
     acm_certificates_stack = ACMCertificates(
         scope=app,
         id="TestACMCertificates",
-        account_id=account_id,
         domain_name=domain_name,
         env=cloudfront_env,
         cross_region_references=True,
@@ -57,10 +56,8 @@ def test_acm_certificates_stack(snapshot):
         scope=app,
         id="TestWebsite",
         account_id=account_id,
-        region=region,
         domain_name=domain_name,
         source_file_path=file_path,
-        environment=environment,
         website_certificate=acm_certificates_stack.website_certificate.certificate,
         contact_form_certificate=acm_certificates_stack.contact_form_certificate.certificate,
         backup_website_bucket=backup_website_bucket_stack.backup_website_bucket.bucket,

@@ -18,7 +18,6 @@ def acm_stack():
     stack = ACMCertificates(
         scope=app,
         id="TestACMCertificates",
-        account_id=account_id,
         domain_name="example.com",
         env_region=region,
         ssm_params=ssm_params,
