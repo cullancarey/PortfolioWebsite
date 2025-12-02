@@ -57,7 +57,7 @@ cfnlint:
 
 bandit:
 	@echo "Running Bandit (Python security scanner)..."
-	bandit -r -x ./cdk/cdk.out,./cdk/tests,./frontend .
+	bandit -r -x ./cdk/cdk.out,./cdk/tests,./frontend cdk/assets/
 
 # -----------------------------
 # Tests & Linting

@@ -75,7 +75,7 @@ def test_cloudfront_error_responses(website_stack):
 def test_route53_records_created(website_stack):
     template = Template.from_stack(website_stack)
 
-    template.resource_count_is("AWS::Route53::RecordSet", 3)  # root, www, form.
+    template.resource_count_is("AWS::Route53::RecordSet", 2)  # root, www
 
 
 def test_bucket_deployments_exist(website_stack):
