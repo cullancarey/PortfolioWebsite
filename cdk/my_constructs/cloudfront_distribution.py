@@ -116,26 +116,19 @@ class CloudfrontDistribution(Construct):
         # CloudFront Function for /resume → /resume.pdf redirect
         resume_redirect_function = cloudfront.Function(
             self,
-            "ResumeRedirectFunction",
+            "ResumeRewriteFunction",
             code=cloudfront.FunctionCode.from_inline(
                 """
-        function handler(event) {
-            var request = event.request;
-            var uri = request.uri;
+                function handler(event) {
+                    var request = event.request;
+                    var uri = request.uri;
 
-            // If path is exactly /resume (or /resume/)
-            if (uri === "/resume" || uri === "/resume/") {
-                return {
-                    statusCode: 302,
-                    statusDescription: "Found",
-                    headers: {
-                        "location": { "value": "/resume.pdf" }
+                    if (uri === "/resume" || uri === "/resume/") {
+                        request.uri = "/resume.pdf";
                     }
-                };
-            }
 
-            return request;
-        }
+                    return request;
+                }
                 """
             ),
         )

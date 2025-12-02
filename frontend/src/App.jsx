@@ -53,7 +53,7 @@ function App() {
             LinkedIn
           </a>
 
-          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+          <a href="/resume" rel="noopener noreferrer">
             <HiDocumentText className="icon" />
             Resume
           </a>
