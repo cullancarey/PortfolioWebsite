@@ -30,13 +30,13 @@ synth:
 	cd cdk && npx cdk synth --context environment=$(ENV)
 
 deploy:
-	cd cdk && npx cdk deploy --all --require-approval never --context environment=$(ENV)
+	cd cdk && npx cdk deploy --app 'cdk.out/' --all --require-approval never --context environment=$(ENV)
 
 cdk-diff:
-	cd cdk && npx cdk diff --context environment=$(ENV)
+	cd cdk && npx cdk diff --app 'cdk.out/' --all --context environment=$(ENV)
 
 cdk-drift:
-	cd cdk && npx cdk drift --context environment=$(ENV) --no-color || true
+	cd cdk && npx cdkdrift --app 'cdk.out/' --context environment=$(ENV) --no-color || true
 
 # -----------------------------
 # Security Scans

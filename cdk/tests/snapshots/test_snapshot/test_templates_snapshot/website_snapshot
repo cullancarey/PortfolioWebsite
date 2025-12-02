@@ -520,6 +520,17 @@
               "HEAD"
             ],
             "Compress": true,
+            "FunctionAssociations": [
+              {
+                "EventType": "viewer-request",
+                "FunctionARN": {
+                  "Fn::GetAtt": [
+                    "WebsiteDistributionResumeRedirectFunction4A99777F",
+                    "FunctionARN"
+                  ]
+                }
+              }
+            ],
             "ResponseHeadersPolicyId": {
               "Ref": "WebsiteDistributionResponseHeadersPolicy5B91F328"
             },
@@ -689,6 +700,18 @@
         }
       },
       "Type": "AWS::CloudFront::ResponseHeadersPolicy"
+    },
+    "WebsiteDistributionResumeRedirectFunction4A99777F": {
+      "Properties": {
+        "AutoPublish": true,
+        "FunctionCode": "\n        function handler(event) {\n            var request = event.request;\n            var uri = request.uri;\n\n            // If path is exactly /resume (or /resume/)\n            if (uri === \"/resume\" || uri === \"/resume/\") {\n                return {\n                    statusCode: 302,\n                    statusDescription: \"Found\",\n                    headers: {\n                        \"location\": { \"value\": \"/resume.pdf\" }\n                    }\n                };\n            }\n\n            return request;\n        }\n                ",
+        "FunctionConfig": {
+          "Comment": "us-east-1TestWebsiteWebsiRedirectFunction1AA61B9C",
+          "Runtime": "cloudfront-js-1.0"
+        },
+        "Name": "us-east-1TestWebsiteWebsiRedirectFunction1AA61B9C"
+      },
+      "Type": "AWS::CloudFront::Function"
     },
     "WebsiteDistributionWebsiteCachePolicyC97ED491": {
       "Properties": {

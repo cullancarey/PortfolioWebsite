@@ -113,6 +113,33 @@ class CloudfrontDistribution(Construct):
             fallback_status_codes=[500, 502, 503, 504],
         )
 
+        # CloudFront Function for /resume → /resume.pdf redirect
+        resume_redirect_function = cloudfront.Function(
+            self,
+            "ResumeRedirectFunction",
+            code=cloudfront.FunctionCode.from_inline(
+                """
+        function handler(event) {
+            var request = event.request;
+            var uri = request.uri;
+
+            // If path is exactly /resume (or /resume/)
+            if (uri === "/resume" || uri === "/resume/") {
+                return {
+                    statusCode: 302,
+                    statusDescription: "Found",
+                    headers: {
+                        "location": { "value": "/resume.pdf" }
+                    }
+                };
+            }
+
+            return request;
+        }
+                """
+            ),
+        )
+
         self.cf_distribution = cloudfront.Distribution(
             self,
             f"WebsiteDistribution",
@@ -123,6 +150,12 @@ class CloudfrontDistribution(Construct):
                 cached_methods=cloudfront.CachedMethods.CACHE_GET_HEAD,
                 cache_policy=self.website_cache_policy,
                 response_headers_policy=self.response_headers_policy,
+                function_associations=[
+                    cloudfront.FunctionAssociation(
+                        event_type=cloudfront.FunctionEventType.VIEWER_REQUEST,
+                        function=resume_redirect_function,
+                    )
+                ],
             ),
             error_responses=[
                 cloudfront.ErrorResponse(
