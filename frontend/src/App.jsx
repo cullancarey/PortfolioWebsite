@@ -1,7 +1,7 @@
-// src/App.jsx
 import { useState, useEffect } from "react";
 import "./App.css";
 import profilePic from "./assets/profile.jpg";
+import { version } from "../package.json"; // Added import
 
 // Icons
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
@@ -71,6 +71,11 @@ function App() {
           </a>
         </div>
       </main>
+
+      {/* Footer with Version */}
+      <footer className="footer">
+        <p>v{version}</p>
+      </footer>
     </div>
   );
 }

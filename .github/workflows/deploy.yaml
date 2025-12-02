@@ -6,6 +6,7 @@ on:
       environment:
         required: true
         type: string
+        description: "The github environment to deploy to."
 
 permissions:
   id-token: write
@@ -67,4 +68,4 @@ jobs:
       - name: Deploy CDK Stacks
         working-directory: cdk
         run: |
-          cdk deploy --all --require-approval never --context environment=${{ inputs.environment }}
+          cdk deploy --app 'cdk.out/' --all --require-approval never --context environment=${{ inputs.environment }}
