@@ -3,7 +3,7 @@
     "account_id": "693590665244",
     "region": "us-east-2",
     "domain_name": "develop.cullancarey.com",
-    "file_path": "frontend/dist",
+    "file_path": "../frontend/dist",
     "acm_ssm_params": {
       "website_cert_arn_param": "/ACMCertificates/WebsiteCertificateArn",
       "contact_form_cert_arn_param": "/ACMCertificates/ContactFormCertificateArn"
@@ -18,7 +18,7 @@
     "account_id": "045107234435",
     "region": "us-east-2",
     "domain_name": "cullancarey.com",
-    "file_path": "frontend/dist",
+    "file_path": "../frontend/dist",
     "acm_ssm_params": {
       "website_cert_arn_param": "/ACMCertificates/WebsiteCertificateArn",
       "contact_form_cert_arn_param": "/ACMCertificates/ContactFormCertificateArn"
