@@ -11,7 +11,7 @@ ENV ?= development
 # -----------------------------
 install-deps:
 	pip install --upgrade pip
-	pip install --upgrade -r cdk/requirements.txt
+	pip install --upgrade -r cdk/requirements-dev.txt
 	pip install bandit
 
 # -----------------------------
