@@ -36,22 +36,15 @@ class Website(Stack):
         _hosted_zone = route53.HostedZone.from_lookup(
             self, f"{id}-HostedZone", domain_name=domain_name
         )
-        # _contact_form_domain_name = f"form.{domain_name}"
 
         # Load ACM cert ARNs from SSM
         website_certificate_arn = ssm.StringParameter.value_for_string_parameter(
             self, acm_ssm_params["website_cert_arn_param"]
         )
-        # contact_form_certificate_arn = ssm.StringParameter.value_for_string_parameter(
-        #     self, acm_ssm_params["contact_form_cert_arn_param"]
-        # )
 
         website_certificate = acm.Certificate.from_certificate_arn(
             self, "WebsiteCertificate", website_certificate_arn
         )
-        # contact_form_certificate = acm.Certificate.from_certificate_arn(
-        #     self, "ContactFormCertificate", contact_form_certificate_arn
-        # )
 
         # Load backup bucket data from SSM
         backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
@@ -78,7 +71,6 @@ class Website(Stack):
             self,
             f"WebsiteDistribution",
             domain_name=domain_name,
-            origin_type="s3",
             certificate=website_certificate,
             website_s3_bucket=website_bucket.bucket,
             backup_bucket_name=backup_bucket_name,
@@ -126,29 +118,6 @@ class Website(Stack):
             record_name=f"www.{domain_name}",
             cf_dist=website_distribution.cf_distribution,
         )
-
-        # apigw = ApiGwtoLambda(
-        #     self,
-        #     "ApiGwToLambda",
-        #     account_id=account_id,
-        #     region=region,
-        #     domain_name=_contact_form_domain_name,
-        #     environment=environment,
-        # )
-
-        # contact_form_distribution = CloudfrontDistribution(
-        #     self,
-        #     f"ContactFormDistribution",
-        #     domain_name=_contact_form_domain_name,
-        #     origin_type="http",
-        #     certificate=contact_form_certificate,
-        #     api_gateway=apigw.contact_form_api,
-        # )
-
-        # _add_route53_record(
-        #     record_name=_contact_form_domain_name,
-        #     cf_dist=contact_form_distribution.cf_distribution,
-        # )
 
         website_log_group = logs.LogGroup(
             self, f"{id}-WebsiteFilesLogGroup", retention=logs.RetentionDays.ONE_YEAR
