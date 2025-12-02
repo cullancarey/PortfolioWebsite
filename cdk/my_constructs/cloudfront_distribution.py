@@ -123,12 +123,14 @@ class CloudfrontDistribution(Construct):
                     var request = event.request;
                     var uri = request.uri;
 
+                    // Handle /resume → rewrite
                     if (uri === "/resume" || uri === "/resume/") {
                         request.uri = "/resume.pdf";
+                        return request;
                     }
 
                     return request;
-                }
+                    }
                 """
             ),
         )
