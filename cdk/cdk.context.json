@@ -1,0 +1,51 @@
+{
+  "development": {
+    "account_id": "693590665244",
+    "region": "us-east-2",
+    "domain_name": "develop.cullancarey.com",
+    "file_path": "frontend/dist",
+    "acm_ssm_params": {
+      "website_cert_arn_param": "/ACMCertificates/WebsiteCertificateArn",
+      "contact_form_cert_arn_param": "/ACMCertificates/ContactFormCertificateArn"
+    },
+    "backup_website_bucket_ssm_params": {
+      "backup_website_bucket_arn_param": "/BackupWebsiteBucket/BackupWebsiteBucketArn",
+      "backup_website_bucket_domain_name_param": "/BackupWebsiteBucket/BackupWebsiteBucketDomainName",
+      "backup_website_bucket_name_param": "/BackupWebsiteBucket/BackupWebsiteBucketName"
+    }
+  },
+  "production": {
+    "account_id": "045107234435",
+    "region": "us-east-2",
+    "domain_name": "cullancarey.com",
+    "file_path": "frontend/dist",
+    "acm_ssm_params": {
+      "website_cert_arn_param": "/ACMCertificates/WebsiteCertificateArn",
+      "contact_form_cert_arn_param": "/ACMCertificates/ContactFormCertificateArn"
+    },
+    "backup_website_bucket_ssm_params": {
+      "backup_website_bucket_arn_param": "/BackupWebsiteBucket/BackupWebsiteBucketArn",
+      "backup_website_bucket_domain_name_param": "/BackupWebsiteBucket/BackupWebsiteBucketDomainName",
+      "backup_website_bucket_name_param": "/BackupWebsiteBucket/BackupWebsiteBucketName"
+    }
+  },
+  "hosted-zone:account=693590665244:domainName=develop.cullancarey.com:region=us-east-2": {
+    "Id": "/hostedzone/Z081077825HU0N2Q4H1ZC",
+    "Name": "develop.cullancarey.com."
+  },
+  "hosted-zone:account=693590665244:domainName=develop.cullancarey.com:region=us-east-1": {
+    "Id": "/hostedzone/Z081077825HU0N2Q4H1ZC",
+    "Name": "develop.cullancarey.com."
+  },
+  "hosted-zone:account=045107234435:domainName=cullancarey.com:region=us-east-1": {
+    "Id": "/hostedzone/Z064063313S42D0KDXCSO",
+    "Name": "cullancarey.com."
+  },
+  "hosted-zone:account=045107234435:domainName=cullancarey.com:region=us-east-2": {
+    "Id": "/hostedzone/Z064063313S42D0KDXCSO",
+    "Name": "cullancarey.com."
+  },
+  "acknowledged-issue-numbers": [
+    34892
+  ]
+}

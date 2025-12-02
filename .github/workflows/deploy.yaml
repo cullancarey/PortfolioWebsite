@@ -44,6 +44,12 @@ jobs:
       - name: Show CDK Version
         run: cdk --version
 
+      - name: Build React Website
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
       - name: CDK Synth
         run: |
           cdk synth --context environment=${{ inputs.environment }}
