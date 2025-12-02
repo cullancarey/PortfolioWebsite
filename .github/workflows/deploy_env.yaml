@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - develop
+      - feature/*
   workflow_dispatch:
 
 permissions:
@@ -15,7 +16,7 @@ permissions:
 jobs:
   deploydev:
     name: Deploy Development
-    if: github.ref_name == 'develop'
+    if: startsWith(github.ref_name, 'feature/') || github.ref_name == 'develop'
     uses: ./.github/workflows/deploy.yaml
     with:
       environment: development

@@ -1,0 +1,11 @@
+User-agent: *
+# Allow the entire site to be indexed
+Allow: /
+
+# Do NOT index the resume or its PDF
+Disallow: /resume
+Disallow: /resume/
+Disallow: /resume.pdf
+
+# Prevent indexing of the error page
+Disallow: /error.html

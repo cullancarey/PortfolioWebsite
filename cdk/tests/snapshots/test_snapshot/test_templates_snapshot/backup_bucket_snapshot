@@ -1,0 +1,432 @@
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>"
+    }
+  },
+  "Resources": {
+    "BackupBucketArnParamC708FC4C": {
+      "Properties": {
+        "Name": "/dummy/backup/arn",
+        "Type": "String",
+        "Value": {
+          "Fn::GetAtt": [
+            "BackupWebsiteBucketBucketResourceADB74572",
+            "Arn"
+          ]
+        }
+      },
+      "Type": "AWS::SSM::Parameter"
+    },
+    "BackupBucketDomainNameParam74DD78D5": {
+      "Properties": {
+        "Name": "/dummy/backup/domain",
+        "Type": "String",
+        "Value": {
+          "Fn::GetAtt": [
+            "BackupWebsiteBucketBucketResourceADB74572",
+            "RegionalDomainName"
+          ]
+        }
+      },
+      "Type": "AWS::SSM::Parameter"
+    },
+    "BackupBucketNameParam841E1F02": {
+      "Properties": {
+        "Name": "/dummy/backup/name",
+        "Type": "String",
+        "Value": {
+          "Ref": "BackupWebsiteBucketBucketResourceADB74572"
+        }
+      },
+      "Type": "AWS::SSM::Parameter"
+    },
+    "BackupBucketSSMReplicatorReplicateSSMCustomResource0281D4E4": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEvent682AC904",
+            "Arn"
+          ]
+        }
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete"
+    },
+    "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEvent682AC904": {
+      "DependsOn": [
+        "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5F86CF71",
+        "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEventServiceRole8DC387D5"
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-111111111111-us-east-1",
+          "S3Key": "bdc104ed9cab1b5b6421713c8155f0b753380595356f710400609664d3635eca.zip"
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (TestBackupWebsiteBucket/BackupBucketSSMReplicator/ReplicateSSMProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "BackupBucketSSMReplicatorSSMParamReplicatorLambda69CD7F51",
+                "Arn"
+              ]
+            }
+          }
+        },
+        "Handler": "framework.onEvent",
+        "LoggingConfig": {
+          "ApplicationLogLevel": "FATAL",
+          "LogFormat": "JSON"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEventServiceRole8DC387D5",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900
+      },
+      "Type": "AWS::Lambda::Function"
+    },
+    "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEventServiceRole8DC387D5": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5F86CF71": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "BackupBucketSSMReplicatorSSMParamReplicatorLambda69CD7F51",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "BackupBucketSSMReplicatorSSMParamReplicatorLambda69CD7F51",
+                          "Arn"
+                        ]
+                      },
+                      ":*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": "lambda:GetFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "BackupBucketSSMReplicatorSSMParamReplicatorLambda69CD7F51",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5F86CF71",
+        "Roles": [
+          {
+            "Ref": "BackupBucketSSMReplicatorReplicateSSMProviderframeworkonEventServiceRole8DC387D5"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "BackupBucketSSMReplicatorSSMParamReplicatorLambda69CD7F51": {
+      "DependsOn": [
+        "BackupBucketSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyA75061A3",
+        "BackupBucketSSMReplicatorSSMParamReplicatorLambdaServiceRole59602FDC"
+      ],
+      "Properties": {
+        "Architectures": [
+          "x86_64"
+        ],
+        "Code": {
+          "ImageUri": {
+            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:db3a7b62c7478a0f4ad69cc79fa8ab6583cd97b9f3d0fc354b0daf90905fdee7"
+          }
+        },
+        "Environment": {
+          "Variables": {
+            "PARAMETERS": {
+              "Fn::Join": [
+                "",
+                [
+                  "[{\"source\": \"",
+                  {
+                    "Ref": "BackupBucketArnParamC708FC4C"
+                  },
+                  "\", \"target\": \"",
+                  {
+                    "Ref": "BackupBucketArnParamC708FC4C"
+                  },
+                  "\"}, {\"source\": \"",
+                  {
+                    "Ref": "BackupBucketDomainNameParam74DD78D5"
+                  },
+                  "\", \"target\": \"",
+                  {
+                    "Ref": "BackupBucketDomainNameParam74DD78D5"
+                  },
+                  "\"}, {\"source\": \"",
+                  {
+                    "Ref": "BackupBucketNameParam841E1F02"
+                  },
+                  "\", \"target\": \"",
+                  {
+                    "Ref": "BackupBucketNameParam841E1F02"
+                  },
+                  "\"}]"
+                ]
+              ]
+            },
+            "SOURCE_REGION": "us-east-1",
+            "TARGET_REGION": "us-east-2"
+          }
+        },
+        "LoggingConfig": {
+          "LogGroup": {
+            "Ref": "BackupBucketSSMReplicatorSSMParamReplicatorLogGroup9AD1DE06"
+          }
+        },
+        "PackageType": "Image",
+        "Role": {
+          "Fn::GetAtt": [
+            "BackupBucketSSMReplicatorSSMParamReplicatorLambdaServiceRole59602FDC",
+            "Arn"
+          ]
+        },
+        "Timeout": 60
+      },
+      "Type": "AWS::Lambda::Function"
+    },
+    "BackupBucketSSMReplicatorSSMParamReplicatorLambdaServiceRole59602FDC": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "BackupBucketSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyA75061A3": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": "arn:aws:logs:*:*:*"
+            },
+            {
+              "Action": "ssm:GetParameter",
+              "Effect": "Allow",
+              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/*"
+            },
+            {
+              "Action": "ssm:PutParameter",
+              "Effect": "Allow",
+              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "BackupBucketSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyA75061A3",
+        "Roles": [
+          {
+            "Ref": "BackupBucketSSMReplicatorSSMParamReplicatorLambdaServiceRole59602FDC"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "BackupBucketSSMReplicatorSSMParamReplicatorLogGroup9AD1DE06": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RetentionInDays": 365
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "BackupWebsiteBucketBucketResourceADB74572": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 2
+              },
+              "Status": "Enabled"
+            }
+          ]
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete"
+    },
+    "BackupWebsiteBucketBucketResourcePolicyD763FCD9": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "BackupWebsiteBucketBucketResourceADB74572"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "BackupWebsiteBucketBucketResourceADB74572",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "BackupWebsiteBucketBucketResourceADB74572",
+                          "Arn"
+                        ]
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ],
+              "Sid": "EnforceTLS"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Type": "AWS::S3::BucketPolicy"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

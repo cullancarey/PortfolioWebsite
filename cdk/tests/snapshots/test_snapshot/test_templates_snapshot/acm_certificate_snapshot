@@ -1,0 +1,334 @@
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>"
+    }
+  },
+  "Resources": {
+    "ACMCertsSSMReplicatorReplicateSSMCustomResourceBB35719E": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEvent94456EC0",
+            "Arn"
+          ]
+        }
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete"
+    },
+    "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEvent94456EC0": {
+      "DependsOn": [
+        "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyC2792977",
+        "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE"
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-111111111111-us-east-1",
+          "S3Key": "bdc104ed9cab1b5b6421713c8155f0b753380595356f710400609664d3635eca.zip"
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (TestACMCertificates/ACMCertsSSMReplicator/ReplicateSSMProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
+                "Arn"
+              ]
+            }
+          }
+        },
+        "Handler": "framework.onEvent",
+        "LoggingConfig": {
+          "ApplicationLogLevel": "FATAL",
+          "LogFormat": "JSON"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900
+      },
+      "Type": "AWS::Lambda::Function"
+    },
+    "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyC2792977": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
+                          "Arn"
+                        ]
+                      },
+                      ":*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": "lambda:GetFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyC2792977",
+        "Roles": [
+          {
+            "Ref": "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD": {
+      "DependsOn": [
+        "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyF30FDB0F",
+        "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15"
+      ],
+      "Properties": {
+        "Architectures": [
+          "x86_64"
+        ],
+        "Code": {
+          "ImageUri": {
+            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:db3a7b62c7478a0f4ad69cc79fa8ab6583cd97b9f3d0fc354b0daf90905fdee7"
+          }
+        },
+        "Environment": {
+          "Variables": {
+            "PARAMETERS": {
+              "Fn::Join": [
+                "",
+                [
+                  "[{\"source\": \"",
+                  {
+                    "Ref": "WebsiteCertArnParam8B2F5212"
+                  },
+                  "\", \"target\": \"",
+                  {
+                    "Ref": "WebsiteCertArnParam8B2F5212"
+                  },
+                  "\"}]"
+                ]
+              ]
+            },
+            "SOURCE_REGION": "us-east-1",
+            "TARGET_REGION": "us-east-2"
+          }
+        },
+        "LoggingConfig": {
+          "LogGroup": {
+            "Ref": "ACMCertsSSMReplicatorSSMParamReplicatorLogGroup40DA770D"
+          }
+        },
+        "PackageType": "Image",
+        "Role": {
+          "Fn::GetAtt": [
+            "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15",
+            "Arn"
+          ]
+        },
+        "Timeout": 60
+      },
+      "Type": "AWS::Lambda::Function"
+    },
+    "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyF30FDB0F": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": "arn:aws:logs:*:*:*"
+            },
+            {
+              "Action": "ssm:GetParameter",
+              "Effect": "Allow",
+              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/*"
+            },
+            {
+              "Action": "ssm:PutParameter",
+              "Effect": "Allow",
+              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyF30FDB0F",
+        "Roles": [
+          {
+            "Ref": "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "ACMCertsSSMReplicatorSSMParamReplicatorLogGroup40DA770D": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RetentionInDays": 365
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain"
+    },
+    "WebsiteCertArnParam8B2F5212": {
+      "Properties": {
+        "Name": "/dummy/acm/website-cert-arn",
+        "Type": "String",
+        "Value": {
+          "Ref": "WebsiteCertificateAcmCertificate33326BB3"
+        }
+      },
+      "Type": "AWS::SSM::Parameter"
+    },
+    "WebsiteCertificateAcmCertificate33326BB3": {
+      "Properties": {
+        "CertificateTransparencyLoggingPreference": "ENABLED",
+        "DomainName": "example.com",
+        "DomainValidationOptions": [
+          {
+            "DomainName": "example.com",
+            "HostedZoneId": "DUMMY"
+          },
+          {
+            "DomainName": "www.example.com",
+            "HostedZoneId": "DUMMY"
+          }
+        ],
+        "SubjectAlternativeNames": [
+          "www.example.com"
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TestACMCertificates/WebsiteCertificate/AcmCertificate"
+          }
+        ],
+        "ValidationMethod": "DNS"
+      },
+      "Type": "AWS::CertificateManager::Certificate"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}
