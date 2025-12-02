@@ -71,11 +71,6 @@ src/tests/snapshots/
 .favorites.json
 
 # --- Duplicate Files (macOS auto-renames) ---
-* copy*
-* Copy*
-* copy.*
-* 2.*
-*2.*
 *.tmp
 *.bak
 

@@ -67,9 +67,11 @@ body[data-theme="dark"] .profile-pic {
 .app {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px; /* reduced from 32px */
+  flex-direction: column;   /* stack content vertically */
+  align-items: center;       /* center horizontally */
+  justify-content: center;   /* keeps the card centered */
+  padding: 16px;
+  gap: 8px;                  /* small space between card and footer */
 }
 
 .card {
@@ -193,8 +195,9 @@ body[data-theme="dark"] .profile-pic {
 }
 
 .footer {
+  width: 100%;
   text-align: center;
-  margin-top: 1rem;
+  margin-top: 12px;
   opacity: 0.6;
   font-size: 0.85rem;
 }
