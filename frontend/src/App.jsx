@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import profilePic from "./assets/profile.jpg";
-import { version } from "../package.json"; // Added import
+import profilePic from "./assets/profile.png";
+import { version } from "../package.json";
 
 // Icons
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { MdEmail, MdDarkMode, MdLightMode } from "react-icons/md";
-import { BsGlobe } from "react-icons/bs";
+import { HiDocumentText } from "react-icons/hi";
 
 function App() {
   const [theme, setTheme] = useState("dark");
@@ -32,23 +32,16 @@ function App() {
         <img src={profilePic} alt="Cullan Carey" className="profile-pic" />
 
         <h1 className="title">Cullan Carey</h1>
-        <p className="subtitle">Cloud & DevOps Engineer • SRE</p>
+        <p className="subtitle">Cloud & DevOps Engineer</p>
 
         <section className="about">
           <h2>About Me</h2>
           <p>
-            I'm a Cloud & DevOps Engineer focused on automation, reliability,
-            and building clean technical systems. I work hands-on with AWS,
-            Kubernetes, CI/CD pipelines, and backend services — always looking
-            for ways to improve speed, security, and developer experience.
+            I’m a Cloud & DevOps Engineer based in Indianapolis, working for Eli Lilly. My work spans software engineering, DevOps, cloud infrastructure, operations, and production support. I focus on automation, reliability, and building clean, scalable systems. I’m always open to collaborating on new projects.
           </p>
         </section>
 
         <div className="links">
-          <a href="https://www.cullancarey.com" target="_blank" rel="noopener noreferrer">
-            <BsGlobe className="icon" />
-            Portfolio
-          </a>
 
           <a href="https://github.com/cullancarey" target="_blank" rel="noopener noreferrer">
             <FaGithub className="icon" />
@@ -60,12 +53,12 @@ function App() {
             LinkedIn
           </a>
 
-          <a href="https://twitter.com/cullancarey" target="_blank" rel="noopener noreferrer">
-            <FaTwitter className="icon" />
-            Twitter
+          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+            <HiDocumentText className="icon" />
+            Resume
           </a>
 
-          <a href="mailto:youremail@example.com">
+          <a href="mailto:cullancarey@gmail.com">
             <MdEmail className="icon" />
             Email
           </a>
