@@ -168,14 +168,6 @@
                   {
                     "Ref": "WebsiteCertArnParam8B2F5212"
                   },
-                  "\"}, {\"source\": \"",
-                  {
-                    "Ref": "ContactFormCertArnParamA564224C"
-                  },
-                  "\", \"target\": \"",
-                  {
-                    "Ref": "ContactFormCertArnParamA564224C"
-                  },
                   "\"}]"
                 ]
               ]
@@ -273,43 +265,6 @@
       },
       "Type": "AWS::Logs::LogGroup",
       "UpdateReplacePolicy": "Retain"
-    },
-    "ContactFormCertArnParamA564224C": {
-      "Properties": {
-        "Name": "/dummy/acm/contact-form-cert-arn",
-        "Type": "String",
-        "Value": {
-          "Ref": "ContactFormCertificateAcmCertificate023C9DEA"
-        }
-      },
-      "Type": "AWS::SSM::Parameter"
-    },
-    "ContactFormCertificateAcmCertificate023C9DEA": {
-      "Properties": {
-        "CertificateTransparencyLoggingPreference": "ENABLED",
-        "DomainName": "form.example.com",
-        "DomainValidationOptions": [
-          {
-            "DomainName": "form.example.com",
-            "HostedZoneId": "DUMMY"
-          },
-          {
-            "DomainName": "www.form.example.com",
-            "HostedZoneId": "DUMMY"
-          }
-        ],
-        "SubjectAlternativeNames": [
-          "www.form.example.com"
-        ],
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "TestACMCertificates/ContactFormCertificate/AcmCertificate"
-          }
-        ],
-        "ValidationMethod": "DNS"
-      },
-      "Type": "AWS::CertificateManager::Certificate"
     },
     "WebsiteCertArnParam8B2F5212": {
       "Properties": {

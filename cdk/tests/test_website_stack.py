@@ -13,7 +13,6 @@ def website_stack():
 
     acm_ssm_params = {
         "website_cert_arn_param": "/dummy/acm/website-cert-arn",
-        "contact_form_cert_arn_param": "/dummy/acm/contact-form-cert-arn",
     }
     backup_ssm_params = {
         "backup_website_bucket_arn_param": "/dummy/backup/arn",

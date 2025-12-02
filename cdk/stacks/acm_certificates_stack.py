@@ -31,27 +31,12 @@ class ACMCertificates(Stack):
             hosted_zone=hosted_zone,
         )
 
-        self.contact_form_certificate = AcmCertificate(
-            self,
-            "ContactFormCertificate",
-            account_id=account_id,
-            domain_name=f"form.{domain_name}",
-            hosted_zone=hosted_zone,
-        )
-
         # Store certificate ARNs in SSM Parameters
         website_cert_arn_param = ssm.StringParameter(
             self,
             "WebsiteCertArnParam",
             parameter_name=ssm_params["website_cert_arn_param"],
             string_value=self.website_certificate.certificate.certificate_arn,
-        )
-
-        contact_form_cert_arn_param = ssm.StringParameter(
-            self,
-            "ContactFormCertArnParam",
-            parameter_name=ssm_params["contact_form_cert_arn_param"],
-            string_value=self.contact_form_certificate.certificate.certificate_arn,
         )
 
         # Replicate SSM Parameters to a secondary region
@@ -64,10 +49,6 @@ class ACMCertificates(Stack):
                 {
                     "source": website_cert_arn_param.parameter_name,
                     "target": website_cert_arn_param.parameter_name,
-                },
-                {
-                    "source": contact_form_cert_arn_param.parameter_name,
-                    "target": contact_form_cert_arn_param.parameter_name,
                 },
             ],
         )

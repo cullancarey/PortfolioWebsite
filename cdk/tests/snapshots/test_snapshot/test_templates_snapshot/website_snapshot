@@ -15,10 +15,6 @@
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>"
     },
-    "SsmParameterValuedummyacmcontactformcertarnC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/dummy/acm/contact-form-cert-arn",
-      "Type": "AWS::SSM::Parameter::Value<String>"
-    },
     "SsmParameterValuedummyacmwebsitecertarnC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/dummy/acm/website-cert-arn",
       "Type": "AWS::SSM::Parameter::Value<String>"

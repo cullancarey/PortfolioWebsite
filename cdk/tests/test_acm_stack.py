@@ -13,7 +13,6 @@ def acm_stack():
 
     ssm_params = {
         "website_cert_arn_param": "/dummy/acm/website-cert-arn",
-        "contact_form_cert_arn_param": "/dummy/acm/contact-form-cert-arn",
     }
 
     stack = ACMCertificates(
@@ -36,7 +35,7 @@ def test_certificates_created(acm_stack):
     """
     template = Template.from_stack(acm_stack)
 
-    template.resource_count_is("AWS::CertificateManager::Certificate", 2)
+    template.resource_count_is("AWS::CertificateManager::Certificate", 1)
 
 
 def test_ssm_parameters_created(acm_stack):
@@ -48,11 +47,6 @@ def test_ssm_parameters_created(acm_stack):
     template.has_resource_properties(
         "AWS::SSM::Parameter",
         {"Name": "/dummy/acm/website-cert-arn"},
-    )
-
-    template.has_resource_properties(
-        "AWS::SSM::Parameter",
-        {"Name": "/dummy/acm/contact-form-cert-arn"},
     )
 
 
