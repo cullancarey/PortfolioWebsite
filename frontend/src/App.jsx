@@ -4,7 +4,7 @@ import profilePic from "./assets/profile.png";
 import { version } from "../package.json";
 
 // Icons
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { MdEmail, MdDarkMode, MdLightMode } from "react-icons/md";
 import { HiDocumentText } from "react-icons/hi";
 
@@ -43,6 +43,11 @@ function App() {
 
         <div className="links">
 
+          <a href="https://instagram.com/cullan.carey" target="_blank" rel="noopener noreferrer">
+            <FaInstagram className="icon" />
+            Instagram
+          </a>
+          
           <a href="https://github.com/cullancarey" target="_blank" rel="noopener noreferrer">
             <FaGithub className="icon" />
             GitHub
