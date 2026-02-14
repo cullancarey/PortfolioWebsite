@@ -40,7 +40,7 @@ class ACMCertificates(Stack):
         # Replicate SSM Parameters to a secondary region
         SsmParameterReplicator(
             self,
-            "ACMCertsSSMReplicator",
+            "ACMCertsSSMReplicatorV2",
             source_region=env_region,
             target_region="us-east-2",
             parameters=[

@@ -123,7 +123,7 @@ class Website(Stack):
 
         backup_log_group = logs.LogGroup(
             self,
-            f"{id}-BackupWebsiteFilesLogGroup",
+            f"{id}-BackupWebsiteFilesLogGroupV2",
             retention=logs.RetentionDays.ONE_YEAR,
         )
 

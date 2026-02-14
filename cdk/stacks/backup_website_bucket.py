@@ -47,7 +47,7 @@ class BackupWebsiteBucket(Stack):
         # Replicate these parameters to another region (us-east-2)
         SsmParameterReplicator(
             self,
-            "BackupBucketSSMReplicator",
+            "BackupBucketSSMReplicatorV2",
             source_region=region,
             target_region="us-east-2",
             parameters=[
