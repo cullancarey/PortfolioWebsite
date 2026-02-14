@@ -45,23 +45,23 @@ class BackupWebsiteBucket(Stack):
         )
 
         # Replicate these parameters to another region (us-east-2)
-        SsmParameterReplicator(
-            self,
-            "BackupBucketSSMReplicator",
-            source_region=region,
-            target_region="us-east-2",
-            parameters=[
-                {
-                    "source": bucket_arn_param.parameter_name,
-                    "target": bucket_arn_param.parameter_name,
-                },
-                {
-                    "source": bucket_domain_name_param.parameter_name,
-                    "target": bucket_domain_name_param.parameter_name,
-                },
-                {
-                    "source": bucket_name_param.parameter_name,
-                    "target": bucket_name_param.parameter_name,
-                },
-            ],
-        )
+        # SsmParameterReplicator(
+        #     self,
+        #     "BackupBucketSSMReplicator",
+        #     source_region=region,
+        #     target_region="us-east-2",
+        #     parameters=[
+        #         {
+        #             "source": bucket_arn_param.parameter_name,
+        #             "target": bucket_arn_param.parameter_name,
+        #         },
+        #         {
+        #             "source": bucket_domain_name_param.parameter_name,
+        #             "target": bucket_domain_name_param.parameter_name,
+        #         },
+        #         {
+        #             "source": bucket_name_param.parameter_name,
+        #             "target": bucket_name_param.parameter_name,
+        #         },
+        #     ],
+        # )
