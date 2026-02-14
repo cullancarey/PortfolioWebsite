@@ -42,6 +42,7 @@ default_tags = {
     "owner": "Cullan Carey",
     "created_by": "cdk",
     "managed_by": "aws-cdk",
+    "github": "https://github.com/cullancarey/PortfolioWebsite",
 }
 
 certificates = ACMCertificates(
