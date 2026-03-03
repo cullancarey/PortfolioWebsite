@@ -24,12 +24,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.DEPLOYMENT_ROLE }}
+          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/GitHubActionsCDKDeploymentRole-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
           role-session-name: cdk-deployment-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
           aws-region: ${{ vars.REGION }}
 
