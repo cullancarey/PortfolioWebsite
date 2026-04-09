@@ -282,7 +282,7 @@
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete"
     },
-    "TestWebsiteBackupWebsiteFilesLogGroup79A936B9": {
+    "TestWebsiteBackupWebsiteFilesLogGroupV2E901BE0C": {
       "DeletionPolicy": "Retain",
       "Properties": {
         "RetentionInDays": 365

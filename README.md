@@ -32,3 +32,11 @@ For more details, see [Stacks](cdk/stacks/).
 ### Entry Point
 
 - [app.py](cdk/app.py): The entry point for the CDK application.
+
+### Python Tooling
+
+The CDK project in [cdk](cdk/) is managed with `uv`.
+
+- Install dependencies: `cd cdk && uv sync --group dev`
+- Run tests: `cd cdk && PYTHONPATH=. uv run pytest tests/`
+- CDK commands use the `uv` environment via [cdk/cdk.json](cdk/cdk.json)

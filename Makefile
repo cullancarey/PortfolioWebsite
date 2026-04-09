@@ -10,9 +10,7 @@ ENV ?= development
 # Python/CDK Dependencies
 # -----------------------------
 install-deps:
-	pip install --upgrade pip
-	pip install --upgrade -r cdk/requirements-dev.txt
-	pip install bandit
+	cd cdk && uv sync --locked --group dev
 
 # -----------------------------
 # Frontend Build
@@ -45,25 +43,25 @@ checkov:
 	@echo "Running Checkov on $(TEMPLATE_DIR)..."
 	@for f in $(TEMPLATES); do \
 		echo "Scanning $$f with Checkov"; \
-		checkov --config-file $(CHECKOV_CONFIG) -f "$$f"; \
+		cd cdk && uv run checkov --config-file $(CHECKOV_CONFIG) -f "../$$f"; \
 	done
 
 cfnlint:
 	@echo "Running cfn-lint on $(TEMPLATE_DIR)..."
 	@for f in $(TEMPLATES); do \
 		echo "Linting $$f with cfn-lint"; \
-		cfn-lint "$$f"; \
+		cd cdk && uv run cfn-lint "../$$f"; \
 	done
 
 bandit:
 	@echo "Running Bandit (Python security scanner)..."
-	bandit -r -x ./cdk/cdk.out,./cdk/tests,./frontend cdk/assets/
+	cd cdk && uv run bandit -r -x ./cdk.out,./tests,../frontend assets/
 
 # -----------------------------
 # Tests & Linting
 # -----------------------------
 test:
-	cd cdk && PYTHONPATH=. pytest tests/
+	cd cdk && PYTHONPATH=. uv run pytest tests/
 
 lint: install-deps checkov cfnlint bandit
 

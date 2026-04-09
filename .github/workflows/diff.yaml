@@ -26,6 +26,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          working-directory: cdk
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -49,7 +60,7 @@ jobs:
         working-directory: cdk
         run: |
           npm install -g aws-cdk
-          pip install -r requirements.txt
+          uv sync --locked --no-dev
 
       - name: Show CDK Version
         run: cdk --version

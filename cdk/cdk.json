@@ -1,5 +1,5 @@
 {
-  "app": "python app.py",
+  "app": "uv run python app.py",
   "requireApproval": "never",
   "context": {
     "environment": "development",

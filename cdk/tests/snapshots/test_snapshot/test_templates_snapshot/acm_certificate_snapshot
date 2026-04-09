@@ -7,12 +7,12 @@
     }
   },
   "Resources": {
-    "ACMCertsSSMReplicatorReplicateSSMCustomResourceBB35719E": {
+    "ACMCertsSSMReplicatorV2ReplicateSSMCustomResourceBB55D56E": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "ServiceToken": {
           "Fn::GetAtt": [
-            "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEvent94456EC0",
+            "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEvent61C2CD53",
             "Arn"
           ]
         }
@@ -20,22 +20,22 @@
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete"
     },
-    "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEvent94456EC0": {
+    "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEvent61C2CD53": {
       "DependsOn": [
-        "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyC2792977",
-        "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE"
+        "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5C8D7BD7",
+        "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA"
       ],
       "Properties": {
         "Code": {
           "S3Bucket": "cdk-hnb659fds-assets-111111111111-us-east-1",
           "S3Key": "bdc104ed9cab1b5b6421713c8155f0b753380595356f710400609664d3635eca.zip"
         },
-        "Description": "AWS CDK resource provider framework - onEvent (TestACMCertificates/ACMCertsSSMReplicator/ReplicateSSMProvider)",
+        "Description": "AWS CDK resource provider framework - onEvent (TestACMCertificates/ACMCertsSSMReplicatorV2/ReplicateSSMProvider)",
         "Environment": {
           "Variables": {
             "USER_ON_EVENT_FUNCTION_ARN": {
               "Fn::GetAtt": [
-                "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
+                "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaEF693E99",
                 "Arn"
               ]
             }
@@ -48,7 +48,7 @@
         },
         "Role": {
           "Fn::GetAtt": [
-            "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE",
+            "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA",
             "Arn"
           ]
         },
@@ -57,59 +57,7 @@
       },
       "Type": "AWS::Lambda::Function"
     },
-    "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyC2792977": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "lambda:InvokeFunction",
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
-                    "Arn"
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
-                          "Arn"
-                        ]
-                      },
-                      ":*"
-                    ]
-                  ]
-                }
-              ]
-            },
-            {
-              "Action": "lambda:GetFunction",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD",
-                  "Arn"
-                ]
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        },
-        "PolicyName": "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyC2792977",
-        "Roles": [
-          {
-            "Ref": "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE"
-          }
-        ]
-      },
-      "Type": "AWS::IAM::Policy"
-    },
-    "ACMCertsSSMReplicatorReplicateSSMProviderframeworkonEventServiceRoleE1B266BE": {
+    "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA": {
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -140,10 +88,62 @@
       },
       "Type": "AWS::IAM::Role"
     },
-    "ACMCertsSSMReplicatorSSMParamReplicatorLambda553924CD": {
+    "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5C8D7BD7": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaEF693E99",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaEF693E99",
+                          "Arn"
+                        ]
+                      },
+                      ":*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": "lambda:GetFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaEF693E99",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5C8D7BD7",
+        "Roles": [
+          {
+            "Ref": "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaEF693E99": {
       "DependsOn": [
-        "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyF30FDB0F",
-        "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15"
+        "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicy82883E87",
+        "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E"
       ],
       "Properties": {
         "Architectures": [
@@ -178,13 +178,13 @@
         },
         "LoggingConfig": {
           "LogGroup": {
-            "Ref": "ACMCertsSSMReplicatorSSMParamReplicatorLogGroup40DA770D"
+            "Ref": "ACMCertsSSMReplicatorV2SSMParamReplicatorLogGroupF1D9A79D"
           }
         },
         "PackageType": "Image",
         "Role": {
           "Fn::GetAtt": [
-            "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15",
+            "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E",
             "Arn"
           ]
         },
@@ -192,7 +192,7 @@
       },
       "Type": "AWS::Lambda::Function"
     },
-    "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15": {
+    "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E": {
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -223,7 +223,7 @@
       },
       "Type": "AWS::IAM::Role"
     },
-    "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyF30FDB0F": {
+    "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicy82883E87": {
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -249,16 +249,16 @@
           ],
           "Version": "2012-10-17"
         },
-        "PolicyName": "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRoleDefaultPolicyF30FDB0F",
+        "PolicyName": "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicy82883E87",
         "Roles": [
           {
-            "Ref": "ACMCertsSSMReplicatorSSMParamReplicatorLambdaServiceRole88557E15"
+            "Ref": "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E"
           }
         ]
       },
       "Type": "AWS::IAM::Policy"
     },
-    "ACMCertsSSMReplicatorSSMParamReplicatorLogGroup40DA770D": {
+    "ACMCertsSSMReplicatorV2SSMParamReplicatorLogGroupF1D9A79D": {
       "DeletionPolicy": "Retain",
       "Properties": {
         "RetentionInDays": 365
