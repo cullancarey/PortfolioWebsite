@@ -50,6 +50,8 @@ class BackupWebsiteBucket(Stack):
             "BackupBucketSSMReplicatorV2",
             source_region=region,
             target_region="us-east-2",
+            param_path_prefix="/"
+            + ssm_params["backup_website_bucket_arn_param"].lstrip("/").split("/")[0],
             parameters=[
                 {
                     "source": bucket_arn_param.parameter_name,

@@ -18,6 +18,7 @@ class SsmParameterReplicator(Construct):
         source_region: str,
         target_region: str,
         parameters: list,
+        param_path_prefix: str = "",
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -42,29 +43,33 @@ class SsmParameterReplicator(Construct):
             log_group=replicate_ssm_log_group,
         )
 
-        # Add required permissions to the auto-generated role
-        replicate_ssm_lambda.add_to_role_policy(
-            iam.PolicyStatement(
-                actions=[
-                    "logs:CreateLogGroup",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
-                ],
-                resources=["arn:aws:logs:*:*:*"],
+        # Add required permissions to the auto-generated role.
+        # Scope to the specific parameter path prefix to follow least-privilege.
+        # SSM ARNs do not include a leading slash, but parameters under a prefix
+        # require a trailing /* wildcard (e.g. parameter/ACMCertificates/*).
+        if param_path_prefix:
+            prefix = param_path_prefix.lstrip("/")
+            src_resource = (
+                f"arn:aws:ssm:{source_region}:{scope.account}:parameter/{prefix}/*"
             )
-        )
+            dst_resource = (
+                f"arn:aws:ssm:{target_region}:{scope.account}:parameter/{prefix}/*"
+            )
+        else:
+            src_resource = f"arn:aws:ssm:{source_region}:{scope.account}:parameter/*"
+            dst_resource = f"arn:aws:ssm:{target_region}:{scope.account}:parameter/*"
 
         replicate_ssm_lambda.add_to_role_policy(
             iam.PolicyStatement(
                 actions=["ssm:GetParameter"],
-                resources=[f"arn:aws:ssm:{source_region}:{scope.account}:parameter/*"],
+                resources=[src_resource],
             )
         )
 
         replicate_ssm_lambda.add_to_role_policy(
             iam.PolicyStatement(
                 actions=["ssm:PutParameter"],
-                resources=[f"arn:aws:ssm:{target_region}:{scope.account}:parameter/*"],
+                resources=[dst_resource],
             )
         )
 

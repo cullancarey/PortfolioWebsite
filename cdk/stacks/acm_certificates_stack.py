@@ -43,6 +43,8 @@ class ACMCertificates(Stack):
             "ACMCertsSSMReplicatorV2",
             source_region=env_region,
             target_region="us-east-2",
+            param_path_prefix="/"
+            + ssm_params["website_cert_arn_param"].lstrip("/").split("/")[0],
             parameters=[
                 {
                     "source": website_cert_arn_param.parameter_name,

@@ -16,6 +16,9 @@ jobs:
   diff:
     name: Diff to ${{ inputs.environment }}
     environment: ${{ inputs.environment }}
+    concurrency:
+      group: diff-${{ inputs.environment }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     env:
       ENVIRONMENT: ${{ vars.ENVIRONMENT }}
       CDK_DEPLOY_ACCOUNT: ${{ vars.ACCOUNT_ID }}
@@ -26,6 +29,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          working-directory: cdk
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -34,25 +53,26 @@ jobs:
           aws-region: ${{ vars.REGION }}
 
       # -------------------------
-      # Build React Frontend
-      # -------------------------
-      - name: Build React Website
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
-
-      # -------------------------
       # Install CDK Dependencies
       # -------------------------
+      - name: Install Root Node Dependencies
+        run: npm ci
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build
+
       - name: Install CDK Dependencies
         working-directory: cdk
         run: |
-          npm install -g aws-cdk
-          pip install -r requirements.txt
+          uv sync --locked
 
       - name: Show CDK Version
-        run: cdk --version
+        run: npx cdk --version
 
       # -------------------------
       # CDK Synth
@@ -60,12 +80,12 @@ jobs:
       - name: CDK Synth
         working-directory: cdk
         run: |
-          cdk synth --context environment=${{ inputs.environment }}
+          npx cdk synth --context environment=${{ inputs.environment }}
 
       # -------------------------
-      # CDK Deploy
+      # CDK Diff
       # -------------------------
       - name: Diff CDK Stacks
         working-directory: cdk
         run: |
-          cdk diff --app 'cdk.out/' --all --require-approval never --context environment=${{ inputs.environment }}
+          npx cdk diff --app 'cdk.out/' --context environment=${{ inputs.environment }}

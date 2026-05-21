@@ -6,13 +6,13 @@ TEMPLATE_DIR=cdk/cdk.out
 TEMPLATES=$(wildcard $(TEMPLATE_DIR)/*.template.json)
 ENV ?= development
 
+.PHONY: install-deps build-frontend cdk-version synth cdk-deploy cdk-diff cdk-drift checkov cfnlint bandit test lint link diff deploy drift
+
 # -----------------------------
 # Python/CDK Dependencies
 # -----------------------------
 install-deps:
-	pip install --upgrade pip
-	pip install --upgrade -r cdk/requirements-dev.txt
-	pip install bandit
+	cd cdk && uv sync --locked --group dev
 
 # -----------------------------
 # Frontend Build
@@ -29,7 +29,7 @@ cdk-version:
 synth:
 	cd cdk && npx cdk synth --context environment=$(ENV)
 
-deploy:
+cdk-deploy:
 	cd cdk && npx cdk deploy --app 'cdk.out/' --all --require-approval never --context environment=$(ENV)
 
 cdk-diff:
@@ -45,25 +45,25 @@ checkov:
 	@echo "Running Checkov on $(TEMPLATE_DIR)..."
 	@for f in $(TEMPLATES); do \
 		echo "Scanning $$f with Checkov"; \
-		checkov --config-file $(CHECKOV_CONFIG) -f "$$f"; \
+		(cd cdk && uv run checkov --config-file $(CHECKOV_CONFIG) -f "../$$f"); \
 	done
 
 cfnlint:
 	@echo "Running cfn-lint on $(TEMPLATE_DIR)..."
 	@for f in $(TEMPLATES); do \
 		echo "Linting $$f with cfn-lint"; \
-		cfn-lint "$$f"; \
+		(cd cdk && uv run cfn-lint "../$$f"); \
 	done
 
 bandit:
 	@echo "Running Bandit (Python security scanner)..."
-	bandit -r -x ./cdk/cdk.out,./cdk/tests,./frontend cdk/assets/
+	cd cdk && uv run bandit -r -x ./cdk.out,./tests,../frontend assets/
 
 # -----------------------------
 # Tests & Linting
 # -----------------------------
 test:
-	cd cdk && PYTHONPATH=. pytest tests/
+	cd cdk && PYTHONPATH=. uv run pytest tests/
 
 lint: install-deps checkov cfnlint bandit
 
@@ -74,6 +74,6 @@ link: install-deps build-frontend cdk-version synth lint test
 
 diff: install-deps build-frontend cdk-version synth cdk-diff
 
-deploy: install-deps build-frontend cdk-version synth deploy
+deploy: install-deps build-frontend cdk-version synth cdk-deploy
 
 drift: install-deps build-frontend cdk-version synth cdk-drift

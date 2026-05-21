@@ -6,11 +6,13 @@ from urllib.parse import urlparse
 
 
 def send_cfn_response(event, context, status, reason=None, data=None):
+    physical_resource_id = event.get("PhysicalResourceId", context.log_stream_name)
+
     response_body = {
         "Status": status,
         "Reason": reason
         or f"See the details in CloudWatch Log Stream: {context.log_stream_name}",
-        "PhysicalResourceId": context.log_stream_name,
+        "PhysicalResourceId": physical_resource_id,
         "StackId": event["StackId"],
         "RequestId": event["RequestId"],
         "LogicalResourceId": event["LogicalResourceId"],
@@ -41,6 +43,15 @@ def send_cfn_response(event, context, status, reason=None, data=None):
 
 def lambda_handler(event, context):
     print("Received event:", json.dumps(event))
+
+    request_type = event.get("RequestType")
+    if request_type == "Delete":
+        # Nothing to clean up — SSM params are independently managed.
+        send_cfn_response(
+            event, context, status="SUCCESS", data={"Message": "Delete - nothing to do"}
+        )
+        return
+
     ssm_src = boto3.client("ssm", region_name=os.environ["SOURCE_REGION"])
     ssm_dst = boto3.client("ssm", region_name=os.environ["TARGET_REGION"])
 
