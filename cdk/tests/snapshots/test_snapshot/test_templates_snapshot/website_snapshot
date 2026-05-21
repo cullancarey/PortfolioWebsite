@@ -660,13 +660,15 @@
             },
             "AccessControlAllowMethods": {
               "Items": [
-                "POST",
+                "GET",
+                "HEAD",
                 "OPTIONS"
               ]
             },
             "AccessControlAllowOrigins": {
               "Items": [
-                "*"
+                "https://example.com",
+                "https://www.example.com"
               ]
             },
             "OriginOverride": true
@@ -674,7 +676,7 @@
           "Name": "TestWebsiteWebsiteDistributionResponseHeadersPolicyE1AD5A4B",
           "SecurityHeadersConfig": {
             "ContentSecurityPolicy": {
-              "ContentSecurityPolicy": "default-src * data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline' data: blob:; img-src * data: blob:; font-src * data: blob:; frame-src * data: blob:; connect-src * data: blob:; base-uri 'self'; form-action *; upgrade-insecure-requests;",
+              "ContentSecurityPolicy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-src 'none'; object-src 'none'; connect-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests;",
               "Override": true
             },
             "FrameOptions": {

@@ -41,6 +41,15 @@ def send_cfn_response(event, context, status, reason=None, data=None):
 
 def lambda_handler(event, context):
     print("Received event:", json.dumps(event))
+
+    request_type = event.get("RequestType")
+    if request_type == "Delete":
+        # Nothing to clean up — SSM params are independently managed.
+        send_cfn_response(
+            event, context, status="SUCCESS", data={"Message": "Delete - nothing to do"}
+        )
+        return
+
     ssm_src = boto3.client("ssm", region_name=os.environ["SOURCE_REGION"])
     ssm_dst = boto3.client("ssm", region_name=os.environ["TARGET_REGION"])
 

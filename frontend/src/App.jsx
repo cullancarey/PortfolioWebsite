@@ -9,7 +9,11 @@ import { MdEmail, MdDarkMode, MdLightMode } from "react-icons/md";
 import { HiDocumentText } from "react-icons/hi";
 
 function App() {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved) return saved;
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  });
 
   // Apply theme to body attribute
   useEffect(() => {
@@ -17,7 +21,9 @@ function App() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("theme", next);
   };
 
   return (

@@ -2,10 +2,7 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_cloudfront as cloudfront,
     aws_certificatemanager as acm,
-    aws_apigatewayv2 as apigw,
-    aws_ssm as ssm,
     RemovalPolicy,
-    Aws,
     Duration,
 )
 from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
@@ -59,22 +56,26 @@ class CloudfrontDistribution(Construct):
             cors_behavior=cloudfront.ResponseHeadersCorsBehavior(
                 access_control_allow_credentials=False,
                 access_control_allow_headers=["*"],
-                access_control_allow_methods=["POST", "OPTIONS"],
-                access_control_allow_origins=["*"],
+                access_control_allow_methods=["GET", "HEAD", "OPTIONS"],
+                access_control_allow_origins=[
+                    f"https://{domain_name}",
+                    f"https://www.{domain_name}",
+                ],
                 origin_override=True,
             ),
             security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
                 content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
                     content_security_policy=(
-                        "default-src * data: blob:; "
-                        "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; "
-                        "style-src * 'unsafe-inline' data: blob:; "
-                        "img-src * data: blob:; "
-                        "font-src * data: blob:; "
-                        "frame-src * data: blob:; "
-                        "connect-src * data: blob:; "
+                        "default-src 'self'; "
+                        "script-src 'self'; "
+                        "style-src 'self' 'unsafe-inline'; "
+                        "img-src 'self' data:; "
+                        "font-src 'self'; "
+                        "frame-src 'none'; "
+                        "object-src 'none'; "
+                        "connect-src 'self'; "
                         "base-uri 'self'; "
-                        "form-action *; "
+                        "form-action 'none'; "
                         "upgrade-insecure-requests;"
                     ),
                     override=True,
@@ -116,8 +117,7 @@ class CloudfrontDistribution(Construct):
         resume_redirect_function = cloudfront.Function(
             self,
             "ResumeRewriteFunction",
-            code=cloudfront.FunctionCode.from_inline(
-                """
+            code=cloudfront.FunctionCode.from_inline("""
                 function handler(event) {
                     var request = event.request;
                     var uri = request.uri;
@@ -130,8 +130,7 @@ class CloudfrontDistribution(Construct):
 
                     return request;
                     }
-                """
-            ),
+                """),
         )
 
         self.cf_distribution = cloudfront.Distribution(

@@ -43,14 +43,14 @@ checkov:
 	@echo "Running Checkov on $(TEMPLATE_DIR)..."
 	@for f in $(TEMPLATES); do \
 		echo "Scanning $$f with Checkov"; \
-		cd cdk && uv run checkov --config-file $(CHECKOV_CONFIG) -f "../$$f"; \
+		(cd cdk && uv run checkov --config-file $(CHECKOV_CONFIG) -f "../$$f"); \
 	done
 
 cfnlint:
 	@echo "Running cfn-lint on $(TEMPLATE_DIR)..."
 	@for f in $(TEMPLATES); do \
 		echo "Linting $$f with cfn-lint"; \
-		cd cdk && uv run cfn-lint "../$$f"; \
+		(cd cdk && uv run cfn-lint "../$$f"); \
 	done
 
 bandit:

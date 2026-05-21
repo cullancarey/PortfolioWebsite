@@ -22,6 +22,11 @@ environment = (
     or "development"
 )
 environment_config = app.node.try_get_context(environment)
+if environment_config is None:
+    raise ValueError(
+        f"No configuration found for environment '{environment}'. "
+        "Check that the environment key exists in cdk.context.json."
+    )
 
 account_id = environment_config["account_id"]
 region = environment_config["region"]

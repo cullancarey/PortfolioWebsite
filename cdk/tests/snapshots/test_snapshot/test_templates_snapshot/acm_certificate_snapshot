@@ -151,7 +151,7 @@
         ],
         "Code": {
           "ImageUri": {
-            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:db3a7b62c7478a0f4ad69cc79fa8ab6583cd97b9f3d0fc354b0daf90905fdee7"
+            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:d41030ba7eadb53a09014a478336c5c8e18d62299d4a0995bc53afcdd55f2cb0"
           }
         },
         "Environment": {
@@ -228,23 +228,14 @@
         "PolicyDocument": {
           "Statement": [
             {
-              "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:logs:*:*:*"
-            },
-            {
               "Action": "ssm:GetParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/*"
+              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/dummy"
             },
             {
               "Action": "ssm:PutParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/*"
+              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/dummy"
             }
           ],
           "Version": "2012-10-17"

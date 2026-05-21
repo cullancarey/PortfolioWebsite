@@ -18,6 +18,7 @@ class SsmParameterReplicator(Construct):
         source_region: str,
         target_region: str,
         parameters: list,
+        param_path_prefix: str = "",
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -43,28 +44,25 @@ class SsmParameterReplicator(Construct):
         )
 
         # Add required permissions to the auto-generated role
-        replicate_ssm_lambda.add_to_role_policy(
-            iam.PolicyStatement(
-                actions=[
-                    "logs:CreateLogGroup",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
-                ],
-                resources=["arn:aws:logs:*:*:*"],
-            )
-        )
+        # Scope to the specific parameter path prefix to follow least-privilege.
+        # The leading slash is part of the SSM parameter name but not the ARN path.
+        arn_path_prefix = param_path_prefix.lstrip("/") if param_path_prefix else "*"
 
         replicate_ssm_lambda.add_to_role_policy(
             iam.PolicyStatement(
                 actions=["ssm:GetParameter"],
-                resources=[f"arn:aws:ssm:{source_region}:{scope.account}:parameter/*"],
+                resources=[
+                    f"arn:aws:ssm:{source_region}:{scope.account}:parameter/{arn_path_prefix}"
+                ],
             )
         )
 
         replicate_ssm_lambda.add_to_role_policy(
             iam.PolicyStatement(
                 actions=["ssm:PutParameter"],
-                resources=[f"arn:aws:ssm:{target_region}:{scope.account}:parameter/*"],
+                resources=[
+                    f"arn:aws:ssm:{target_region}:{scope.account}:parameter/{arn_path_prefix}"
+                ],
             )
         )
 
