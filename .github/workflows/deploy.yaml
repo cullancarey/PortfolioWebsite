@@ -61,9 +61,6 @@ jobs:
       # -------------------------
       # Install CDK Dependencies
       # -------------------------
-      - name: Install Root Node Dependencies
-        run: npm ci
-
       - name: Install CDK Dependencies
         working-directory: cdk
         run: |

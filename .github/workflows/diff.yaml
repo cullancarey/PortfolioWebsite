@@ -50,20 +50,8 @@ jobs:
           aws-region: ${{ vars.REGION }}
 
       # -------------------------
-      # Build React Frontend
-      # -------------------------
-      - name: Build React Website
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
-
-      # -------------------------
       # Install CDK Dependencies
       # -------------------------
-      - name: Install Root Node Dependencies
-        run: npm ci
-
       - name: Install CDK Dependencies
         working-directory: cdk
         run: |
