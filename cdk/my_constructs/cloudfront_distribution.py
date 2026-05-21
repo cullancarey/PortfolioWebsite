@@ -67,7 +67,7 @@ class CloudfrontDistribution(Construct):
                 content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
                     content_security_policy=(
                         "default-src 'self'; "
-                        "script-src 'self'; "
+                        "script-src 'self' 'sha256-+CaFHqmuBrWElxqcKIawFMiVbQMosw0uxx0Cj5BjXKg='; "
                         "style-src 'self' 'unsafe-inline'; "
                         "img-src 'self' data:; "
                         "font-src 'self'; "

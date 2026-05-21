@@ -676,7 +676,7 @@
           "Name": "TestWebsiteWebsiteDistributionResponseHeadersPolicyE1AD5A4B",
           "SecurityHeadersConfig": {
             "ContentSecurityPolicy": {
-              "ContentSecurityPolicy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-src 'none'; object-src 'none'; connect-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests;",
+              "ContentSecurityPolicy": "default-src 'self'; script-src 'self' 'sha256-+CaFHqmuBrWElxqcKIawFMiVbQMosw0uxx0Cj5BjXKg='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-src 'none'; object-src 'none'; connect-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests;",
               "Override": true
             },
             "FrameOptions": {

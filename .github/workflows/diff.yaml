@@ -58,6 +58,14 @@ jobs:
       - name: Install Root Node Dependencies
         run: npm ci
 
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build
+
       - name: Install CDK Dependencies
         working-directory: cdk
         run: |
