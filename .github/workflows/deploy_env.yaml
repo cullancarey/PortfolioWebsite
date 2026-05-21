@@ -1,5 +1,5 @@
 name: Deploy CDK
-run-name: Running ${{github.workflow}} off of ${{ github.ref_name }}
+run-name: "Deploy · ${{ github.ref_name }}"
 
 on:
   push:

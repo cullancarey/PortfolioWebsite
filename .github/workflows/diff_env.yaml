@@ -1,5 +1,5 @@
 name: Diff CDK
-run-name: Running CDK Diff for PR into ${{ github.event.pull_request.base.ref }}
+run-name: "Diff · PR #${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}"
 
 on:
   pull_request:
