@@ -230,12 +230,12 @@
             {
               "Action": "ssm:GetParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/dummy"
+              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/dummy/*"
             },
             {
               "Action": "ssm:PutParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/dummy"
+              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/dummy/*"
             }
           ],
           "Version": "2012-10-17"

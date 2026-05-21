@@ -16,6 +16,9 @@ jobs:
   diff:
     name: Diff to ${{ inputs.environment }}
     environment: ${{ inputs.environment }}
+    concurrency:
+      group: diff-${{ inputs.environment }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     env:
       ENVIRONMENT: ${{ vars.ENVIRONMENT }}
       CDK_DEPLOY_ACCOUNT: ${{ vars.ACCOUNT_ID }}
@@ -52,6 +55,9 @@ jobs:
       # -------------------------
       # Install CDK Dependencies
       # -------------------------
+      - name: Install Root Node Dependencies
+        run: npm ci
+
       - name: Install CDK Dependencies
         working-directory: cdk
         run: |

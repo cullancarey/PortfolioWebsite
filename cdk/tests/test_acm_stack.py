@@ -93,3 +93,36 @@ def test_replicator_lambda_has_ssm_permissions(acm_stack):
 
     assert "ssm:GetParameter" in all_actions
     assert "ssm:PutParameter" in all_actions
+
+
+def test_ssm_permissions_have_path_wildcard(acm_stack):
+    """
+    Ensure SSM IAM policies scope to a path prefix with a trailing /*
+    wildcard, not an exact parameter name. Without /*, the Lambda would
+    get access denied on any parameter under that path.
+    """
+    template = Template.from_stack(acm_stack)
+
+    policies = template.find_resources("AWS::IAM::Policy")
+    ssm_resources = []
+    for policy in policies.values():
+        stmts = policy["Properties"]["PolicyDocument"]["Statement"]
+        stmts = stmts if isinstance(stmts, list) else [stmts]
+        for stmt in stmts:
+            if stmt.get("Effect") != "Allow":
+                continue
+            actions = stmt.get("Action", [])
+            if isinstance(actions, str):
+                actions = [actions]
+            if any(a.startswith("ssm:") for a in actions):
+                resource = stmt.get("Resource", [])
+                if isinstance(resource, str):
+                    resource = [resource]
+                ssm_resources.extend(resource)
+
+    # Every scoped SSM resource must end with /* so sub-parameters are covered
+    for resource in ssm_resources:
+        if isinstance(resource, str) and ":parameter/" in resource:
+            assert resource.endswith(
+                "/*"
+            ), f"SSM IAM resource missing trailing /* wildcard: {resource}"
