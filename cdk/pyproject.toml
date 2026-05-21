@@ -4,16 +4,16 @@ version = "1.0.0"
 description = "AWS CDK infrastructure for the PortfolioWebsite project"
 requires-python = ">=3.13"
 dependencies = [
-    "aws-cdk-lib==2.231.0",
-    "constructs==10.4.3",
+    "aws-cdk-lib==2.256.1",
+    "constructs==10.6.0",
 ]
 
 [dependency-groups]
 dev = [
-    "bandit==1.9.2",
-    "cfn-lint==1.42.0",
+    "bandit==1.9.4",
+    "cfn-lint==1.51.0",
     "checkov",
-    "pytest==9.0.1",
+    "pytest==9.0.3",
     "pytest-snapshot==0.9.0",
 ]
 
