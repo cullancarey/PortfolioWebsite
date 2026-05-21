@@ -6,11 +6,13 @@ from urllib.parse import urlparse
 
 
 def send_cfn_response(event, context, status, reason=None, data=None):
+    physical_resource_id = event.get("PhysicalResourceId", context.log_stream_name)
+
     response_body = {
         "Status": status,
         "Reason": reason
         or f"See the details in CloudWatch Log Stream: {context.log_stream_name}",
-        "PhysicalResourceId": context.log_stream_name,
+        "PhysicalResourceId": physical_resource_id,
         "StackId": event["StackId"],
         "RequestId": event["RequestId"],
         "LogicalResourceId": event["LogicalResourceId"],
