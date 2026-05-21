@@ -14,18 +14,18 @@ The website infrastructure is fully managed by AWS CDK. The CDK code is organize
 
 ### Constructs
 
-- [ACMCertificates](cdk/my_constructs/acm_certificate.py): Manages ACM certificates.
-- [BackupWebsiteBucket](cdk/my_constructs/s3_bucket.py): Creates a backup S3 bucket.
-- [CloudfrontDistribution](cdk/my_constructs/cloudfront_distribution.py): Manages CloudFront distributions.
+- [AcmCertificate](cdk/my_constructs/acm_certificate.py): Creates ACM certificates.
 - [S3Bucket](cdk/my_constructs/s3_bucket.py): Creates and configures S3 buckets.
+- [CloudfrontDistribution](cdk/my_constructs/cloudfront_distribution.py): Manages CloudFront distributions.
+- [SsmParameterReplicator](cdk/my_constructs/ssm_param_replicator.py): Replicates selected SSM parameters across regions.
 
 For more details, see [Constructs](cdk/my_constructs/).
 
 ### Stacks
 
-- [ACMCertificates](cdk/stacks/acm_certificates.py): ACM certificates stack.
+- [ACMCertificates](cdk/stacks/acm_certificates_stack.py): ACM certificates stack.
 - [BackupWebsiteBucket](cdk/stacks/backup_website_bucket.py): Backup website bucket stack.
-- [Website](cdk/stacks/website.py): Main website stack.
+- [Website](cdk/stacks/website_stack.py): Main website stack.
 
 For more details, see [Stacks](cdk/stacks/).
 

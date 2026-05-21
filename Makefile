@@ -6,6 +6,8 @@ TEMPLATE_DIR=cdk/cdk.out
 TEMPLATES=$(wildcard $(TEMPLATE_DIR)/*.template.json)
 ENV ?= development
 
+.PHONY: install-deps build-frontend cdk-version synth cdk-deploy cdk-diff cdk-drift checkov cfnlint bandit test lint link diff deploy drift
+
 # -----------------------------
 # Python/CDK Dependencies
 # -----------------------------
@@ -27,7 +29,7 @@ cdk-version:
 synth:
 	cd cdk && npx cdk synth --context environment=$(ENV)
 
-deploy:
+cdk-deploy:
 	cd cdk && npx cdk deploy --app 'cdk.out/' --all --require-approval never --context environment=$(ENV)
 
 cdk-diff:
@@ -72,6 +74,6 @@ link: install-deps build-frontend cdk-version synth lint test
 
 diff: install-deps build-frontend cdk-version synth cdk-diff
 
-deploy: install-deps build-frontend cdk-version synth deploy
+deploy: install-deps build-frontend cdk-version synth cdk-deploy
 
 drift: install-deps build-frontend cdk-version synth cdk-drift
