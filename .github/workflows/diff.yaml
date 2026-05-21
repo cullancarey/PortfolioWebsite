@@ -88,4 +88,4 @@ jobs:
       - name: Diff CDK Stacks
         working-directory: cdk
         run: |
-          npx cdk diff --app 'cdk.out/' --all --context environment=${{ inputs.environment }}
+          npx cdk diff --app 'cdk.out/' --context environment=${{ inputs.environment }}
