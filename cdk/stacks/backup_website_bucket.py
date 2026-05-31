@@ -1,3 +1,6 @@
+import boto3
+from botocore.exceptions import ClientError
+
 from aws_cdk import (
     Aws,
     Stack,
@@ -33,26 +36,35 @@ class BackupWebsiteBucketStack(Stack):
         )
 
         # Write parameters to SSM (in the stack's region)
-        bucket_arn_param = ssm.StringParameter(
-            self,
-            "BackupBucketArnParam",
-            parameter_name=ssm_params["backup_website_bucket_arn_param"],
-            string_value=bucket_arn,
-        )
+        # For preview environments, check if parameters already exist to avoid
+        # Early Validation hook errors on re-deployment
+        bucket_arn_param_name = ssm_params["backup_website_bucket_arn_param"]
+        bucket_domain_param_name = ssm_params["backup_website_bucket_domain_name_param"]
+        bucket_name_param_name = ssm_params["backup_website_bucket_name_param"]
 
-        bucket_domain_name_param = ssm.StringParameter(
-            self,
-            "BackupBucketDomainNameParam",
-            parameter_name=ssm_params["backup_website_bucket_domain_name_param"],
-            string_value=bucket_domain_name,
-        )
+        if not self._parameter_exists(bucket_arn_param_name, region):
+            ssm.StringParameter(
+                self,
+                "BackupBucketArnParam",
+                parameter_name=bucket_arn_param_name,
+                string_value=bucket_arn,
+            )
 
-        bucket_name_param = ssm.StringParameter(
-            self,
-            "BackupBucketNameParam",
-            parameter_name=ssm_params["backup_website_bucket_name_param"],
-            string_value=bucket_name,
-        )
+        if not self._parameter_exists(bucket_domain_param_name, region):
+            ssm.StringParameter(
+                self,
+                "BackupBucketDomainNameParam",
+                parameter_name=bucket_domain_param_name,
+                string_value=bucket_domain_name,
+            )
+
+        if not self._parameter_exists(bucket_name_param_name, region):
+            ssm.StringParameter(
+                self,
+                "BackupBucketNameParam",
+                parameter_name=bucket_name_param_name,
+                string_value=bucket_name,
+            )
 
         # Replicate these parameters to the configured target region
         replication_config = build_ssm_replication_config(
@@ -71,6 +83,31 @@ class BackupWebsiteBucketStack(Stack):
             param_path_prefix=replication_config.param_path_prefix,
             parameters=replication_config.parameters,
         )
+
+    @staticmethod
+    def _parameter_exists(parameter_name: str, region: str) -> bool:
+        """Check if an SSM parameter exists in the specified region.
+
+        Args:
+            parameter_name: The name of the SSM parameter
+            region: The AWS region to check
+
+        Returns:
+            True if the parameter exists, False otherwise
+        """
+        try:
+            ssm_client = boto3.client("ssm", region_name=region)
+            ssm_client.get_parameter(Name=parameter_name)
+            return True
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "ParameterNotFound":
+                return False
+            # For any other error (e.g., auth), assume parameter doesn't exist
+            # to allow CDK to attempt creation
+            return False
+        except Exception:
+            # If we can't connect/check, assume it doesn't exist
+            return False
 
     def _allow_cloudfront_read_access_to_backup_bucket(self) -> None:
         """Allow CloudFront distributions in this account to read backup objects.
