@@ -62,8 +62,10 @@ def acm_stack(
         scope=test_app,
         id="TestACMCertificates",
         domain_name="example.com",
+        hosted_zone_domain_name="example.com",
         env_region=test_region,
         ssm_params=acm_ssm_params,
+        environment="development",
         env=test_env,
         cross_region_references=True,
     )
@@ -97,6 +99,7 @@ def website_stack(
         scope=test_app,
         id="TestWebsite",
         domain_name="example.com",
+        hosted_zone_domain_name="example.com",
         source_file_path="tests/assets",
         acm_ssm_params=acm_ssm_params,
         backup_website_bucket_ssm_params=backup_ssm_params,

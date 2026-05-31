@@ -12,9 +12,11 @@ class ACMCertificatesStack(Stack):
         scope: Construct,
         id: str,
         domain_name: str,
+        hosted_zone_domain_name: str,
         env_region: str,
         ssm_params: dict,
         replication_target_region: str = "us-east-2",
+        environment: str = "development",
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -23,7 +25,7 @@ class ACMCertificatesStack(Stack):
         hosted_zone = lookup_hosted_zone(
             self,
             stack_id=id,
-            domain_name=domain_name,
+            hosted_zone_domain_name=hosted_zone_domain_name,
         )
 
         # Certificates (exposed as stack attributes for use in other stacks/tests)
@@ -32,6 +34,7 @@ class ACMCertificatesStack(Stack):
             "WebsiteCertificate",
             domain_name=domain_name,
             hosted_zone=hosted_zone,
+            include_wildcard_san=environment == "preview",
         )
 
         # Store certificate ARNs in SSM Parameters

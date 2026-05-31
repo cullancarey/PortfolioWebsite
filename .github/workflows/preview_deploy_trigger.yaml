@@ -1,0 +1,21 @@
+name: Deploy Preview Trigger
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - develop
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    name: Deploy Preview
+    uses: ./.github/workflows/preview_deploy.yaml
+    with:
+      preview_id: pr-${{ github.event.pull_request.number }}
+      pr_number: ${{ github.event.pull_request.number }}

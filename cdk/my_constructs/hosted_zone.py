@@ -8,11 +8,11 @@ def lookup_hosted_zone(
     scope: Construct,
     *,
     stack_id: str,
-    domain_name: str,
+    hosted_zone_domain_name: str,
 ) -> route53.IHostedZone:
     """Look up the Route53 hosted zone for a given domain."""
     return route53.HostedZone.from_lookup(
         scope,
         f"{stack_id}-HostedZone",
-        domain_name=domain_name,
+        domain_name=hosted_zone_domain_name,
     )

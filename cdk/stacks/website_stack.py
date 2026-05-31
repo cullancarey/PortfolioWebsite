@@ -23,11 +23,13 @@ class WebsiteStack(Stack):
         scope: Construct,
         id: str,
         domain_name: str,
+        hosted_zone_domain_name: str,
         source_file_path: str,
         acm_ssm_params: dict,
         backup_website_bucket_ssm_params: dict,
         geo_restrictions: dict = None,
         cloudfront_price_class: str = "PRICE_CLASS_100",
+        include_www_alias: bool = True,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -35,7 +37,7 @@ class WebsiteStack(Stack):
         hosted_zone = lookup_hosted_zone(
             self,
             stack_id=id,
-            domain_name=domain_name,
+            hosted_zone_domain_name=hosted_zone_domain_name,
         )
         website_certificate = self._load_website_certificate(acm_ssm_params)
         _backup_bucket_arn, backup_bucket_name = self._load_backup_bucket_data(
@@ -59,6 +61,7 @@ class WebsiteStack(Stack):
             hosted_zone=hosted_zone,
             domain_name=domain_name,
             distribution=website_distribution.cf_distribution,
+            include_www_alias=include_www_alias,
         )
 
         website_log_group = self._create_log_group(name=f"{id}-WebsiteFilesLogGroup")
@@ -114,10 +117,14 @@ class WebsiteStack(Stack):
         hosted_zone: route53.HostedZone,
         domain_name: str,
         distribution: cloudfront.Distribution,
+        include_www_alias: bool,
     ) -> None:
-        """Create the root and www Route 53 alias records."""
+        """Create the Route 53 alias records for the site hostname."""
         self._create_dns_alias_record(hosted_zone, domain_name, distribution)
-        self._create_dns_alias_record(hosted_zone, f"www.{domain_name}", distribution)
+        if include_www_alias:
+            self._create_dns_alias_record(
+                hosted_zone, f"www.{domain_name}", distribution
+            )
 
     def _create_dns_alias_record(
         self,
