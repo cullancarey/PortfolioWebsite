@@ -100,6 +100,15 @@ include_www_alias = True
 if preview_id:
     domain_name = f"{preview_id}.{domain_name}"
     include_www_alias = False
+    # Namespace SSM parameters by preview_id to avoid conflicts between preview environments
+    acm_ssm_params = {
+        k: v.replace("/Preview/", f"/Preview/{preview_id}/")
+        for k, v in acm_ssm_params.items()
+    }
+    backup_website_bucket_ssm_params = {
+        k: v.replace("/Preview/", f"/Preview/{preview_id}/")
+        for k, v in backup_website_bucket_ssm_params.items()
+    }
 
 env = Environment(account=account_id, region=region)
 cloudfront_env = Environment(account=account_id, region=cloudfront_region)

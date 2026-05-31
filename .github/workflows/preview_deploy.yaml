@@ -104,9 +104,9 @@ jobs:
       - name: Wait for Preview SSM Parameters
         run: |
           parameters=(
-            "/Preview/WebsiteCertificateArn"
-            "/Preview/BackupWebsiteBucketArn"
-            "/Preview/BackupWebsiteBucketName"
+            "/Preview/${{ env.NORMALIZED_PREVIEW_ID }}/WebsiteCertificateArn"
+            "/Preview/${{ env.NORMALIZED_PREVIEW_ID }}/BackupWebsiteBucketArn"
+            "/Preview/${{ env.NORMALIZED_PREVIEW_ID }}/BackupWebsiteBucketName"
           )
 
           deadline=$((SECONDS + 300))
