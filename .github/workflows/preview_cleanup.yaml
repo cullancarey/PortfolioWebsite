@@ -73,6 +73,15 @@ jobs:
           echo "NORMALIZED_PREVIEW_ID=$normalized_preview_id" >> "$GITHUB_ENV"
 
       # -------------------------
+      # Build React Frontend
+      # -------------------------
+      - name: Build React Website
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      # -------------------------
       # CDK Synth with Preview Contexts
       # -------------------------
       - name: CDK Synth Shared Preview Infra

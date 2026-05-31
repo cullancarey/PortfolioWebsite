@@ -24,7 +24,7 @@ class AcmCertificate(Construct):
         scope: Construct,
         id: str,
         domain_name: str,
-        hosted_zone: route53.HostedZone,
+        hosted_zone: route53.IHostedZone,
         include_wildcard_san: bool = False,
         **kwargs,
     ) -> None:

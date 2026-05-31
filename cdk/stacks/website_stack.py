@@ -114,7 +114,7 @@ class WebsiteStack(Stack):
     def _create_dns_alias_records(
         self,
         *,
-        hosted_zone: route53.HostedZone,
+        hosted_zone: route53.IHostedZone,
         domain_name: str,
         distribution: cloudfront.Distribution,
         include_www_alias: bool,
@@ -128,7 +128,7 @@ class WebsiteStack(Stack):
 
     def _create_dns_alias_record(
         self,
-        hosted_zone: route53.HostedZone,
+        hosted_zone: route53.IHostedZone,
         record_name: str,
         distribution: cloudfront.Distribution,
     ) -> None:
