@@ -195,10 +195,8 @@ class CloudfrontDistribution(Construct):
                 """),
         )
 
-        self.cf_distribution = cloudfront.Distribution(
-            self,
-            f"WebsiteDistribution",
-            default_behavior=cloudfront.BehaviorOptions(
+        distribution_kwargs = {
+            "default_behavior": cloudfront.BehaviorOptions(
                 origin=origin_group,
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
@@ -212,7 +210,7 @@ class CloudfrontDistribution(Construct):
                     )
                 ],
             ),
-            error_responses=[
+            "error_responses": [
                 cloudfront.ErrorResponse(
                     http_status=403, response_page_path="/error.html"
                 ),
@@ -232,13 +230,22 @@ class CloudfrontDistribution(Construct):
                     http_status=504, response_page_path="/error.html"
                 ),
             ],
-            domain_names=[domain_name, f"www.{domain_name}"],
-            default_root_object="index.html",
-            price_class=cloudfront.PriceClass.PRICE_CLASS_100,
-            comment=f"Distribution for {domain_name}",
-            certificate=certificate,
-            enabled=True,
-            geo_restriction=self._get_geo_restriction(geo_restrictions),
+            "domain_names": [domain_name, f"www.{domain_name}"],
+            "default_root_object": "index.html",
+            "price_class": cloudfront.PriceClass.PRICE_CLASS_100,
+            "comment": f"Distribution for {domain_name}",
+            "certificate": certificate,
+            "enabled": True,
+        }
+
+        geo_restriction = self._get_geo_restriction(geo_restrictions)
+        if geo_restriction is not None:
+            distribution_kwargs["geo_restriction"] = geo_restriction
+
+        self.cf_distribution = cloudfront.Distribution(
+            self,
+            f"WebsiteDistribution",
+            **distribution_kwargs,
         )
 
         self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
@@ -266,7 +273,9 @@ class CloudfrontDistribution(Construct):
             "",
         )
 
-    def _get_geo_restriction(self, geo_restrictions: dict) -> cloudfront.GeoRestriction:
+    def _get_geo_restriction(
+        self, geo_restrictions: dict
+    ) -> Optional[cloudfront.GeoRestriction]:
         """Build a CloudFront GeoRestriction based on configuration.
 
         Args:
@@ -282,10 +291,9 @@ class CloudfrontDistribution(Construct):
 
         if restriction_type == "blacklist" and locations:
             return cloudfront.GeoRestriction.denylist(*locations)
-        elif restriction_type == "whitelist" and locations:
+        if restriction_type == "whitelist" and locations:
             return cloudfront.GeoRestriction.allowlist(*locations)
-        else:
-            # Default to no restrictions
-            return (
-                cloudfront.GeoRestriction.denylist()
-            )  # Empty denylist = no restrictions
+
+        # No geo restrictions configured means CloudFront should not receive
+        # a GeoRestriction block at all.
+        return None

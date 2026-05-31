@@ -5,8 +5,15 @@
     "domain_name": "develop.cullancarey.com",
     "file_path": "../frontend/dist",
     "geo_restrictions": {
-      "restriction_type": "none",
-      "locations": []
+      "restriction_type": "blacklist",
+      "locations": [
+        "RU",
+        "KP",
+        "IR",
+        "SY",
+        "CU"
+      ],
+      "comment": "OFAC-sanctioned regions per US export control requirements"
     },
     "acm_ssm_params": {
       "website_cert_arn_param": "/ACMCertificates/WebsiteCertificateArn",
