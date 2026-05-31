@@ -54,7 +54,7 @@ class BackupWebsiteBucketStack(Stack):
             string_value=bucket_name,
         )
 
-        # Replicate these parameters to another region (us-east-2)
+        # Replicate these parameters to the configured target region
         replication_config = build_ssm_replication_config(
             [
                 ssm_params["backup_website_bucket_arn_param"],

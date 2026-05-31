@@ -39,7 +39,7 @@ class SSMParameterReplicator(Construct):
         param_path_prefix: str = "",
         **kwargs,
     ) -> None:
-        """Initialize the SsmParameterReplicator construct.
+        """Initialize the SSMParameterReplicator construct.
 
         Args:
             scope: The scope/parent construct
