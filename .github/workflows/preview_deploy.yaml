@@ -40,13 +40,13 @@ jobs:
           node-version: '24'
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v8
+        uses: astral-sh/setup-uv@v8.1
         with:
           enable-cache: true
           working-directory: cdk
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6.1
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/GitHubActionsCDKDeploymentRole-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
           role-session-name: cdk-preview-${{ inputs.preview_id }}
