@@ -89,7 +89,8 @@ jobs:
           npx cdk synth \
             --app "uv run --no-sync --no-dev python app.py" \
             --context environment=preview \
-            --context stack_scope=shared-infra
+            --context stack_scope=shared-infra \
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
 
       - name: Deploy Shared Preview Infra
         working-directory: cdk
@@ -99,7 +100,8 @@ jobs:
             --all \
             --require-approval never \
             --context environment=preview \
-            --context stack_scope=shared-infra
+            --context stack_scope=shared-infra \
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
 
       - name: Wait for Preview SSM Parameters
         run: |
@@ -145,7 +147,7 @@ jobs:
             --app "uv run --no-sync --no-dev python app.py" \
             --context environment=preview \
             --context stack_scope=website-only \
-            --context preview_id=${{ inputs.preview_id }}
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
 
       # -------------------------
       # CDK Deploy Branch Preview Stack
@@ -159,7 +161,7 @@ jobs:
             --require-approval never \
             --context environment=preview \
             --context stack_scope=website-only \
-            --context preview_id=${{ inputs.preview_id }}
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
 
       # -------------------------
       # Output Preview URL

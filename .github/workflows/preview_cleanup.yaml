@@ -66,22 +66,36 @@ jobs:
       - name: Show CDK Version
         run: npx cdk --version
 
+      - name: Normalize Preview ID
+        run: |
+          normalized_preview_id=$(echo "${{ inputs.preview_id }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//; s/-+/-/g; s/^(.{1,40}).*$/\1/')
+          echo "NORMALIZED_PREVIEW_ID=$normalized_preview_id" >> "$GITHUB_ENV"
+
       # -------------------------
       # CDK Synth with Preview Contexts
       # -------------------------
-      - name: CDK Synth
+      - name: CDK Synth Shared Preview Infra
+        working-directory: cdk
+        run: |
+          npx cdk synth \
+            --app "uv run --no-sync --no-dev python app.py" \
+            --context environment=preview \
+            --context stack_scope=shared-infra \
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
+
+      - name: CDK Synth Preview Website Stack
         working-directory: cdk
         run: |
           npx cdk synth \
             --app "uv run --no-sync --no-dev python app.py" \
             --context environment=preview \
             --context stack_scope=website-only \
-            --context preview_id=${{ inputs.preview_id }}
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
 
       # -------------------------
       # CDK Destroy
       # -------------------------
-      - name: Destroy CDK Preview Stack
+      - name: Destroy Preview Website Stack
         working-directory: cdk
         run: |
           npx cdk destroy \
@@ -90,7 +104,18 @@ jobs:
             --force \
             --context environment=preview \
             --context stack_scope=website-only \
-            --context preview_id=${{ inputs.preview_id }}
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
+
+      - name: Destroy Shared Preview Infra
+        working-directory: cdk
+        run: |
+          npx cdk destroy \
+            --app 'cdk.out/' \
+            --all \
+            --force \
+            --context environment=preview \
+            --context stack_scope=shared-infra \
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
 
       # -------------------------
       # Comment Cleanup on PR
