@@ -1,0 +1,21 @@
+name: Deploy Preview Trigger
+
+on:
+  push:
+    branches:
+      - feature/*
+
+permissions:
+  id-token: write
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    name: Deploy Preview
+    uses: ./.github/workflows/preview_deploy.yaml
+    with:
+      # Push events expose the feature branch as github.ref_name; cleanup uses
+      # github.head_ref from the PR event, which resolves to the same branch.
+      preview_id: ${{ github.ref_name }}

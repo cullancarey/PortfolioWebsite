@@ -1,0 +1,21 @@
+name: Cleanup Preview Trigger
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - develop
+
+permissions:
+  id-token: write
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  cleanup-preview:
+    name: Cleanup Preview
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/preview_cleanup.yaml
+    with:
+      preview_id: ${{ github.head_ref }}

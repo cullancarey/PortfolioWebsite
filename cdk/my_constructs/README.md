@@ -1,70 +1,70 @@
-# Python CDK Constructs for AWS Services
+# CDK Constructs
 
-This repository contains Python CDK constructs for various AWS services such as ACM, API Gateway, CloudFront, and S3.
+This directory contains reusable CDK constructs and helpers used by the stack layer.
 
-## Table of Contents
+## Construct Inventory
 
-- [AcmCertificate](#acmcertificate)
-- [ApiGwtoLambda](#apigwtolambda)
-- [CloudfrontDistribution](#cloudfrontdistribution)
-- [S3Bucket](#s3bucket)
+- [acm_certificate.py](acm_certificate.py)
+- [cloudfront_distribution.py](cloudfront_distribution.py)
+- [s3_bucket.py](s3_bucket.py)
+- [ssm_param_replicator.py](ssm_param_replicator.py)
+
+Helper modules:
+
+- [hosted_zone.py](hosted_zone.py)
+- [ssm_replication.py](ssm_replication.py)
 
 ## AcmCertificate
 
-This construct creates an ACM certificate for a given domain name and associates it with a Route53 hosted zone.
+File: [acm_certificate.py](acm_certificate.py)
 
-### Parameters
+Creates an ACM certificate validated through Route53.
 
-- `domain_name`: The domain name for the certificate.
-- `hosted_zone`: The Route53 hosted zone.
+Notable behavior:
 
-### Features
-
-- Creates an ACM certificate.
+- Always includes `www.<domain>` as SAN.
+- Optionally includes wildcard SAN (`*.<domain>`) via `include_wildcard_san=True` (used by preview infrastructure).
 - Enables transparency logging.
 
-## ApiGwtoLambda
+## CloudFrontDistribution
 
-This construct sets up an API Gateway HTTP API that triggers a Lambda function.
+File: [cloudfront_distribution.py](cloudfront_distribution.py)
 
-### Parameters
+Creates the CloudFront distribution used for the website.
 
-- `account_id`: AWS account ID.
-- `region`: AWS region.
-- `domain_name`: The domain name for the API.
-- `environment`: The environment (e.g., dev, prod).
+Notable behavior:
 
-### Features
-
-- Creates a Docker-based Lambda function.
-- Sets up an API Gateway HTTP API with CORS enabled.
-- Adds necessary permissions and policies.
-
-## CloudfrontDistribution
-
-This construct creates a CloudFront distribution for either an S3 bucket or an HTTP origin.
-
-### Parameters
-
-- `domain_name`: The domain name for the CloudFront distribution.
-- `origin_type`: The type of origin (either "s3" or "http").
-- `certificate`: The ACM certificate.
-- `website_s3_bucket`: The S3 bucket for the website (optional).
-- `backup_website_s3_bucket`: The backup S3 bucket (optional).
-- `api_gateway`: The API Gateway (optional).
-
-### Features
-
-- Creates a CloudFront distribution.
-- Sets up origin access control for S3.
-- Configures response headers and geo-restrictions.
+- Uses Origin Access Control (OAC) for S3 origins.
+- Uses origin group failover to a backup S3 bucket.
+- Configures security headers and cache policy.
+- Supports geo restrictions.
+- Includes URL rewrite function for `/resume`.
 
 ## S3Bucket
 
-This construct creates an S3 bucket with specific configurations.
+File: [s3_bucket.py](s3_bucket.py)
 
-### Features
+Creates a hardened S3 bucket for website content.
 
-- Creates an S3 bucket with versioning enabled.
-- Blocks public access.
-- Adds a lifecycle rule for noncurrent versions.
+Notable behavior includes secure defaults such as encryption, public access blocking, and bucket policy controls applied at stack level.
+
+## SSMParameterReplicator
+
+File: [ssm_param_replicator.py](ssm_param_replicator.py)
+
+Replicates selected SSM parameters from source region to target region using a Docker Lambda and CloudFormation custom resource provider.
+
+Notable behavior:
+
+- Least-privilege IAM path scoping.
+- Custom resource properties include source/target/parameter list so updates trigger re-execution.
+
+## Helpers
+
+### hosted_zone.py
+
+Provides `lookup_hosted_zone(...)` returning `route53.IHostedZone` using Route53 lookup.
+
+### ssm_replication.py
+
+Builds replication path metadata consumed by [ssm_param_replicator.py](ssm_param_replicator.py).

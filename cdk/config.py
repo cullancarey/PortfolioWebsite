@@ -60,6 +60,7 @@ class EnvironmentConfig:
     account_id: str
     region: str
     domain_name: str
+    hosted_zone_domain_name: str
     file_path: str
     cloudfront_region: str
     replication_target_region: str
@@ -82,6 +83,8 @@ class EnvironmentConfig:
         backup_params = _require_string_mapping(
             value, "backup_website_bucket_ssm_params"
         )
+        domain_name = str(value["domain_name"])
+        hosted_zone_domain_name = str(value.get("hosted_zone_domain_name", domain_name))
         cloudfront_region = str(value.get("cloudfront_region", "us-east-1"))
         replication_target_region = str(
             value.get("replication_target_region", "us-east-2")
@@ -100,7 +103,8 @@ class EnvironmentConfig:
         return cls(
             account_id=str(value["account_id"]),
             region=str(value["region"]),
-            domain_name=str(value["domain_name"]),
+            domain_name=domain_name,
+            hosted_zone_domain_name=hosted_zone_domain_name,
             file_path=str(value["file_path"]),
             cloudfront_region=cloudfront_region,
             replication_target_region=replication_target_region,

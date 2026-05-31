@@ -1,58 +1,74 @@
-# Python CDK Stacks for AWS Services
+# CDK Stacks
 
-This repository contains Python CDK stacks for various AWS services such as ACM, S3, CloudFront, and API Gateway.
+This directory contains the stack layer used by [cdk/app.py](../app.py).
 
-## Table of Contents
+## Stacks
 
-- [ACMCertificates](#acmcertificates)
-- [BackupWebsiteBucket](#backupwebsitebucket)
-- [Website](#website)
+### ACMCertificatesStack
 
-## ACMCertificates
+File: [acm_certificates_stack.py](acm_certificates_stack.py)
 
-This stack creates ACM certificates for a given domain name and its subdomain (e.g., `form.domain.com`).
+Purpose:
 
-### Parameters
+- Creates an ACM certificate for the website domain.
+- In preview mode, includes wildcard SAN support via the underlying construct.
+- Publishes certificate ARN to SSM.
+- Triggers cross-region SSM replication via [../my_constructs/ssm_param_replicator.py](../my_constructs/ssm_param_replicator.py).
 
-- `account_id`: AWS account ID.
-- `domain_name`: The domain name for the certificates.
+Key inputs:
 
-### Features
+- `domain_name`
+- `hosted_zone_domain_name`
+- `env_region`
+- `ssm_params`
+- `environment`
+- `replication_target_region`
 
-- Creates an ACM certificate for the main domain.
-- Creates an ACM certificate for the `form` subdomain.
-- Associates the certificates with a Route53 hosted zone.
+### BackupWebsiteBucketStack
 
-## BackupWebsiteBucket
+File: [backup_website_bucket.py](backup_website_bucket.py)
 
-This stack creates an S3 bucket that serves as a backup for the website.
+Purpose:
 
-### Features
+- Creates a backup/failover S3 bucket.
+- Publishes bucket ARN, regional domain name, and bucket name to SSM.
+- Triggers cross-region SSM replication for these parameters.
+- Adds bucket policy permissions for CloudFront read access (account-scoped distribution ARN wildcard).
 
-- Creates an S3 bucket with specific configurations.
+Key inputs:
 
-## Website
+- `ssm_params`
+- `region`
+- `replication_target_region`
 
-This stack sets up the infrastructure for a website, including S3 buckets, CloudFront distributions, and API Gateway.
+### WebsiteStack
 
-### Parameters
+File: [website_stack.py](website_stack.py)
 
-- `account_id`: AWS account ID.
-- `region`: AWS region.
-- `domain_name`: The domain name for the website.
-- `source_file_path`: The path to the source files for the website.
-- `environment`: The environment (e.g., dev, prod).
-- `website_certificate`: The ACM certificate for the website.
-- `contact_form_certificate`: The ACM certificate for the contact form.
-- `backup_website_bucket`: The S3 bucket for the backup website.
+Purpose:
 
-### Features
+- Imports certificate and backup bucket data from SSM.
+- Creates the primary website S3 bucket.
+- Creates CloudFront distribution with failover origin group.
+- Creates Route53 alias records.
+- Deploys built frontend assets to primary and backup buckets.
 
-- Creates an S3 bucket for the website.
-- Sets up a CloudFront distribution for the website.
-- Adds Route53 records for the main domain and `www` subdomain.
-- Sets up an API Gateway and Lambda function for the contact form.
-- Creates a CloudFront distribution for the contact form API.
-- Adds a Route53 record for the `form` subdomain.
-- Deploys website files to the S3 bucket.
-- Deploys backup website files to the backup S3 bucket.
+Key inputs:
+
+- `domain_name`
+- `hosted_zone_domain_name`
+- `source_file_path`
+- `acm_ssm_params`
+- `backup_website_bucket_ssm_params`
+- `geo_restrictions`
+- `cloudfront_price_class`
+- `include_www_alias`
+
+## Preview vs Non-Preview Behavior
+
+Preview behavior is orchestrated in [../app.py](../app.py), not in these stacks directly.
+
+- Preview deployments require `preview_id`.
+- Preview stack IDs are suffixed for isolation.
+- Preview SSM parameter paths are namespaced by `preview_id`.
+- Preview website deployments disable the `www` Route53 alias (`include_www_alias=False`).

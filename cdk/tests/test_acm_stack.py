@@ -1,4 +1,5 @@
-from aws_cdk.assertions import Template
+from aws_cdk.assertions import Match, Template
+from stacks.acm_certificates_stack import ACMCertificatesStack
 
 from tests.helpers import collect_allowed_actions, collect_ssm_resources
 
@@ -76,3 +77,34 @@ def test_ssm_permissions_have_path_wildcard(acm_stack):
             assert resource.endswith(
                 "/*"
             ), f"SSM IAM resource missing trailing /* wildcard: {resource}"
+
+
+def test_preview_certificate_includes_wildcard_san(
+    test_app,
+    test_env,
+    test_region,
+    acm_ssm_params,
+):
+    preview_stack = ACMCertificatesStack(
+        scope=test_app,
+        id="TestACMCertificatesPreview",
+        domain_name="example.com",
+        hosted_zone_domain_name="example.com",
+        env_region=test_region,
+        ssm_params=acm_ssm_params,
+        environment="preview",
+        env=test_env,
+        cross_region_references=True,
+    )
+
+    template = Template.from_stack(preview_stack)
+
+    template.has_resource_properties(
+        "AWS::CertificateManager::Certificate",
+        {
+            "DomainName": "example.com",
+            "SubjectAlternativeNames": Match.array_with(
+                ["www.example.com", "*.example.com"]
+            ),
+        },
+    )
