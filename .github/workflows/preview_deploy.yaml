@@ -75,10 +75,36 @@ jobs:
       - name: Show CDK Version
         run: npx cdk --version
 
+      - name: Normalize Preview ID
+        run: |
+          normalized_preview_id=$(echo "${{ inputs.preview_id }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//; s/-+/-/g; s/^(.{1,40}).*$/\1/')
+          echo "NORMALIZED_PREVIEW_ID=$normalized_preview_id" >> "$GITHUB_ENV"
+
       # -------------------------
-      # CDK Synth with Preview Contexts
+      # CDK Synth Shared Preview Infra
       # -------------------------
-      - name: CDK Synth
+      - name: CDK Synth Shared Preview Infra
+        working-directory: cdk
+        run: |
+          npx cdk synth \
+            --app "uv run --no-sync --no-dev python app.py" \
+            --context environment=preview \
+            --context stack_scope=shared-infra
+
+      - name: Deploy Shared Preview Infra
+        working-directory: cdk
+        run: |
+          npx cdk deploy \
+            --app 'cdk.out/' \
+            --all \
+            --require-approval never \
+            --context environment=preview \
+            --context stack_scope=shared-infra
+
+      # -------------------------
+      # CDK Synth Branch Preview Stack
+      # -------------------------
+      - name: CDK Synth Preview Website Stack
         working-directory: cdk
         run: |
           npx cdk synth \
@@ -88,7 +114,7 @@ jobs:
             --context preview_id=${{ inputs.preview_id }}
 
       # -------------------------
-      # CDK Deploy
+      # CDK Deploy Branch Preview Stack
       # -------------------------
       - name: Deploy CDK Preview Stack
         working-directory: cdk
@@ -107,5 +133,5 @@ jobs:
       - name: Output Preview URL
         run: |
           echo "✅ Preview environment deployed!"
-          echo "**URL:** https://${{ inputs.preview_id }}.develop.cullancarey.com"
+          echo "**URL:** https://${NORMALIZED_PREVIEW_ID}.develop.cullancarey.com"
           echo "*This preview will be automatically destroyed when the PR is merged to develop.*"
