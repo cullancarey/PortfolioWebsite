@@ -71,6 +71,14 @@ preview_id_value = app.node.try_get_context("preview_id")
 preview_id = normalize_preview_id(str(preview_id_value)) if preview_id_value else None
 if preview_id and environment != "preview":
     raise ValueError("preview_id is only supported with environment=preview")
+if environment == "preview" and stack_scope == "full":
+    raise ValueError(
+        "environment=preview does not support stack_scope=full. Use shared-infra or website-only."
+    )
+if environment == "preview" and stack_scope == "website-only" and not preview_id:
+    raise ValueError(
+        "environment=preview with stack_scope=website-only requires --context preview_id=<id>."
+    )
 
 environment_config = EnvironmentConfig.from_context(
     load_environment_context(environment)
@@ -111,10 +119,16 @@ if preview_id:
 certificates = None
 backup_bucket_stack = None
 
+acm_stack_id = "ACMCertificates"
+backup_stack_id = "BackupWebsiteBucket"
+if environment == "preview":
+    acm_stack_id = "ACMCertificatesPreview"
+    backup_stack_id = "BackupWebsiteBucketPreview"
+
 if stack_scope in {"full", "shared-infra"}:
     certificates = ACMCertificatesStack(
         scope=app,
-        id="ACMCertificates",
+        id=acm_stack_id,
         domain_name=domain_name,
         hosted_zone_domain_name=hosted_zone_domain_name,
         env_region=cloudfront_region,
@@ -127,7 +141,7 @@ if stack_scope in {"full", "shared-infra"}:
 
     backup_bucket_stack = BackupWebsiteBucketStack(
         scope=app,
-        id="BackupWebsiteBucket",
+        id=backup_stack_id,
         ssm_params=backup_website_bucket_ssm_params,
         region=cloudfront_region,
         replication_target_region=replication_target_region,

@@ -101,6 +101,40 @@ jobs:
             --context environment=preview \
             --context stack_scope=shared-infra
 
+      - name: Wait for Preview SSM Parameters
+        run: |
+          parameters=(
+            "/Preview/WebsiteCertificateArn"
+            "/Preview/BackupWebsiteBucketArn"
+            "/Preview/BackupWebsiteBucketName"
+          )
+
+          deadline=$((SECONDS + 300))
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            all_ready=true
+            for parameter_name in "${parameters[@]}"; do
+              if ! aws ssm get-parameter \
+                --region "${{ vars.REGION }}" \
+                --name "$parameter_name" \
+                --query 'Parameter.Name' \
+                --output text >/dev/null 2>&1; then
+                all_ready=false
+                break
+              fi
+            done
+
+            if [ "$all_ready" = true ]; then
+              echo "Preview parameters are available in ${{ vars.REGION }}"
+              exit 0
+            fi
+
+            echo "Waiting for preview SSM parameters to replicate to ${{ vars.REGION }}..."
+            sleep 10
+          done
+
+          echo "Timed out waiting for preview SSM parameters in ${{ vars.REGION }}"
+          exit 1
+
       # -------------------------
       # CDK Synth Branch Preview Stack
       # -------------------------
