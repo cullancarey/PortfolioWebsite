@@ -1,0 +1,47 @@
+{
+    "defaults": {
+        "acm_ssm_params": {
+            "website_cert_arn_param": "/ACMCertificates/WebsiteCertificateArn",
+            "contact_form_cert_arn_param": "/ACMCertificates/ContactFormCertificateArn"
+        },
+        "backup_website_bucket_ssm_params": {
+            "backup_website_bucket_arn_param": "/BackupWebsiteBucket/BackupWebsiteBucketArn",
+            "backup_website_bucket_domain_name_param": "/BackupWebsiteBucket/BackupWebsiteBucketDomainName",
+            "backup_website_bucket_name_param": "/BackupWebsiteBucket/BackupWebsiteBucketName"
+        }
+    },
+    "development": {
+        "account_id": "693590665244",
+        "region": "us-east-2",
+        "domain_name": "develop.cullancarey.com",
+        "file_path": "../frontend/dist",
+        "geo_restrictions": {
+            "restriction_type": "blacklist",
+            "locations": [
+                "RU",
+                "KP",
+                "IR",
+                "SY",
+                "CU"
+            ],
+            "comment": "OFAC-sanctioned regions per US export control requirements"
+        }
+    },
+    "production": {
+        "account_id": "045107234435",
+        "region": "us-east-2",
+        "domain_name": "cullancarey.com",
+        "file_path": "../frontend/dist",
+        "geo_restrictions": {
+            "restriction_type": "blacklist",
+            "locations": [
+                "RU",
+                "KP",
+                "IR",
+                "SY",
+                "CU"
+            ],
+            "comment": "OFAC-sanctioned regions per US export control requirements"
+        }
+    }
+}

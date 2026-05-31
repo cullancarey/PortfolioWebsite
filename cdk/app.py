@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import json
 import os
+from pathlib import Path
 from aws_cdk import App, Environment, Tags, Stack
 from stacks.website_stack import WebsiteStack
 from stacks.acm_certificates_stack import ACMCertificatesStack
@@ -13,6 +15,28 @@ def add_tags(stack: Stack, default_tags: dict):
     Tags.of(stack).add("stack_name", stack.stack_name)
 
 
+def load_environment_context(environment: str) -> dict:
+    """Load stable environment configuration from version-controlled JSON."""
+    config_path = Path(__file__).with_name("environments.json")
+    with config_path.open("r", encoding="utf-8") as file:
+        all_config = json.load(file)
+
+    defaults = all_config.get("defaults", {})
+    if not isinstance(defaults, dict):
+        raise TypeError("defaults must be a JSON object")
+
+    env_config = all_config.get(environment)
+    if env_config is None:
+        raise ValueError(
+            f"No configuration found for environment '{environment}'. "
+            f"Check that it exists in {config_path.name}."
+        )
+    if not isinstance(env_config, dict):
+        raise TypeError(f"Environment '{environment}' must map to a JSON object")
+
+    return {**defaults, **env_config}
+
+
 app = App()
 
 cloudfront_region = "us-east-1"
@@ -22,14 +46,9 @@ environment = (
     or app.node.try_get_context("environment")
     or "development"
 )
-environment_config = app.node.try_get_context(environment)
-if environment_config is None:
-    raise ValueError(
-        f"No configuration found for environment '{environment}'. "
-        "Check that the environment key exists in cdk.context.json."
-    )
-
-environment_config = EnvironmentConfig.from_context(environment_config)
+environment_config = EnvironmentConfig.from_context(
+    load_environment_context(environment)
+)
 
 account_id = environment_config.account_id
 region = environment_config.region
