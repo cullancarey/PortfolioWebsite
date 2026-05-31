@@ -109,7 +109,6 @@ class CloudFrontDistribution(Construct):
         return cloudfront.S3OriginAccessControl(
             self,
             "OriginAccessControl",
-            origin_access_control_name="OriginAccessControl",
             description=f"Origin Access Control for {domain_name}.",
         )
 

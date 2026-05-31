@@ -638,7 +638,7 @@
       "Properties": {
         "OriginAccessControlConfig": {
           "Description": "Origin Access Control for example.com.",
-          "Name": "OriginAccessControl",
+          "Name": "TestWebsiteWebsiteDistributionOriginAccessControl98F63BEF",
           "OriginAccessControlOriginType": "s3",
           "SigningBehavior": "always",
           "SigningProtocol": "sigv4"
