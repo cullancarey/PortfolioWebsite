@@ -113,23 +113,27 @@ jobs:
 
           deadline=$((SECONDS + 300))
           while [ "$SECONDS" -lt "$deadline" ]; do
-            all_ready=true
-            for parameter_name in "${parameters[@]}"; do
-              if ! aws ssm get-parameter \
-                --region "${{ vars.REGION }}" \
-                --name "$parameter_name" \
-                --query 'Parameter.Name' \
-                --output text >/dev/null 2>&1; then
-                all_ready=false
-                break
-              fi
-            done
+            set +e
+            missing=$(aws ssm get-parameters \
+              --region "${{ vars.REGION }}" \
+              --names "${parameters[@]}" \
+              --query 'InvalidParameters' \
+              --output text 2>&1)
+            exit_code=$?
+            set -e
 
-            if [ "$all_ready" = true ]; then
+            if [ "$exit_code" -ne 0 ]; then
+              echo "Failed to query SSM parameters in ${{ vars.REGION }}"
+              echo "$missing"
+              exit 1
+            fi
+
+            if [ -z "$missing" ] || [ "$missing" = "None" ]; then
               echo "Preview parameters are available in ${{ vars.REGION }}"
               exit 0
             fi
 
+            echo "Still waiting on parameters: $missing"
             echo "Waiting for preview SSM parameters to replicate to ${{ vars.REGION }}..."
             sleep 10
           done
