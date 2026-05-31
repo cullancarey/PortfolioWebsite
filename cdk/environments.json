@@ -1,5 +1,8 @@
 {
     "defaults": {
+        "cloudfront_region": "us-east-1",
+        "replication_target_region": "us-east-2",
+        "cloudfront_price_class": "PRICE_CLASS_100",
         "acm_ssm_params": {
             "website_cert_arn_param": "/ACMCertificates/WebsiteCertificateArn",
             "contact_form_cert_arn_param": "/ACMCertificates/ContactFormCertificateArn"

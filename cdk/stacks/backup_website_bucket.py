@@ -1,5 +1,7 @@
 from aws_cdk import (
+    Aws,
     Stack,
+    aws_iam as iam,
     aws_ssm as ssm,
 )
 from constructs import Construct
@@ -10,12 +12,19 @@ from my_constructs.ssm_replication import build_ssm_replication_config
 
 class BackupWebsiteBucketStack(Stack):
     def __init__(
-        self, scope: Construct, id: str, ssm_params: dict, region: str, **kwargs
+        self,
+        scope: Construct,
+        id: str,
+        ssm_params: dict,
+        region: str,
+        replication_target_region: str = "us-east-2",
+        **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Define your bucket
         self.backup_website_bucket = S3Bucket(self, "BackupWebsiteBucket")
+        self._allow_cloudfront_read_access_to_backup_bucket()
 
         bucket_name = self.backup_website_bucket.bucket.bucket_name
         bucket_arn = self.backup_website_bucket.bucket.bucket_arn
@@ -58,7 +67,24 @@ class BackupWebsiteBucketStack(Stack):
             self,
             "BackupBucketSSMReplicatorV2",
             source_region=region,
-            target_region="us-east-2",
+            target_region=replication_target_region,
             param_path_prefix=replication_config.param_path_prefix,
             parameters=replication_config.parameters,
+        )
+
+    def _allow_cloudfront_read_access_to_backup_bucket(self) -> None:
+        """Allow CloudFront distributions in this account to read backup objects."""
+        distribution_source_arn = (
+            f"arn:{Aws.PARTITION}:cloudfront::{Aws.ACCOUNT_ID}:distribution/*"
+        )
+
+        self.backup_website_bucket.bucket.add_to_resource_policy(
+            iam.PolicyStatement(
+                sid="AllowCloudFrontServicePrincipalReadOnlyBackup",
+                effect=iam.Effect.ALLOW,
+                principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
+                actions=["s3:GetObject"],
+                resources=[f"{self.backup_website_bucket.bucket.bucket_arn}/*"],
+                conditions={"StringLike": {"AWS:SourceArn": distribution_source_arn}},
+            )
         )

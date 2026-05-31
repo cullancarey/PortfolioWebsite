@@ -6,12 +6,12 @@ from aws_cdk import (
     aws_route53_targets as route53_targets,
     aws_s3_deployment as s3deploy,
     aws_logs as logs,
-    aws_iam as iam,
     aws_certificatemanager as acm,
     aws_ssm as ssm,
 )
 from constructs import Construct
 from my_constructs.cloudfront_distribution import CloudFrontDistribution
+from my_constructs.hosted_zone import lookup_hosted_zone
 from my_constructs.s3_bucket import S3Bucket
 
 # from my_constructs.apigw_to_lambda import ApiGwtoLambda
@@ -22,17 +22,21 @@ class WebsiteStack(Stack):
         self,
         scope: Construct,
         id: str,
-        account_id: str,
         domain_name: str,
         source_file_path: str,
         acm_ssm_params: dict,
         backup_website_bucket_ssm_params: dict,
         geo_restrictions: dict = None,
+        cloudfront_price_class: str = "PRICE_CLASS_100",
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        hosted_zone = self._lookup_hosted_zone(domain_name, id)
+        hosted_zone = lookup_hosted_zone(
+            self,
+            stack_id=id,
+            domain_name=domain_name,
+        )
         website_certificate = self._load_website_certificate(acm_ssm_params)
         backup_bucket_arn, backup_bucket_name = self._load_backup_bucket_data(
             backup_website_bucket_ssm_params
@@ -48,14 +52,7 @@ class WebsiteStack(Stack):
             website_s3_bucket=website_bucket.bucket,
             backup_bucket_name=backup_bucket_name,
             geo_restrictions=geo_restrictions,
-        )
-
-        self._allow_cloudfront_read_access(
-            website_bucket=website_bucket.bucket,
-            backup_bucket_arn=backup_bucket_arn,
-            backup_bucket_name=backup_bucket_name,
-            account_id=account_id,
-            distribution_id=website_distribution.cf_distribution.distribution_id,
+            price_class=cloudfront_price_class,
         )
 
         self._create_dns_alias_records(
@@ -87,14 +84,6 @@ class WebsiteStack(Stack):
             log_group=backup_log_group,
         )
 
-    def _lookup_hosted_zone(
-        self, domain_name: str, stack_id: str
-    ) -> route53.HostedZone:
-        """Look up the Route 53 hosted zone for the website domain."""
-        return route53.HostedZone.from_lookup(
-            self, f"{stack_id}-HostedZone", domain_name=domain_name
-        )
-
     def _load_website_certificate(self, acm_ssm_params: dict) -> acm.ICertificate:
         """Load the ACM certificate ARN from SSM and import it."""
         website_certificate_arn = ssm.StringParameter.value_for_string_parameter(
@@ -118,44 +107,6 @@ class WebsiteStack(Stack):
             backup_website_bucket_ssm_params["backup_website_bucket_name_param"],
         )
         return backup_bucket_arn, backup_bucket_name
-
-    def _allow_cloudfront_read_access(
-        self,
-        *,
-        website_bucket: s3.IBucket,
-        backup_bucket_arn: str,
-        backup_bucket_name: str,
-        account_id: str,
-        distribution_id: str,
-    ) -> None:
-        """Grant CloudFront read access to the primary and backup buckets."""
-        distribution_source_arn = (
-            f"arn:aws:cloudfront::{account_id}:distribution/{distribution_id}"
-        )
-
-        website_bucket.add_to_resource_policy(
-            iam.PolicyStatement(
-                sid="AllowCloudFrontServicePrincipalReadOnly",
-                effect=iam.Effect.ALLOW,
-                principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
-                actions=["s3:GetObject"],
-                resources=[f"{website_bucket.bucket_arn}/*"],
-                conditions={"StringEquals": {"AWS:SourceArn": distribution_source_arn}},
-            )
-        )
-
-        s3.Bucket.from_bucket_name(
-            self, "BackupBucketRef", backup_bucket_name
-        ).add_to_resource_policy(
-            iam.PolicyStatement(
-                sid="AllowCloudFrontServicePrincipalReadOnlyBackup",
-                effect=iam.Effect.ALLOW,
-                principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
-                actions=["s3:GetObject"],
-                resources=[f"{backup_bucket_arn}/*"],
-                conditions={"StringEquals": {"AWS:SourceArn": distribution_source_arn}},
-            )
-        )
 
     def _create_dns_alias_records(
         self,

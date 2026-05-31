@@ -431,7 +431,15 @@
                     "Fn::Join": [
                       "",
                       [
-                        "arn:aws:cloudfront::111111111111:distribution/",
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId"
+                        },
+                        ":distribution/",
                         {
                           "Ref": "WebsiteDistribution517833D0"
                         }
@@ -457,8 +465,7 @@
                     "/*"
                   ]
                 ]
-              },
-              "Sid": "AllowCloudFrontServicePrincipalReadOnly"
+              }
             }
           ],
           "Version": "2012-10-17"
@@ -582,7 +589,7 @@
               "Id": "TestWebsiteWebsiteDistributionOrigin10FAB420C",
               "OriginAccessControlId": {
                 "Fn::GetAtt": [
-                  "WebsiteDistributionOriginAccessControl8E32AA2E",
+                  "WebsiteDistributionOriginAccessControl6C2B84E7",
                   "Id"
                 ]
               },
@@ -605,7 +612,7 @@
               "Id": "TestWebsiteWebsiteDistributionOrigin28AE24C4F",
               "OriginAccessControlId": {
                 "Fn::GetAtt": [
-                  "WebsiteDistributionOriginAccessControl8E32AA2E",
+                  "WebsiteDistributionOriginAccessControl6C2B84E7",
                   "Id"
                 ]
               },
@@ -627,7 +634,7 @@
       "Type": "AWS::CloudFront::Distribution",
       "UpdateReplacePolicy": "Delete"
     },
-    "WebsiteDistributionOriginAccessControl8E32AA2E": {
+    "WebsiteDistributionOriginAccessControl6C2B84E7": {
       "Properties": {
         "OriginAccessControlConfig": {
           "Description": "Origin Access Control for example.com.",

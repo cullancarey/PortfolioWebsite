@@ -39,13 +39,13 @@ def load_environment_context(environment: str) -> dict:
 
 app = App()
 
-cloudfront_region = "us-east-1"
+environment = os.environ.get("ENVIRONMENT") or app.node.try_get_context("environment")
+if not environment:
+    raise ValueError(
+        "Deployment environment is required. Set ENVIRONMENT or pass "
+        "--context environment=<environment>."
+    )
 
-environment = (
-    os.environ.get("ENVIRONMENT")
-    or app.node.try_get_context("environment")
-    or "development"
-)
 environment_config = EnvironmentConfig.from_context(
     load_environment_context(environment)
 )
@@ -54,6 +54,9 @@ account_id = environment_config.account_id
 region = environment_config.region
 domain_name = environment_config.domain_name
 source_file_path = environment_config.file_path
+cloudfront_region = environment_config.cloudfront_region
+replication_target_region = environment_config.replication_target_region
+cloudfront_price_class = environment_config.cloudfront_price_class
 acm_ssm_params = environment_config.acm_ssm_params
 backup_website_bucket_ssm_params = environment_config.backup_website_bucket_ssm_params
 geo_restrictions = environment_config.geo_restrictions.to_dict()
@@ -76,6 +79,7 @@ certificates = ACMCertificatesStack(
     id="ACMCertificates",
     domain_name=domain_name,
     env_region=cloudfront_region,
+    replication_target_region=replication_target_region,
     ssm_params=acm_ssm_params,
     env=cloudfront_env,
     description=f"Stack to create ACM certificates in {cloudfront_env.region} for Cloudfront",
@@ -86,6 +90,7 @@ backup_bucket_stack = BackupWebsiteBucketStack(
     id="BackupWebsiteBucket",
     ssm_params=backup_website_bucket_ssm_params,
     region=cloudfront_region,
+    replication_target_region=replication_target_region,
     env=cloudfront_env,
     description=f"Stack to deploy the website's failover bucket in {cloudfront_env.region}",
 )
@@ -93,12 +98,12 @@ backup_bucket_stack = BackupWebsiteBucketStack(
 website_stack = WebsiteStack(
     scope=app,
     id="Website",
-    account_id=account_id,
     domain_name=domain_name,
     source_file_path=source_file_path,
     acm_ssm_params=acm_ssm_params,
     backup_website_bucket_ssm_params=backup_website_bucket_ssm_params,
     geo_restrictions=geo_restrictions,
+    cloudfront_price_class=cloudfront_price_class,
     env=env,
     description="Stack to deploy the website resources",
 )

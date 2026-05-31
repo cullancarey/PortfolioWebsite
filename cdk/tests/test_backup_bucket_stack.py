@@ -35,23 +35,20 @@ def test_bucket_has_lifecycle_and_tls(backup_stack):
         },
     )
 
-    # TLS enforcement policy
-    template.has_resource_properties(
-        "AWS::S3::BucketPolicy",
-        {
-            "PolicyDocument": {
-                "Statement": [
-                    {
-                        "Sid": "EnforceTLS",
-                        "Effect": "Deny",
-                        "Action": "s3:*",
-                        "Principal": {"AWS": "*"},
-                        "Condition": {"Bool": {"aws:SecureTransport": "false"}},
-                    }
-                ]
-            }
-        },
-    )
+    # TLS enforcement statement exists even when other policy statements are present
+    policies = template.find_resources("AWS::S3::BucketPolicy")
+    found_tls = False
+
+    for _, policy in policies.items():
+        for stmt in policy["Properties"]["PolicyDocument"]["Statement"]:
+            if stmt.get("Sid") == "EnforceTLS":
+                found_tls = True
+                assert stmt["Effect"] == "Deny"
+                assert stmt["Action"] == "s3:*"
+                assert stmt["Principal"] == {"AWS": "*"}
+                assert stmt["Condition"] == {"Bool": {"aws:SecureTransport": "false"}}
+
+    assert found_tls, "No EnforceTLS statement found in bucket policies"
 
 
 def test_ssm_parameters_created(backup_stack):

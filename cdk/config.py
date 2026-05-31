@@ -61,6 +61,9 @@ class EnvironmentConfig:
     region: str
     domain_name: str
     file_path: str
+    cloudfront_region: str
+    replication_target_region: str
+    cloudfront_price_class: Literal["PRICE_CLASS_100"]
     acm_ssm_params: Mapping[str, str]
     backup_website_bucket_ssm_params: Mapping[str, str]
     geo_restrictions: GeoRestrictionsConfig
@@ -79,6 +82,21 @@ class EnvironmentConfig:
         backup_params = _require_string_mapping(
             value, "backup_website_bucket_ssm_params"
         )
+        cloudfront_region = str(value.get("cloudfront_region", "us-east-1"))
+        replication_target_region = str(
+            value.get("replication_target_region", "us-east-2")
+        )
+
+        cloudfront_price_class = str(
+            value.get("cloudfront_price_class", "PRICE_CLASS_100")
+        )
+        valid_price_classes = {"PRICE_CLASS_ALL", "PRICE_CLASS_200", "PRICE_CLASS_100"}
+        if cloudfront_price_class not in valid_price_classes:
+            raise ValueError(
+                "cloudfront_price_class must be one of: "
+                "PRICE_CLASS_ALL, PRICE_CLASS_200, PRICE_CLASS_100"
+            )
+
         geo_restrictions = GeoRestrictionsConfig.from_context(
             value.get("geo_restrictions")
         )
@@ -88,6 +106,9 @@ class EnvironmentConfig:
             region=str(value["region"]),
             domain_name=str(value["domain_name"]),
             file_path=str(value["file_path"]),
+            cloudfront_region=cloudfront_region,
+            replication_target_region=replication_target_region,
+            cloudfront_price_class=cloudfront_price_class,
             acm_ssm_params=acm_ssm_params,
             backup_website_bucket_ssm_params=backup_params,
             geo_restrictions=geo_restrictions,

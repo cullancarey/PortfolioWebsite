@@ -90,14 +90,12 @@ def backup_stack(
 def website_stack(
     test_app: App,
     test_env: Environment,
-    test_account_id: str,
     acm_ssm_params: dict[str, str],
     backup_ssm_params: dict[str, str],
 ) -> WebsiteStack:
     return WebsiteStack(
         scope=test_app,
         id="TestWebsite",
-        account_id=test_account_id,
         domain_name="example.com",
         source_file_path="tests/assets",
         acm_ssm_params=acm_ssm_params,

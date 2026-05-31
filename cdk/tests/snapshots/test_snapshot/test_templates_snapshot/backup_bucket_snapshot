@@ -192,38 +192,7 @@
         },
         "Environment": {
           "Variables": {
-            "PARAMETERS": {
-              "Fn::Join": [
-                "",
-                [
-                  "[{\"source\": \"",
-                  {
-                    "Ref": "BackupBucketArnParamC708FC4C"
-                  },
-                  "\", \"target\": \"",
-                  {
-                    "Ref": "BackupBucketArnParamC708FC4C"
-                  },
-                  "\"}, {\"source\": \"",
-                  {
-                    "Ref": "BackupBucketDomainNameParam74DD78D5"
-                  },
-                  "\", \"target\": \"",
-                  {
-                    "Ref": "BackupBucketDomainNameParam74DD78D5"
-                  },
-                  "\"}, {\"source\": \"",
-                  {
-                    "Ref": "BackupBucketNameParam841E1F02"
-                  },
-                  "\", \"target\": \"",
-                  {
-                    "Ref": "BackupBucketNameParam841E1F02"
-                  },
-                  "\"}]"
-                ]
-              ]
-            },
+            "PARAMETERS": "[{\"source\": \"/dummy/backup/arn\", \"target\": \"/dummy/backup/arn\"}, {\"source\": \"/dummy/backup/domain\", \"target\": \"/dummy/backup/domain\"}, {\"source\": \"/dummy/backup/name\", \"target\": \"/dummy/backup/name\"}]",
             "SOURCE_REGION": "us-east-1",
             "TARGET_REGION": "us-east-2"
           }
@@ -282,34 +251,12 @@
             {
               "Action": "ssm:GetParameter",
               "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:ssm:us-east-1:111111111111:parameter/",
-                    {
-                      "Ref": "BackupBucketArnParamC708FC4C"
-                    },
-                    "/*"
-                  ]
-                ]
-              }
+              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/dummy/*"
             },
             {
               "Action": "ssm:PutParameter",
               "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:ssm:us-east-2:111111111111:parameter/",
-                    {
-                      "Ref": "BackupBucketArnParamC708FC4C"
-                    },
-                    "/*"
-                  ]
-                ]
-              }
+              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/dummy/*"
             }
           ],
           "Version": "2012-10-17"
@@ -407,6 +354,48 @@
                 }
               ],
               "Sid": "EnforceTLS"
+            },
+            {
+              "Action": "s3:GetObject",
+              "Condition": {
+                "StringLike": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId"
+                        },
+                        ":distribution/*"
+                      ]
+                    ]
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudfront.amazonaws.com"
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "BackupWebsiteBucketBucketResourceADB74572",
+                        "Arn"
+                      ]
+                    },
+                    "/*"
+                  ]
+                ]
+              },
+              "Sid": "AllowCloudFrontServicePrincipalReadOnlyBackup"
             }
           ],
           "Version": "2012-10-17"
