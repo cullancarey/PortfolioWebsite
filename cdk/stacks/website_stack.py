@@ -27,6 +27,7 @@ class Website(Stack):
         source_file_path: str,
         acm_ssm_params: dict,
         backup_website_bucket_ssm_params: dict,
+        geo_restrictions: dict = None,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -72,6 +73,7 @@ class Website(Stack):
             certificate=website_certificate,
             website_s3_bucket=website_bucket.bucket,
             backup_bucket_name=backup_bucket_name,
+            geo_restrictions=geo_restrictions,
         )
 
         website_bucket_policy_statement = iam.PolicyStatement(

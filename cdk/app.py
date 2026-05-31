@@ -36,6 +36,9 @@ acm_ssm_params = environment_config["acm_ssm_params"]
 backup_website_bucket_ssm_params = environment_config[
     "backup_website_bucket_ssm_params"
 ]
+geo_restrictions = environment_config.get(
+    "geo_restrictions", {"restriction_type": "none", "locations": []}
+)
 
 env = Environment(account=account_id, region=region)
 cloudfront_env = Environment(account=account_id, region=cloudfront_region)
@@ -77,6 +80,7 @@ website_stack = Website(
     source_file_path=source_file_path,
     acm_ssm_params=acm_ssm_params,
     backup_website_bucket_ssm_params=backup_website_bucket_ssm_params,
+    geo_restrictions=geo_restrictions,
     env=env,
     description="Stack to deploy the website resources",
 )
