@@ -81,7 +81,7 @@ jobs:
       - name: CDK Synth
         working-directory: cdk
         run: |
-          npx cdk synth --context environment=${{ inputs.environment }}
+          npx cdk synth --app "uv run --no-sync --no-dev python app.py" --context environment=${{ inputs.environment }}
 
       # -------------------------
       # CDK Deploy

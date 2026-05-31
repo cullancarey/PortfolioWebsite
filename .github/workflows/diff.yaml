@@ -69,7 +69,7 @@ jobs:
       - name: Install CDK Dependencies
         working-directory: cdk
         run: |
-          uv sync --locked
+          uv sync --locked --no-dev
 
       - name: Show CDK Version
         run: npx cdk --version
@@ -80,7 +80,7 @@ jobs:
       - name: CDK Synth
         working-directory: cdk
         run: |
-          npx cdk synth --context environment=${{ inputs.environment }}
+          npx cdk synth --app "uv run --no-sync --no-dev python app.py" --context environment=${{ inputs.environment }}
 
       # -------------------------
       # CDK Diff
