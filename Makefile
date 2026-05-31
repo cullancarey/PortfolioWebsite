@@ -5,6 +5,7 @@ CHECKOV_CONFIG=$(CURDIR)/.checkov.yml
 TEMPLATE_DIR=cdk/cdk.out
 TEMPLATES=$(wildcard $(TEMPLATE_DIR)/*.template.json)
 ENV ?= development
+CDK_APP=uv run --no-sync --no-dev python app.py
 
 .PHONY: install-deps build-frontend cdk-version synth cdk-deploy cdk-diff cdk-drift checkov cfnlint bandit test lint link diff deploy drift
 
@@ -27,16 +28,16 @@ cdk-version:
 	cd cdk && npx cdk --version
 
 synth:
-	cd cdk && npx cdk synth --context environment=$(ENV)
+	cd cdk && npx cdk synth --app "$(CDK_APP)" --context environment=$(ENV)
 
 cdk-deploy:
-	cd cdk && npx cdk deploy --app 'cdk.out/' --all --require-approval never --context environment=$(ENV)
+	cd cdk && npx cdk deploy --app "$(CDK_APP)" --all --require-approval never --context environment=$(ENV)
 
 cdk-diff:
-	cd cdk && npx cdk diff --app 'cdk.out/' --all --context environment=$(ENV)
+	cd cdk && npx cdk diff --app "$(CDK_APP)" --all --context environment=$(ENV)
 
 cdk-drift:
-	cd cdk && npx cdkdrift --app 'cdk.out/' --context environment=$(ENV) --no-color || true
+	cd cdk && npx cdkdrift --app "$(CDK_APP)" --context environment=$(ENV) --no-color || true
 
 # -----------------------------
 # Security Scans
@@ -62,10 +63,10 @@ bandit:
 # -----------------------------
 # Tests & Linting
 # -----------------------------
-test:
-	cd cdk && PYTHONPATH=. uv run pytest tests/
+test: install-deps
+	cd cdk && PYTHONPATH=. uv run --no-sync pytest tests/
 
-lint: install-deps checkov cfnlint bandit
+lint: install-deps synth checkov cfnlint bandit
 
 # -----------------------------
 # Full Workflows

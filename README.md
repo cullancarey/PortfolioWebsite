@@ -2,41 +2,63 @@
 
 ## About
 
-[Cullancarey.com](https://cullancarey.com) is my personal portfolio website. It is a static AWS S3 website fronted by CloudFront.
+[Cullancarey.com](https://cullancarey.com) is my personal portfolio website. The app is built in React and deployed as static assets on S3 behind CloudFront.
 
-## Automation
+## Repository Layout
 
-The automation for this repository's deployment utilizes AWS StackSets configured for my AWS organization. My [AWS Deployment Roles](https://github.com/cullancarey/aws_deployment_roles) repository contains CDK code that defines the CloudFormation StackSet, which deploys the deployment roles to the member accounts of my organization. I have created an OIDC GitHub Actions user in my management account. GitHub Actions assume this role first and then use it to assume the deployment roles in the member accounts. For more details, see [GitHub Actions Workflows](./.github/workflows).
+- [frontend](frontend): Vite/React website source.
+- [cdk](cdk): AWS CDK infrastructure (Python).
+- [\.github/workflows](.github/workflows): CI/CD and preview workflows.
 
-## CDK Infrastructure
+## Infrastructure Overview
 
-The website infrastructure is fully managed by AWS CDK. The CDK code is organized into constructs and stacks.
+Infrastructure is managed in [cdk/app.py](cdk/app.py) and split into three stacks:
 
-### Constructs
+- [cdk/stacks/acm_certificates_stack.py](cdk/stacks/acm_certificates_stack.py): ACM certificate creation and SSM publish/replication.
+- [cdk/stacks/backup_website_bucket.py](cdk/stacks/backup_website_bucket.py): Backup bucket and SSM publish/replication.
+- [cdk/stacks/website_stack.py](cdk/stacks/website_stack.py): Website bucket, CloudFront distribution, Route53 records, asset deployments.
 
-- [AcmCertificate](cdk/my_constructs/acm_certificate.py): Creates ACM certificates.
-- [S3Bucket](cdk/my_constructs/s3_bucket.py): Creates and configures S3 buckets.
-- [CloudfrontDistribution](cdk/my_constructs/cloudfront_distribution.py): Manages CloudFront distributions.
-- [SsmParameterReplicator](cdk/my_constructs/ssm_param_replicator.py): Replicates selected SSM parameters across regions.
+For preview environments, [cdk/app.py](cdk/app.py) uses:
 
-For more details, see [Constructs](cdk/my_constructs/).
+- `environment=preview`
+- `preview_id` normalization
+- preview-scoped stack IDs
+- preview-scoped SSM paths under `/Preview/<preview_id>/...`
 
-### Stacks
+This isolates preview resources from development and production resources.
 
-- [ACMCertificates](cdk/stacks/acm_certificates_stack.py): ACM certificates stack.
-- [BackupWebsiteBucket](cdk/stacks/backup_website_bucket.py): Backup website bucket stack.
-- [Website](cdk/stacks/website_stack.py): Main website stack.
+## Deployment Model
 
-For more details, see [Stacks](cdk/stacks/).
+- `develop` branch deploys to development.
+- `main` branch deploys to production.
+- `feature/*` branches deploy isolated preview environments.
+- Preview environments are cleaned up automatically when a PR is merged into `develop`.
 
-### Entry Point
+See [\.github/workflows/README.md](.github/workflows/README.md) for workflow details.
 
-- [app.py](cdk/app.py): The entry point for the CDK application.
+## Tooling
 
-### Python Tooling
+The CDK project in [cdk](cdk) uses `uv` for Python dependency management.
 
-The CDK project in [cdk](cdk/) is managed with `uv`.
+Common commands:
 
-- Install dependencies: `cd cdk && uv sync --group dev`
-- Run tests: `cd cdk && PYTHONPATH=. uv run pytest tests/`
-- CDK commands use the `uv` environment via [cdk/cdk.json](cdk/cdk.json)
+```bash
+make install-deps
+make test
+make lint
+make diff ENV=development
+make deploy ENV=development
+```
+
+The `Makefile` uses the same CDK app invocation as CI (`uv run --no-sync --no-dev python app.py`) to avoid drift between local and workflow behavior.
+
+## Testing
+
+- Unit and template tests: [cdk/tests](cdk/tests)
+- Snapshot tests: [cdk/tests/test_snapshot.py](cdk/tests/test_snapshot.py)
+
+If templates intentionally change, refresh snapshots with:
+
+```bash
+cd cdk && PYTHONPATH=. uv run --no-sync pytest tests/test_snapshot.py --snapshot-update
+```

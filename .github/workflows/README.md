@@ -1,61 +1,80 @@
-# GitHub Actions Workflows for CDK Stack Deployment and Diff
+# GitHub Actions Workflows
 
-This directory contains GitHub Actions workflows for deploying and diffing Cloud Development Kit (CDK) stacks for both development and production environments.
+This directory contains deployment, diff, and preview-environment automation for the CDK stacks.
 
-## Table of Contents
+## Workflow Files
 
-- [Workflows](#workflows)
-  - [Deploy-CDK-Stack/Dev](#deploy-cdk-stackdev)
-  - [Deploy-CDK-Stack/Prod](#deploy-cdk-stackprod)
-  - [Deploy](#deploy)
-  - [Diff-CDK-Stack/Dev](#diff-cdk-stackdev)
-  - [Diff-CDK-Stack/Prod](#diff-cdk-stackprod)
-  - [Diff](#diff)
-- [Permissions](#permissions)
-- [Environment Variables](#environment-variables)
-- [Steps](#steps)
+### Standard Deploy/Diff
 
-## Workflows
+- [deploy_env.yaml](deploy_env.yaml)
+  - Trigger: push to `develop` and `main`, or manual dispatch.
+  - Calls reusable [deploy.yaml](deploy.yaml) with `environment=development` or `environment=production`.
 
-### Deploy-CDK-Stack/Dev
+- [deploy.yaml](deploy.yaml)
+  - Reusable deploy workflow (`workflow_call`).
+  - Builds frontend, installs CDK deps with `uv`, synthesizes, then deploys all stacks for the target environment.
 
-This workflow is triggered on a push to the `develop` branch. It deploys the CDK stack to the development environment.
+- [diff_env.yaml](diff_env.yaml)
+  - Trigger: pull requests targeting `develop` or `main`.
+  - Calls reusable [diff.yaml](diff.yaml) with environment chosen from base branch.
 
-### Deploy-CDK-Stack/Prod
+- [diff.yaml](diff.yaml)
+  - Reusable diff workflow (`workflow_call`).
+  - Builds frontend, installs CDK deps with `uv`, synthesizes, then diffs all stacks for the target environment.
 
-This workflow is triggered on a push to the `main` branch. It deploys the CDK stack to the production environment.
+### Preview Environments
 
-### Deploy
+- [preview_deploy_trigger.yaml](preview_deploy_trigger.yaml)
+  - Trigger: push to `feature/*` branches.
+  - Calls [preview_deploy.yaml](preview_deploy.yaml) with `preview_id` from branch name.
 
-This is a reusable workflow that can be called from other workflows. It takes an `environment` input to determine which environment to deploy against.
+- [preview_deploy.yaml](preview_deploy.yaml)
+  - Reusable preview deploy workflow (`workflow_call`).
+  - Normalizes and validates `preview_id`.
+  - Builds frontend and installs dependencies.
+  - Deploys shared preview infra (`stack_scope=shared-infra`), waits for SSM replication, then deploys preview website stack (`stack_scope=website-only`).
+  - Prints preview URL and attempts PR status comment (best-effort).
 
-### Diff-CDK-Stack/Dev
+- [preview_cleanup_trigger.yaml](preview_cleanup_trigger.yaml)
+  - Trigger: PR closed against `develop`.
+  - Runs only when the PR was merged.
+  - Calls [preview_cleanup.yaml](preview_cleanup.yaml) with branch-derived `preview_id`.
 
-This workflow is triggered on a pull request to the `develop` branch or manually via workflow dispatch. It performs a diff operation on the CDK stack for the development environment.
+- [preview_cleanup.yaml](preview_cleanup.yaml)
+  - Reusable preview cleanup workflow (`workflow_call`).
+  - Normalizes and validates `preview_id`.
+  - Builds frontend and synthesizes preview stacks.
+  - Destroys website preview stack first, then shared preview infra.
+  - Posts cleanup status comment to the PR.
 
-### Diff-CDK-Stack/Prod
+## Permissions and Auth
 
-This workflow is triggered on a pull request to the `main` branch or manually via workflow dispatch. It performs a diff operation on the CDK stack for the production environment.
+These workflows use GitHub OIDC and assume an AWS deployment role via `aws-actions/configure-aws-credentials`.
 
-### Diff
+Common permissions:
 
-This is a reusable workflow that can be called from other workflows. It takes an `environment` input to determine which environment to diff against.
+- `id-token: write` for OIDC token exchange.
+- `contents: read` for checkout.
 
-## Permissions
+Preview comment steps also require:
 
-- `id-token: write`: Required for requesting the JWT.
-- `contents: read`: Required for actions/checkout.
+- `issues: write`
+- `pull-requests: write`
 
-## Environment Variables
+## Runtime Pattern
 
-- `ENVIRONMENT`: The environment to deploy or diff against.
-- `CDK_DEPLOY_ACCOUNT`: The AWS account ID for deployment.
-- `CDK_DEPLOY_REGION`: The AWS region for deployment.
+Across reusable workflows, the standard execution pattern is:
 
-## Steps
+1. Checkout repository.
+2. Set up Python, Node, and `uv`.
+3. Build frontend artifacts.
+4. Install CDK Python dependencies with `uv sync --locked --no-dev`.
+5. Synthesize templates with explicit app command:
 
-1. **Checkout**: Checks out the repository to the GitHub Actions runner.
-2. **Configure AWS Credentials**: Configures AWS credentials based on the environment.
-3. **Install Dependencies**: Installs required dependencies.
-4. **CDK Synth**: Synthesizes the CDK stack.
-5. **Deploy/Diff Website**: Deploys or diffs the website based on the workflow.
+```bash
+uv run --no-sync --no-dev python app.py
+```
+
+6. Deploy/diff/destroy stacks from the generated cloud assembly (`cdk.out`) when applicable.
+
+This keeps CI behavior aligned with local `Makefile` usage.

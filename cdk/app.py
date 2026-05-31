@@ -129,8 +129,9 @@ backup_bucket_stack = None
 acm_stack_id = "ACMCertificates"
 backup_stack_id = "BackupWebsiteBucket"
 if environment == "preview":
-    acm_stack_id = "ACMCertificatesPreview"
-    backup_stack_id = "BackupWebsiteBucketPreview"
+    suffix = preview_stack_suffix(preview_id)
+    acm_stack_id = f"ACMCertificatesPreview{suffix}"
+    backup_stack_id = f"BackupWebsiteBucketPreview{suffix}"
 
 if stack_scope in {"full", "shared-infra"}:
     certificates = ACMCertificatesStack(

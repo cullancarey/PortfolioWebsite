@@ -80,6 +80,10 @@ jobs:
       - name: Normalize Preview ID
         run: |
           normalized_preview_id=$(echo "${{ inputs.preview_id }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//; s/-+/-/g; s/^(.{1,40}).*$/\1/; s/-+$//')
+          if [ -z "$normalized_preview_id" ]; then
+            echo "Invalid preview_id: must contain at least one letter or number."
+            exit 1
+          fi
           echo "NORMALIZED_PREVIEW_ID=$normalized_preview_id" >> "$GITHUB_ENV"
 
       # -------------------------
