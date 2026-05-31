@@ -49,7 +49,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/GitHubActionsCDKDeploymentRole-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
-          role-session-name: cdk-preview-${{ inputs.preview_id }}
+          role-session-name: cdk-preview-${{ vars.REGION }}-${{ vars.ACCOUNT_ID }}
           aws-region: ${{ vars.REGION }}
 
       # -------------------------
