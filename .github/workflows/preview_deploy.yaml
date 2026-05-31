@@ -77,7 +77,7 @@ jobs:
 
       - name: Normalize Preview ID
         run: |
-          normalized_preview_id=$(echo "${{ inputs.preview_id }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//; s/-+/-/g; s/^(.{1,40}).*$/\1/')
+          normalized_preview_id=$(echo "${{ inputs.preview_id }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//; s/-+/-/g; s/^(.{1,40}).*$/\1/; s/-+$//')
           echo "NORMALIZED_PREVIEW_ID=$normalized_preview_id" >> "$GITHUB_ENV"
 
       # -------------------------
