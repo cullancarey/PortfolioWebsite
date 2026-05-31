@@ -73,7 +73,14 @@ class BackupWebsiteBucketStack(Stack):
         )
 
     def _allow_cloudfront_read_access_to_backup_bucket(self) -> None:
-        """Allow CloudFront distributions in this account to read backup objects."""
+        """Allow CloudFront distributions in this account to read backup objects.
+
+        The wildcard distribution ARN is intentional: this stack deploys before
+        the CloudFront distribution exists, so the specific distribution ARN is
+        not yet known. Scoping to the account (distribution/*) is an accepted
+        tradeoff for a single-account personal project with no other distributions
+        serving from this bucket.
+        """
         distribution_source_arn = (
             f"arn:{Aws.PARTITION}:cloudfront::{Aws.ACCOUNT_ID}:distribution/*"
         )

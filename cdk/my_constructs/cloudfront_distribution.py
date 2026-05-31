@@ -41,9 +41,9 @@ class CloudFrontDistribution(Construct):
         scope: Construct,
         id: str,
         domain_name: str,
-        certificate: acm.Certificate,
-        backup_bucket_name: str = None,
-        website_s3_bucket: s3.IBucket = None,
+        certificate: acm.ICertificate,
+        backup_bucket_name: str,
+        website_s3_bucket: s3.IBucket,
         geo_restrictions: Optional[dict] = None,
         price_class: str = "PRICE_CLASS_100",
         **kwargs,
@@ -54,7 +54,7 @@ class CloudFrontDistribution(Construct):
             scope: The scope/parent construct
             id: The logical ID of the construct
             domain_name: The primary domain name for the distribution
-            certificate: The ACM certificate for HTTPS
+            certificate: The ACM certificate for HTTPS (ICertificate interface)
             backup_bucket_name: Name of the S3 bucket for failover/origin group fallback
             website_s3_bucket: The primary S3 bucket for website content
             geo_restrictions: Optional dict with keys:
@@ -89,10 +89,6 @@ class CloudFrontDistribution(Construct):
             geo_restrictions=geo_restrictions,
             price_class=price_class,
         )
-
-        geo_restriction = self._get_geo_restriction(geo_restrictions)
-        if geo_restriction is not None:
-            distribution_kwargs["geo_restriction"] = geo_restriction
 
         self.cf_distribution = cloudfront.Distribution(
             self,
@@ -231,7 +227,7 @@ class CloudFrontDistribution(Construct):
         self,
         *,
         domain_name: str,
-        certificate: acm.Certificate,
+        certificate: acm.ICertificate,
         origin_group: OriginGroup,
         resume_redirect_function: cloudfront.Function,
         geo_restrictions: Optional[dict],

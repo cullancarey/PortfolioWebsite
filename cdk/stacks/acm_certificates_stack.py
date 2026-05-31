@@ -35,7 +35,7 @@ class ACMCertificatesStack(Stack):
         )
 
         # Store certificate ARNs in SSM Parameters
-        website_cert_arn_param = ssm.StringParameter(
+        ssm.StringParameter(
             self,
             "WebsiteCertArnParam",
             parameter_name=ssm_params["website_cert_arn_param"],

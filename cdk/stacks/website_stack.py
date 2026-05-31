@@ -38,7 +38,7 @@ class WebsiteStack(Stack):
             domain_name=domain_name,
         )
         website_certificate = self._load_website_certificate(acm_ssm_params)
-        backup_bucket_arn, backup_bucket_name = self._load_backup_bucket_data(
+        _backup_bucket_arn, backup_bucket_name = self._load_backup_bucket_data(
             backup_website_bucket_ssm_params
         )
 

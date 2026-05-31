@@ -90,12 +90,8 @@ class EnvironmentConfig:
         cloudfront_price_class = str(
             value.get("cloudfront_price_class", "PRICE_CLASS_100")
         )
-        valid_price_classes = {"PRICE_CLASS_ALL", "PRICE_CLASS_200", "PRICE_CLASS_100"}
-        if cloudfront_price_class not in valid_price_classes:
-            raise ValueError(
-                "cloudfront_price_class must be one of: "
-                "PRICE_CLASS_ALL, PRICE_CLASS_200, PRICE_CLASS_100"
-            )
+        if cloudfront_price_class != "PRICE_CLASS_100":
+            raise ValueError("cloudfront_price_class must be PRICE_CLASS_100")
 
         geo_restrictions = GeoRestrictionsConfig.from_context(
             value.get("geo_restrictions")
