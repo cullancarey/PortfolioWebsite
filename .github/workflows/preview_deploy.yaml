@@ -151,7 +151,9 @@ jobs:
             --app "uv run --no-sync --no-dev python app.py" \
             --context environment=preview \
             --context stack_scope=website-only \
-            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}"
+            --context preview_id="${{ env.NORMALIZED_PREVIEW_ID }}" \
+            > /dev/null
+          echo "Website preview stack synthesized"
 
       # -------------------------
       # CDK Deploy Branch Preview Stack
