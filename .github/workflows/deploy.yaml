@@ -70,7 +70,7 @@ jobs:
       - name: Install CDK Dependencies
         working-directory: cdk
         run: |
-          uv sync --locked
+          uv sync --locked --no-dev
 
       - name: Show CDK Version
         run: npx cdk --version
