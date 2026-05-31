@@ -121,4 +121,9 @@ class SSMParameterReplicator(Construct):
             self,
             "ReplicateSSMCustomResource",
             service_token=provider.service_token,
+            properties={
+                "SourceRegion": source_region,
+                "TargetRegion": target_region,
+                "Parameters": parameters,
+            },
         )

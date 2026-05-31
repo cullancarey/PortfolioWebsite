@@ -33,21 +33,21 @@ class BackupWebsiteBucketStack(Stack):
         )
 
         # Write parameters to SSM (in the stack's region)
-        ssm.StringParameter(
+        bucket_arn_param = ssm.StringParameter(
             self,
             "BackupBucketArnParam",
             parameter_name=ssm_params["backup_website_bucket_arn_param"],
             string_value=bucket_arn,
         )
 
-        ssm.StringParameter(
+        bucket_domain_name_param = ssm.StringParameter(
             self,
             "BackupBucketDomainNameParam",
             parameter_name=ssm_params["backup_website_bucket_domain_name_param"],
             string_value=bucket_domain_name,
         )
 
-        ssm.StringParameter(
+        bucket_name_param = ssm.StringParameter(
             self,
             "BackupBucketNameParam",
             parameter_name=ssm_params["backup_website_bucket_name_param"],
@@ -63,7 +63,7 @@ class BackupWebsiteBucketStack(Stack):
             ]
         )
 
-        SSMParameterReplicator(
+        replicator = SSMParameterReplicator(
             self,
             "BackupBucketSSMReplicatorV2",
             source_region=region,
@@ -71,6 +71,9 @@ class BackupWebsiteBucketStack(Stack):
             param_path_prefix=replication_config.param_path_prefix,
             parameters=replication_config.parameters,
         )
+        replicator.node.add_dependency(bucket_arn_param)
+        replicator.node.add_dependency(bucket_domain_name_param)
+        replicator.node.add_dependency(bucket_name_param)
 
     def _allow_cloudfront_read_access_to_backup_bucket(self) -> None:
         """Allow CloudFront distributions in this account to read backup objects.

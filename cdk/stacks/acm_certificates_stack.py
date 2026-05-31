@@ -38,7 +38,7 @@ class ACMCertificatesStack(Stack):
         )
 
         # Store certificate ARNs in SSM Parameters
-        ssm.StringParameter(
+        cert_param = ssm.StringParameter(
             self,
             "WebsiteCertArnParam",
             parameter_name=ssm_params["website_cert_arn_param"],
@@ -50,7 +50,7 @@ class ACMCertificatesStack(Stack):
             [ssm_params["website_cert_arn_param"]]
         )
 
-        SSMParameterReplicator(
+        replicator = SSMParameterReplicator(
             self,
             "ACMCertsSSMReplicatorV2",
             source_region=env_region,
@@ -58,3 +58,4 @@ class ACMCertificatesStack(Stack):
             param_path_prefix=replication_config.param_path_prefix,
             parameters=replication_config.parameters,
         )
+        replicator.node.add_dependency(cert_param)
