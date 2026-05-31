@@ -80,11 +80,7 @@ jobs:
       - name: CDK Synth
         working-directory: cdk
         run: |
-          npx cdk synth \
-            --app "uv run --no-sync --no-dev python app.py" \
-            --context environment=${{ inputs.environment }} \
-            > /dev/null
-          echo "Synth complete for ${{ inputs.environment }}"
+          npx cdk synth --app "uv run --no-sync --no-dev python app.py" --context environment=${{ inputs.environment }}
 
       # -------------------------
       # CDK Diff
@@ -92,6 +88,4 @@ jobs:
       - name: Diff CDK Stacks
         working-directory: cdk
         run: |
-          npx cdk diff \
-            --app "uv run --no-sync --no-dev python app.py" \
-            --context environment=${{ inputs.environment }}
+          npx cdk diff --app 'cdk.out/' --context environment=${{ inputs.environment }}
