@@ -1,37 +1,4 @@
-import pytest
-from aws_cdk import App, Environment
 from aws_cdk.assertions import Template
-from stacks.website_stack import Website
-
-
-@pytest.fixture
-def website_stack():
-    app = App()
-    account_id = "111111111111"
-    region = "us-east-1"
-    env = Environment(account=account_id, region=region)
-
-    acm_ssm_params = {
-        "website_cert_arn_param": "/dummy/acm/website-cert-arn",
-    }
-    backup_ssm_params = {
-        "backup_website_bucket_arn_param": "/dummy/backup/arn",
-        "backup_website_bucket_name_param": "/dummy/backup/name",
-        "backup_website_bucket_domain_name_param": "/dummy/backup/domain",
-    }
-
-    stack = Website(
-        scope=app,
-        id="TestWebsite",
-        account_id=account_id,
-        domain_name="example.com",
-        source_file_path="tests/assets",
-        acm_ssm_params=acm_ssm_params,
-        backup_website_bucket_ssm_params=backup_ssm_params,
-        env=env,
-        cross_region_references=True,
-    )
-    return stack
 
 
 def test_cloudfront_distribution_settings(website_stack):

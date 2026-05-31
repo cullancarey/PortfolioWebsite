@@ -282,12 +282,34 @@
             {
               "Action": "ssm:GetParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/dummy/*"
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:us-east-1:111111111111:parameter/",
+                    {
+                      "Ref": "BackupBucketArnParamC708FC4C"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
             },
             {
               "Action": "ssm:PutParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/dummy/*"
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:us-east-2:111111111111:parameter/",
+                    {
+                      "Ref": "BackupBucketArnParamC708FC4C"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
             }
           ],
           "Version": "2012-10-17"

@@ -230,12 +230,34 @@
             {
               "Action": "ssm:GetParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-1:111111111111:parameter/dummy/*"
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:us-east-1:111111111111:parameter/",
+                    {
+                      "Ref": "WebsiteCertArnParam8B2F5212"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
             },
             {
               "Action": "ssm:PutParameter",
               "Effect": "Allow",
-              "Resource": "arn:aws:ssm:us-east-2:111111111111:parameter/dummy/*"
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:us-east-2:111111111111:parameter/",
+                    {
+                      "Ref": "WebsiteCertArnParam8B2F5212"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
             }
           ],
           "Version": "2012-10-17"

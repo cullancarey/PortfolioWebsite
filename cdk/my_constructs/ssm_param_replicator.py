@@ -18,7 +18,7 @@ import json
 from typing import List, Dict
 
 
-class SsmParameterReplicator(Construct):
+class SSMParameterReplicator(Construct):
     """Replicates AWS Systems Manager parameters across AWS regions.
 
     Uses a Lambda function triggered by a CloudFormation custom resource to

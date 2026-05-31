@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import os
 from aws_cdk import App, Environment, Tags, Stack
-from stacks.website_stack import Website
-from stacks.acm_certificates_stack import ACMCertificates
-from stacks.backup_website_bucket import BackupWebsiteBucket
+from stacks.website_stack import WebsiteStack
+from stacks.acm_certificates_stack import ACMCertificatesStack
+from stacks.backup_website_bucket import BackupWebsiteBucketStack
+from config import EnvironmentConfig
 
 
 def add_tags(stack: Stack, default_tags: dict):
@@ -28,17 +29,15 @@ if environment_config is None:
         "Check that the environment key exists in cdk.context.json."
     )
 
-account_id = environment_config["account_id"]
-region = environment_config["region"]
-domain_name = environment_config["domain_name"]
-source_file_path = environment_config["file_path"]
-acm_ssm_params = environment_config["acm_ssm_params"]
-backup_website_bucket_ssm_params = environment_config[
-    "backup_website_bucket_ssm_params"
-]
-geo_restrictions = environment_config.get(
-    "geo_restrictions", {"restriction_type": "none", "locations": []}
-)
+environment_config = EnvironmentConfig.from_context(environment_config)
+
+account_id = environment_config.account_id
+region = environment_config.region
+domain_name = environment_config.domain_name
+source_file_path = environment_config.file_path
+acm_ssm_params = environment_config.acm_ssm_params
+backup_website_bucket_ssm_params = environment_config.backup_website_bucket_ssm_params
+geo_restrictions = environment_config.geo_restrictions.to_dict()
 
 env = Environment(account=account_id, region=region)
 cloudfront_env = Environment(account=account_id, region=cloudfront_region)
@@ -53,7 +52,7 @@ default_tags = {
     "github": "https://github.com/cullancarey/PortfolioWebsite",
 }
 
-certificates = ACMCertificates(
+certificates = ACMCertificatesStack(
     scope=app,
     id="ACMCertificates",
     domain_name=domain_name,
@@ -63,7 +62,7 @@ certificates = ACMCertificates(
     description=f"Stack to create ACM certificates in {cloudfront_env.region} for Cloudfront",
 )
 
-backup_bucket_stack = BackupWebsiteBucket(
+backup_bucket_stack = BackupWebsiteBucketStack(
     scope=app,
     id="BackupWebsiteBucket",
     ssm_params=backup_website_bucket_ssm_params,
@@ -72,7 +71,7 @@ backup_bucket_stack = BackupWebsiteBucket(
     description=f"Stack to deploy the website's failover bucket in {cloudfront_env.region}",
 )
 
-website_stack = Website(
+website_stack = WebsiteStack(
     scope=app,
     id="Website",
     account_id=account_id,

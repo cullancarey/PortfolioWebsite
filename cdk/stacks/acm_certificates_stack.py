@@ -1,10 +1,11 @@
 from aws_cdk import Stack, aws_route53 as route53, aws_ssm as ssm
 from constructs import Construct
 from my_constructs.acm_certificate import AcmCertificate
-from my_constructs.ssm_param_replicator import SsmParameterReplicator
+from my_constructs.ssm_param_replicator import SSMParameterReplicator
+from my_constructs.ssm_replication import build_ssm_replication_config
 
 
-class ACMCertificates(Stack):
+class ACMCertificatesStack(Stack):
     def __init__(
         self,
         scope: Construct,
@@ -38,17 +39,15 @@ class ACMCertificates(Stack):
         )
 
         # Replicate SSM Parameters to a secondary region
-        SsmParameterReplicator(
+        replication_config = build_ssm_replication_config(
+            [website_cert_arn_param.parameter_name]
+        )
+
+        SSMParameterReplicator(
             self,
             "ACMCertsSSMReplicatorV2",
             source_region=env_region,
             target_region="us-east-2",
-            param_path_prefix="/"
-            + ssm_params["website_cert_arn_param"].lstrip("/").split("/")[0],
-            parameters=[
-                {
-                    "source": website_cert_arn_param.parameter_name,
-                    "target": website_cert_arn_param.parameter_name,
-                },
-            ],
+            param_path_prefix=replication_config.param_path_prefix,
+            parameters=replication_config.parameters,
         )

@@ -11,13 +11,13 @@ from aws_cdk import (
     RemovalPolicy,
     Duration,
 )
-from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, HttpOrigin, OriginGroup
+from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, OriginGroup
 from aws_cdk.aws_cloudfront import HeadersFrameOption, HeadersReferrerPolicy
 from constructs import Construct
-from typing import Optional, List
+from typing import Optional
 
 
-class CloudfrontDistribution(Construct):
+class CloudFrontDistribution(Construct):
     """CloudFront distribution for global content delivery with security.
 
     Creates a CloudFront distribution with the following features:
@@ -47,7 +47,7 @@ class CloudfrontDistribution(Construct):
         geo_restrictions: Optional[dict] = None,
         **kwargs,
     ) -> None:
-        """Initialize the CloudfrontDistribution construct.
+        """Initialize the CloudFrontDistribution construct.
 
         Args:
             scope: The scope/parent construct
@@ -67,12 +67,43 @@ class CloudfrontDistribution(Construct):
         if geo_restrictions is None:
             geo_restrictions = {"restriction_type": "none", "locations": []}
 
-        # Create Origin Access Control for secure S3 access
-        # OAC is a recommended best practice over Origin Access Identity (OAI)
-        # CDK doesn't natively support OAC yet, so we use L1 constructs
-        cf_oac = cloudfront.CfnOriginAccessControl(
+        # Create Origin Access Control for secure S3 access.
+        cf_oac = self._build_origin_access_control(domain_name)
+
+        self.website_cache_policy = self._build_cache_policy()
+        self.response_headers_policy = self._build_response_headers_policy(domain_name)
+        origin_group = self._build_origin_group(website_s3_bucket, backup_bucket_name)
+        resume_redirect_function = self._build_resume_redirect_function()
+
+        distribution_kwargs = self._build_distribution_kwargs(
+            domain_name=domain_name,
+            certificate=certificate,
+            origin_group=origin_group,
+            resume_redirect_function=resume_redirect_function,
+            geo_restrictions=geo_restrictions,
+        )
+
+        geo_restriction = self._get_geo_restriction(geo_restrictions)
+        if geo_restriction is not None:
+            distribution_kwargs["geo_restriction"] = geo_restriction
+
+        self.cf_distribution = cloudfront.Distribution(
             self,
-            f"OriginAccessControl",
+            f"WebsiteDistribution",
+            **distribution_kwargs,
+        )
+
+        self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
+
+        self._apply_oac(cf_oac)
+
+    def _build_origin_access_control(
+        self, domain_name: str
+    ) -> cloudfront.CfnOriginAccessControl:
+        """Create the Origin Access Control used by the distribution."""
+        return cloudfront.CfnOriginAccessControl(
+            self,
+            "OriginAccessControl",
             origin_access_control_config=cloudfront.CfnOriginAccessControl.OriginAccessControlConfigProperty(
                 name="OriginAccessControl",
                 origin_access_control_origin_type="s3",
@@ -82,10 +113,9 @@ class CloudfrontDistribution(Construct):
             ),
         )
 
-        # Custom cache policy optimized for static website assets
-        # 30-day default TTL balances between freshness and cost savings
-        # Brotli and Gzip compression reduce bandwidth and improve performance
-        self.website_cache_policy = cloudfront.CachePolicy(
+    def _build_cache_policy(self) -> cloudfront.CachePolicy:
+        """Create the cache policy for static website assets."""
+        return cloudfront.CachePolicy(
             self,
             "WebsiteCachePolicy",
             comment="Custom cache policy for website assets",
@@ -99,9 +129,11 @@ class CloudfrontDistribution(Construct):
             enable_accept_encoding_gzip=True,
         )
 
-        # Response headers policy with strong security settings
-        # Includes CORS, CSP, HSTS, X-Frame-Options, and other security headers
-        self.response_headers_policy = cloudfront.ResponseHeadersPolicy(
+    def _build_response_headers_policy(
+        self, domain_name: str
+    ) -> cloudfront.ResponseHeadersPolicy:
+        """Create the response headers policy with security controls."""
+        return cloudfront.ResponseHeadersPolicy(
             self,
             "ResponseHeadersPolicy",
             comment=f"Response headers policy for {domain_name}",
@@ -116,8 +148,6 @@ class CloudfrontDistribution(Construct):
                 origin_override=True,
             ),
             security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
-                # Content Security Policy restricts content sources and helps prevent XSS
-                # Includes SHA-256 hash for inline script and restricts other directives
                 content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
                     content_security_policy=(
                         "default-src 'self'; "
@@ -134,24 +164,20 @@ class CloudfrontDistribution(Construct):
                     ),
                     override=True,
                 ),
-                # X-Frame-Options: DENY prevents clickjacking attacks
                 frame_options=cloudfront.ResponseHeadersFrameOptions(
                     frame_option=HeadersFrameOption.DENY,
                     override=True,
                 ),
-                # Referrer-Policy: NO_REFERRER enhances privacy
                 referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
                     referrer_policy=HeadersReferrerPolicy.NO_REFERRER,
                     override=True,
                 ),
-                # HSTS: Forces HTTPS for 365 days, includes subdomains and preload
                 strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
                     access_control_max_age=Duration.days(365),
                     include_subdomains=True,
                     preload=True,
                     override=True,
                 ),
-                # XSS Protection: Enables browser XSS protection with block mode
                 xss_protection=cloudfront.ResponseHeadersXSSProtection(
                     protection=True,
                     mode_block=True,
@@ -160,10 +186,11 @@ class CloudfrontDistribution(Construct):
             ),
         )
 
-        # Origin group with automatic failover to backup bucket
-        # If primary bucket returns 5xx errors, CloudFront automatically routes to backup
-        # This provides high availability and graceful degradation
-        origin_group = OriginGroup(
+    def _build_origin_group(
+        self, website_s3_bucket: s3.IBucket, backup_bucket_name: str
+    ) -> OriginGroup:
+        """Build the origin group that fails over to the backup bucket."""
+        return OriginGroup(
             primary_origin=S3BucketOrigin(website_s3_bucket),
             fallback_origin=S3BucketOrigin(
                 s3.Bucket.from_bucket_name(
@@ -173,10 +200,9 @@ class CloudfrontDistribution(Construct):
             fallback_status_codes=[500, 502, 503, 504],
         )
 
-        # CloudFront Function for URL rewriting (viewer request event)
-        # Rewrites /resume or /resume/ to /resume.pdf for clean URL handling
-        # CloudFront Functions are lightweight and execute at edge locations
-        resume_redirect_function = cloudfront.Function(
+    def _build_resume_redirect_function(self) -> cloudfront.Function:
+        """Create the CloudFront Function that rewrites /resume URLs."""
+        return cloudfront.Function(
             self,
             "ResumeRewriteFunction",
             code=cloudfront.FunctionCode.from_inline("""
@@ -195,6 +221,16 @@ class CloudfrontDistribution(Construct):
                 """),
         )
 
+    def _build_distribution_kwargs(
+        self,
+        *,
+        domain_name: str,
+        certificate: acm.Certificate,
+        origin_group: OriginGroup,
+        resume_redirect_function: cloudfront.Function,
+        geo_restrictions: Optional[dict],
+    ) -> dict:
+        """Assemble the CloudFront distribution keyword arguments."""
         distribution_kwargs = {
             "default_behavior": cloudfront.BehaviorOptions(
                 origin=origin_group,
@@ -238,24 +274,17 @@ class CloudfrontDistribution(Construct):
             "enabled": True,
         }
 
-        geo_restriction = self._get_geo_restriction(geo_restrictions)
+        geo_restriction = self._get_geo_restriction(geo_restrictions or {})
         if geo_restriction is not None:
             distribution_kwargs["geo_restriction"] = geo_restriction
 
-        self.cf_distribution = cloudfront.Distribution(
-            self,
-            f"WebsiteDistribution",
-            **distribution_kwargs,
-        )
+        return distribution_kwargs
 
-        self.cf_distribution.apply_removal_policy(RemovalPolicy.DESTROY)
-
-        # Apply OAC configuration via property overrides
-        # Note: CDK doesn't natively support OAC yet, so we use L1 construct overrides
-        # This is a workaround until CDK releases native L2 OAC support
+    def _apply_oac(self, cf_oac: cloudfront.CfnOriginAccessControl) -> None:
+        """Apply OAC to the synthesized CloudFront distribution via L1 overrides."""
+        # CDK doesn't natively support OAC yet, so we use L1 construct overrides.
         cfn_website_distribution = self.cf_distribution.node.default_child
 
-        # Apply OAC to both origins (primary and fallback)
         cfn_website_distribution.add_property_override(
             "DistributionConfig.Origins.0.OriginAccessControlId",
             cf_oac.get_att("Id"),

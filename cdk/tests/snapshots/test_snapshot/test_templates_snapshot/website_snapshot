@@ -615,14 +615,6 @@
             }
           ],
           "PriceClass": "PriceClass_100",
-          "Restrictions": {
-            "GeoRestriction": {
-              "Locations": [
-                "RU"
-              ],
-              "RestrictionType": "blacklist"
-            }
-          },
           "ViewerCertificate": {
             "AcmCertificateArn": {
               "Ref": "SsmParameterValuedummyacmwebsitecertarnC96584B6F00A464EAD1953AFF4B05118Parameter"

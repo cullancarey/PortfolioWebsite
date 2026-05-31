@@ -4,10 +4,11 @@ from aws_cdk import (
 )
 from constructs import Construct
 from my_constructs.s3_bucket import S3Bucket
-from my_constructs.ssm_param_replicator import SsmParameterReplicator
+from my_constructs.ssm_param_replicator import SSMParameterReplicator
+from my_constructs.ssm_replication import build_ssm_replication_config
 
 
-class BackupWebsiteBucket(Stack):
+class BackupWebsiteBucketStack(Stack):
     def __init__(
         self, scope: Construct, id: str, ssm_params: dict, region: str, **kwargs
     ) -> None:
@@ -45,25 +46,19 @@ class BackupWebsiteBucket(Stack):
         )
 
         # Replicate these parameters to another region (us-east-2)
-        SsmParameterReplicator(
+        replication_config = build_ssm_replication_config(
+            [
+                bucket_arn_param.parameter_name,
+                bucket_domain_name_param.parameter_name,
+                bucket_name_param.parameter_name,
+            ]
+        )
+
+        SSMParameterReplicator(
             self,
             "BackupBucketSSMReplicatorV2",
             source_region=region,
             target_region="us-east-2",
-            param_path_prefix="/"
-            + ssm_params["backup_website_bucket_arn_param"].lstrip("/").split("/")[0],
-            parameters=[
-                {
-                    "source": bucket_arn_param.parameter_name,
-                    "target": bucket_arn_param.parameter_name,
-                },
-                {
-                    "source": bucket_domain_name_param.parameter_name,
-                    "target": bucket_domain_name_param.parameter_name,
-                },
-                {
-                    "source": bucket_name_param.parameter_name,
-                    "target": bucket_name_param.parameter_name,
-                },
-            ],
+            param_path_prefix=replication_config.param_path_prefix,
+            parameters=replication_config.parameters,
         )
