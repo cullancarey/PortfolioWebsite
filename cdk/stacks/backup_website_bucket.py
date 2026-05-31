@@ -48,9 +48,9 @@ class BackupWebsiteBucketStack(Stack):
         # Replicate these parameters to another region (us-east-2)
         replication_config = build_ssm_replication_config(
             [
-                bucket_arn_param.parameter_name,
-                bucket_domain_name_param.parameter_name,
-                bucket_name_param.parameter_name,
+                ssm_params["backup_website_bucket_arn_param"],
+                ssm_params["backup_website_bucket_domain_name_param"],
+                ssm_params["backup_website_bucket_name_param"],
             ]
         )
 

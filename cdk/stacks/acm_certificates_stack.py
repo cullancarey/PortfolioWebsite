@@ -40,7 +40,7 @@ class ACMCertificatesStack(Stack):
 
         # Replicate SSM Parameters to a secondary region
         replication_config = build_ssm_replication_config(
-            [website_cert_arn_param.parameter_name]
+            [ssm_params["website_cert_arn_param"]]
         )
 
         SSMParameterReplicator(
