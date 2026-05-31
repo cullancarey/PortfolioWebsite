@@ -156,22 +156,7 @@
         },
         "Environment": {
           "Variables": {
-            "PARAMETERS": {
-              "Fn::Join": [
-                "",
-                [
-                  "[{\"source\": \"",
-                  {
-                    "Ref": "WebsiteCertArnParam8B2F5212"
-                  },
-                  "\", \"target\": \"",
-                  {
-                    "Ref": "WebsiteCertArnParam8B2F5212"
-                  },
-                  "\"}]"
-                ]
-              ]
-            },
+            "PARAMETERS": "[{\"source\": \"/dummy/acm/website-cert-arn\", \"target\": \"/dummy/acm/website-cert-arn\"}]",
             "SOURCE_REGION": "us-east-1",
             "TARGET_REGION": "us-east-2"
           }

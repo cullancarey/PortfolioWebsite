@@ -1,10 +1,12 @@
-from aws_cdk import Stack, aws_route53 as route53, aws_ssm as ssm
+from aws_cdk import Stack, aws_ssm as ssm
 from constructs import Construct
 from my_constructs.acm_certificate import AcmCertificate
-from my_constructs.ssm_param_replicator import SsmParameterReplicator
+from my_constructs.hosted_zone import lookup_hosted_zone
+from my_constructs.ssm_param_replicator import SSMParameterReplicator
+from my_constructs.ssm_replication import build_ssm_replication_config
 
 
-class ACMCertificates(Stack):
+class ACMCertificatesStack(Stack):
     def __init__(
         self,
         scope: Construct,
@@ -12,13 +14,16 @@ class ACMCertificates(Stack):
         domain_name: str,
         env_region: str,
         ssm_params: dict,
+        replication_target_region: str = "us-east-2",
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Lookup hosted zone for the domain
-        hosted_zone = route53.HostedZone.from_lookup(
-            self, f"{id}-HostedZone", domain_name=domain_name
+        hosted_zone = lookup_hosted_zone(
+            self,
+            stack_id=id,
+            domain_name=domain_name,
         )
 
         # Certificates (exposed as stack attributes for use in other stacks/tests)
@@ -30,7 +35,7 @@ class ACMCertificates(Stack):
         )
 
         # Store certificate ARNs in SSM Parameters
-        website_cert_arn_param = ssm.StringParameter(
+        ssm.StringParameter(
             self,
             "WebsiteCertArnParam",
             parameter_name=ssm_params["website_cert_arn_param"],
@@ -38,17 +43,15 @@ class ACMCertificates(Stack):
         )
 
         # Replicate SSM Parameters to a secondary region
-        SsmParameterReplicator(
+        replication_config = build_ssm_replication_config(
+            [ssm_params["website_cert_arn_param"]]
+        )
+
+        SSMParameterReplicator(
             self,
             "ACMCertsSSMReplicatorV2",
             source_region=env_region,
-            target_region="us-east-2",
-            param_path_prefix="/"
-            + ssm_params["website_cert_arn_param"].lstrip("/").split("/")[0],
-            parameters=[
-                {
-                    "source": website_cert_arn_param.parameter_name,
-                    "target": website_cert_arn_param.parameter_name,
-                },
-            ],
+            target_region=replication_target_region,
+            param_path_prefix=replication_config.param_path_prefix,
+            parameters=replication_config.parameters,
         )

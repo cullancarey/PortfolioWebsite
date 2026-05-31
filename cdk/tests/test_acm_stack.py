@@ -1,30 +1,6 @@
-import pytest
-from aws_cdk import App, Environment
 from aws_cdk.assertions import Template
-from stacks.acm_certificates_stack import ACMCertificates
 
-
-@pytest.fixture
-def acm_stack():
-    app = App()
-    account_id = "111111111111"
-    region = "us-east-1"
-    env = Environment(account=account_id, region=region)
-
-    ssm_params = {
-        "website_cert_arn_param": "/dummy/acm/website-cert-arn",
-    }
-
-    stack = ACMCertificates(
-        scope=app,
-        id="TestACMCertificates",
-        domain_name="example.com",
-        env_region=region,
-        ssm_params=ssm_params,
-        env=env,
-        cross_region_references=True,
-    )
-    return stack
+from tests.helpers import collect_allowed_actions, collect_ssm_resources
 
 
 def test_certificates_created(acm_stack):
@@ -78,18 +54,7 @@ def test_replicator_lambda_has_ssm_permissions(acm_stack):
     """
     template = Template.from_stack(acm_stack)
 
-    policies = template.find_resources("AWS::IAM::Policy")
-    all_actions = []
-    for policy in policies.values():
-        stmts = policy["Properties"]["PolicyDocument"]["Statement"]
-        stmts = stmts if isinstance(stmts, list) else [stmts]
-        for stmt in stmts:
-            if stmt.get("Effect") == "Allow":
-                action = stmt.get("Action")
-                if isinstance(action, list):
-                    all_actions.extend(action)
-                elif isinstance(action, str):
-                    all_actions.append(action)
+    all_actions = collect_allowed_actions(template)
 
     assert "ssm:GetParameter" in all_actions
     assert "ssm:PutParameter" in all_actions
@@ -103,22 +68,7 @@ def test_ssm_permissions_have_path_wildcard(acm_stack):
     """
     template = Template.from_stack(acm_stack)
 
-    policies = template.find_resources("AWS::IAM::Policy")
-    ssm_resources = []
-    for policy in policies.values():
-        stmts = policy["Properties"]["PolicyDocument"]["Statement"]
-        stmts = stmts if isinstance(stmts, list) else [stmts]
-        for stmt in stmts:
-            if stmt.get("Effect") != "Allow":
-                continue
-            actions = stmt.get("Action", [])
-            if isinstance(actions, str):
-                actions = [actions]
-            if any(a.startswith("ssm:") for a in actions):
-                resource = stmt.get("Resource", [])
-                if isinstance(resource, str):
-                    resource = [resource]
-                ssm_resources.extend(resource)
+    ssm_resources = collect_ssm_resources(template)
 
     # Every scoped SSM resource must end with /* so sub-parameters are covered
     for resource in ssm_resources:

@@ -6,149 +6,161 @@ from aws_cdk import (
     aws_route53_targets as route53_targets,
     aws_s3_deployment as s3deploy,
     aws_logs as logs,
-    aws_iam as iam,
     aws_certificatemanager as acm,
     aws_ssm as ssm,
 )
 from constructs import Construct
-from my_constructs.cloudfront_distribution import CloudfrontDistribution
+from my_constructs.cloudfront_distribution import CloudFrontDistribution
+from my_constructs.hosted_zone import lookup_hosted_zone
 from my_constructs.s3_bucket import S3Bucket
 
 # from my_constructs.apigw_to_lambda import ApiGwtoLambda
 
 
-class Website(Stack):
+class WebsiteStack(Stack):
     def __init__(
         self,
         scope: Construct,
         id: str,
-        account_id: str,
         domain_name: str,
         source_file_path: str,
         acm_ssm_params: dict,
         backup_website_bucket_ssm_params: dict,
+        geo_restrictions: dict = None,
+        cloudfront_price_class: str = "PRICE_CLASS_100",
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        _hosted_zone = route53.HostedZone.from_lookup(
-            self, f"{id}-HostedZone", domain_name=domain_name
-        )
-
-        # Load ACM cert ARNs from SSM
-        website_certificate_arn = ssm.StringParameter.value_for_string_parameter(
-            self, acm_ssm_params["website_cert_arn_param"]
-        )
-
-        website_certificate = acm.Certificate.from_certificate_arn(
-            self, "WebsiteCertificate", website_certificate_arn
-        )
-
-        # Load backup bucket data from SSM
-        backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
-            self, backup_website_bucket_ssm_params["backup_website_bucket_arn_param"]
-        )
-        backup_bucket_name = ssm.StringParameter.value_for_string_parameter(
-            self, backup_website_bucket_ssm_params["backup_website_bucket_name_param"]
-        )
-
-        def _add_route53_record(record_name: str, cf_dist: cloudfront.Distribution):
-            route53.ARecord(
-                self,
-                f"{record_name}-Record",
-                record_name=record_name,
-                zone=_hosted_zone,
-                target=route53.RecordTarget.from_alias(
-                    route53_targets.CloudFrontTarget(cf_dist)
-                ),
-            )
-
-        website_bucket = S3Bucket(self, f"WebsiteBucket")
-
-        website_distribution = CloudfrontDistribution(
+        hosted_zone = lookup_hosted_zone(
             self,
-            f"WebsiteDistribution",
+            stack_id=id,
+            domain_name=domain_name,
+        )
+        website_certificate = self._load_website_certificate(acm_ssm_params)
+        _backup_bucket_arn, backup_bucket_name = self._load_backup_bucket_data(
+            backup_website_bucket_ssm_params
+        )
+
+        website_bucket = S3Bucket(self, "WebsiteBucket")
+
+        website_distribution = CloudFrontDistribution(
+            self,
+            "WebsiteDistribution",
             domain_name=domain_name,
             certificate=website_certificate,
             website_s3_bucket=website_bucket.bucket,
             backup_bucket_name=backup_bucket_name,
+            geo_restrictions=geo_restrictions,
+            price_class=cloudfront_price_class,
         )
 
-        website_bucket_policy_statement = iam.PolicyStatement(
-            sid="AllowCloudFrontServicePrincipalReadOnly",
-            effect=iam.Effect.ALLOW,
-            principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
-            actions=["s3:GetObject"],
-            resources=[
-                f"{website_bucket.bucket.bucket_arn}/*",
-            ],
-            conditions={
-                "StringEquals": {
-                    "AWS:SourceArn": f"arn:aws:cloudfront::{account_id}:distribution/{website_distribution.cf_distribution.distribution_id}"
-                }
-            },
-        )
-        website_bucket.bucket.add_to_resource_policy(website_bucket_policy_statement)
-
-        backup_bucket_policy_statement = iam.PolicyStatement(
-            sid="AllowCloudFrontServicePrincipalReadOnlyBackup",
-            effect=iam.Effect.ALLOW,
-            principals=[iam.ServicePrincipal("cloudfront.amazonaws.com")],
-            actions=["s3:GetObject"],
-            resources=[
-                f"{backup_bucket_arn}/*",
-            ],
-            conditions={
-                "StringEquals": {
-                    "AWS:SourceArn": f"arn:aws:cloudfront::{account_id}:distribution/{website_distribution.cf_distribution.distribution_id}"
-                }
-            },
+        self._create_dns_alias_records(
+            hosted_zone=hosted_zone,
+            domain_name=domain_name,
+            distribution=website_distribution.cf_distribution,
         )
 
-        s3.Bucket.from_bucket_name(
-            self, "BackupBucketRef", backup_bucket_name
-        ).add_to_resource_policy(backup_bucket_policy_statement)
-
-        _add_route53_record(
-            record_name=domain_name, cf_dist=website_distribution.cf_distribution
-        )
-        _add_route53_record(
-            record_name=f"www.{domain_name}",
-            cf_dist=website_distribution.cf_distribution,
+        website_log_group = self._create_log_group(name=f"{id}-WebsiteFilesLogGroup")
+        backup_log_group = self._create_log_group(
+            name=f"{id}-BackupWebsiteFilesLogGroupV2"
         )
 
-        website_log_group = logs.LogGroup(
-            self, f"{id}-WebsiteFilesLogGroup", retention=logs.RetentionDays.ONE_YEAR
-        )
-
-        backup_log_group = logs.LogGroup(
-            self,
-            f"{id}-BackupWebsiteFilesLogGroupV2",
-            retention=logs.RetentionDays.ONE_YEAR,
-        )
-
-        # Website deployment
-        s3deploy.BucketDeployment(
-            self,
-            f"{id}-WebsiteFilesDeployment",
-            sources=[s3deploy.Source.asset(source_file_path)],
+        self._deploy_static_assets(
+            deployment_id=f"{id}-WebsiteFilesDeployment",
+            source_file_path=source_file_path,
             destination_bucket=website_bucket.bucket,
             distribution=website_distribution.cf_distribution,
-            distribution_paths=["/*"],
             log_group=website_log_group,
-            retain_on_delete=False,
         )
 
-        # Backup deployment
-        s3deploy.BucketDeployment(
-            self,
-            f"{id}-BackupWebsiteFilesDeployment",
-            sources=[s3deploy.Source.asset(source_file_path)],
+        self._deploy_static_assets(
+            deployment_id=f"{id}-BackupWebsiteFilesDeployment",
+            source_file_path=source_file_path,
             destination_bucket=s3.Bucket.from_bucket_name(
                 self, "BackupBucketDeploymentRef", backup_bucket_name
             ),
             distribution=website_distribution.cf_distribution,
-            distribution_paths=["/*"],
             log_group=backup_log_group,
+        )
+
+    def _load_website_certificate(self, acm_ssm_params: dict) -> acm.ICertificate:
+        """Load the ACM certificate ARN from SSM and import it."""
+        website_certificate_arn = ssm.StringParameter.value_for_string_parameter(
+            self, acm_ssm_params["website_cert_arn_param"]
+        )
+
+        return acm.Certificate.from_certificate_arn(
+            self, "WebsiteCertificate", website_certificate_arn
+        )
+
+    def _load_backup_bucket_data(
+        self, backup_website_bucket_ssm_params: dict
+    ) -> tuple[str, str]:
+        """Load the backup bucket ARN and name from SSM."""
+        backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
+            self,
+            backup_website_bucket_ssm_params["backup_website_bucket_arn_param"],
+        )
+        backup_bucket_name = ssm.StringParameter.value_for_string_parameter(
+            self,
+            backup_website_bucket_ssm_params["backup_website_bucket_name_param"],
+        )
+        return backup_bucket_arn, backup_bucket_name
+
+    def _create_dns_alias_records(
+        self,
+        *,
+        hosted_zone: route53.HostedZone,
+        domain_name: str,
+        distribution: cloudfront.Distribution,
+    ) -> None:
+        """Create the root and www Route 53 alias records."""
+        self._create_dns_alias_record(hosted_zone, domain_name, distribution)
+        self._create_dns_alias_record(hosted_zone, f"www.{domain_name}", distribution)
+
+    def _create_dns_alias_record(
+        self,
+        hosted_zone: route53.HostedZone,
+        record_name: str,
+        distribution: cloudfront.Distribution,
+    ) -> None:
+        """Create a single Route 53 alias record to the CloudFront distribution."""
+        route53.ARecord(
+            self,
+            f"{record_name}-Record",
+            record_name=record_name,
+            zone=hosted_zone,
+            target=route53.RecordTarget.from_alias(
+                route53_targets.CloudFrontTarget(distribution)
+            ),
+        )
+
+    def _create_log_group(self, name: str) -> logs.LogGroup:
+        """Create a CloudWatch log group for bucket deployment logs."""
+        return logs.LogGroup(
+            self,
+            name,
+            retention=logs.RetentionDays.ONE_YEAR,
+        )
+
+    def _deploy_static_assets(
+        self,
+        *,
+        deployment_id: str,
+        source_file_path: str,
+        destination_bucket: s3.IBucket,
+        distribution: cloudfront.Distribution,
+        log_group: logs.LogGroup,
+    ) -> None:
+        """Deploy the built frontend assets to a bucket and invalidate CloudFront."""
+        s3deploy.BucketDeployment(
+            self,
+            deployment_id,
+            sources=[s3deploy.Source.asset(source_file_path)],
+            destination_bucket=destination_bucket,
+            distribution=distribution,
+            distribution_paths=["/*"],
+            log_group=log_group,
             retain_on_delete=False,
         )

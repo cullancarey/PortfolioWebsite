@@ -1,30 +1,6 @@
-import pytest
-from aws_cdk import App, Environment
 from aws_cdk.assertions import Template
-from stacks.backup_website_bucket import BackupWebsiteBucket
 
-
-@pytest.fixture
-def backup_stack():
-    app = App()
-    region = "us-east-1"
-    env = Environment(account="111111111111", region=region)
-
-    ssm_params = {
-        "backup_website_bucket_arn_param": "/dummy/backup/arn",
-        "backup_website_bucket_name_param": "/dummy/backup/name",
-        "backup_website_bucket_domain_name_param": "/dummy/backup/domain",
-    }
-
-    stack = BackupWebsiteBucket(
-        scope=app,
-        id="TestBackupWebsiteBucket",
-        ssm_params=ssm_params,
-        region=region,
-        env=env,
-        cross_region_references=True,
-    )
-    return stack
+from tests.helpers import collect_allowed_actions, collect_ssm_resources
 
 
 def test_bucket_has_encryption(backup_stack):
@@ -59,23 +35,20 @@ def test_bucket_has_lifecycle_and_tls(backup_stack):
         },
     )
 
-    # TLS enforcement policy
-    template.has_resource_properties(
-        "AWS::S3::BucketPolicy",
-        {
-            "PolicyDocument": {
-                "Statement": [
-                    {
-                        "Sid": "EnforceTLS",
-                        "Effect": "Deny",
-                        "Action": "s3:*",
-                        "Principal": {"AWS": "*"},
-                        "Condition": {"Bool": {"aws:SecureTransport": "false"}},
-                    }
-                ]
-            }
-        },
-    )
+    # TLS enforcement statement exists even when other policy statements are present
+    policies = template.find_resources("AWS::S3::BucketPolicy")
+    found_tls = False
+
+    for _, policy in policies.items():
+        for stmt in policy["Properties"]["PolicyDocument"]["Statement"]:
+            if stmt.get("Sid") == "EnforceTLS":
+                found_tls = True
+                assert stmt["Effect"] == "Deny"
+                assert stmt["Action"] == "s3:*"
+                assert stmt["Principal"] == {"AWS": "*"}
+                assert stmt["Condition"] == {"Bool": {"aws:SecureTransport": "false"}}
+
+    assert found_tls, "No EnforceTLS statement found in bucket policies"
 
 
 def test_ssm_parameters_created(backup_stack):
@@ -112,27 +85,7 @@ def test_replicator_lambda_configuration(backup_stack):
         },
     )
 
-    # Fetch all IAM policies
-    policies = template.find_resources("AWS::IAM::Policy")
-
-    # Flatten all statements into one list
-    all_statements = []
-    for policy in policies.values():
-        stmts = policy["Properties"]["PolicyDocument"]["Statement"]
-        if isinstance(stmts, list):
-            all_statements.extend(stmts)
-        else:
-            all_statements.append(stmts)
-
-    # Collect all allowed actions
-    actions = []
-    for stmt in all_statements:
-        if stmt.get("Effect") == "Allow":
-            action = stmt.get("Action")
-            if isinstance(action, list):
-                actions.extend(action)
-            elif isinstance(action, str):
-                actions.append(action)
+    actions = collect_allowed_actions(template)
 
     # Assert the critical actions exist
     assert "ssm:GetParameter" in actions
@@ -147,22 +100,7 @@ def test_ssm_permissions_have_path_wildcard(backup_stack):
     """
     template = Template.from_stack(backup_stack)
 
-    policies = template.find_resources("AWS::IAM::Policy")
-    ssm_resources = []
-    for policy in policies.values():
-        stmts = policy["Properties"]["PolicyDocument"]["Statement"]
-        stmts = stmts if isinstance(stmts, list) else [stmts]
-        for stmt in stmts:
-            if stmt.get("Effect") != "Allow":
-                continue
-            actions = stmt.get("Action", [])
-            if isinstance(actions, str):
-                actions = [actions]
-            if any(a.startswith("ssm:") for a in actions):
-                resource = stmt.get("Resource", [])
-                if isinstance(resource, str):
-                    resource = [resource]
-                ssm_resources.extend(resource)
+    ssm_resources = collect_ssm_resources(template)
 
     # Every scoped SSM resource must end with /* so sub-parameters are covered
     for resource in ssm_resources:

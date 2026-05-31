@@ -28,6 +28,7 @@ dmypy.json
 # CDK specific
 cdk/.cdk.staging/
 cdk/cdk.out/
+cdk/cdk.context.json
 cdk/__pycache__/
 cdk/.python-version
 
