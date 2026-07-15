@@ -74,9 +74,11 @@ class BackupWebsiteBucketStack(Stack):
         )
 
         # Ensure source SSM parameters exist before replication is invoked.
-        replicator.node.add_dependency(bucket_arn_param)
-        replicator.node.add_dependency(bucket_domain_name_param)
-        replicator.node.add_dependency(bucket_name_param)
+        replicator.replication_custom_resource.node.add_dependency(bucket_arn_param)
+        replicator.replication_custom_resource.node.add_dependency(
+            bucket_domain_name_param
+        )
+        replicator.replication_custom_resource.node.add_dependency(bucket_name_param)
 
     def _allow_cloudfront_read_access_to_backup_bucket(self) -> None:
         """Allow CloudFront distributions in this account to read backup objects.

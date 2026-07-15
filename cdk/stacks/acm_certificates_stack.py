@@ -58,4 +58,6 @@ class ACMCertificatesStack(Stack):
         )
 
         # Ensure source SSM parameter exists before replication is invoked.
-        replicator.node.add_dependency(website_cert_arn_param)
+        replicator.replication_custom_resource.node.add_dependency(
+            website_cert_arn_param
+        )

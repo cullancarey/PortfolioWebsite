@@ -27,6 +27,9 @@ class SSMParameterReplicator(Construct):
 
     The Lambda function has least-privilege IAM permissions scoped to specific
     parameter paths.
+
+    Exposes the replication custom resource as `replication_custom_resource`
+    so callers can attach dependencies only to that resource.
     """
 
     def __init__(
@@ -136,7 +139,7 @@ class SSMParameterReplicator(Construct):
         }
 
         # Create the custom resource that triggers replication during stack creation
-        CustomResource(
+        self.replication_custom_resource = CustomResource(
             self,
             "ReplicateSSMCustomResource",
             service_token=provider.service_token,
