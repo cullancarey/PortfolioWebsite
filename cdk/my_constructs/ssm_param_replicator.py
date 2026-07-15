@@ -74,11 +74,6 @@ class SSMParameterReplicator(Construct):
             ),
             timeout=Duration.seconds(60),
             architecture=_lambda.Architecture.X86_64,
-            environment={
-                "SOURCE_REGION": source_region,
-                "TARGET_REGION": target_region,
-                "PARAMETERS": json.dumps(parameters),
-            },
             log_group=replicate_ssm_log_group,
         )
 
