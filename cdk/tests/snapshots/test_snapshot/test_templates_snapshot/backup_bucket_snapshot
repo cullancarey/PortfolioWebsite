@@ -45,19 +45,47 @@
     },
     "BackupBucketSSMReplicatorV2ReplicateSSMCustomResourceDB3D4FF1": {
       "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02"
+      ],
       "Properties": {
+        "Parameters": "[{\"source\": \"/dummy/backup/arn\", \"target\": \"/dummy/backup/arn\"}, {\"source\": \"/dummy/backup/domain\", \"target\": \"/dummy/backup/domain\"}, {\"source\": \"/dummy/backup/name\", \"target\": \"/dummy/backup/name\"}]",
         "ServiceToken": {
           "Fn::GetAtt": [
             "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEvent3F2F96C0",
             "Arn"
           ]
-        }
+        },
+        "SourceRegion": "us-east-1",
+        "TargetRegion": "us-east-2",
+        "UpdateTriggers": [
+          {
+            "Fn::GetAtt": [
+              "BackupWebsiteBucketBucketResourceADB74572",
+              "Arn"
+            ]
+          },
+          {
+            "Fn::GetAtt": [
+              "BackupWebsiteBucketBucketResourceADB74572",
+              "RegionalDomainName"
+            ]
+          },
+          {
+            "Ref": "BackupWebsiteBucketBucketResourceADB74572"
+          }
+        ]
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete"
     },
     "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEvent3F2F96C0": {
       "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02",
         "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyB6493781",
         "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleE492D598"
       ],
@@ -94,6 +122,11 @@
       "Type": "AWS::Lambda::Function"
     },
     "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyB6493781": {
+      "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02"
+      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -146,6 +179,11 @@
       "Type": "AWS::IAM::Policy"
     },
     "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleE492D598": {
+      "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02"
+      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -178,6 +216,9 @@
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLambda1FCE620C": {
       "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02",
         "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicyD051DADC",
         "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRole9EEB535C"
       ],
@@ -214,6 +255,11 @@
       "Type": "AWS::Lambda::Function"
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRole9EEB535C": {
+      "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02"
+      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -245,6 +291,11 @@
       "Type": "AWS::IAM::Role"
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicyD051DADC": {
+      "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02"
+      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -272,6 +323,11 @@
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLogGroupD9E69517": {
       "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "BackupBucketArnParamC708FC4C",
+        "BackupBucketDomainNameParam74DD78D5",
+        "BackupBucketNameParam841E1F02"
+      ],
       "Properties": {
         "RetentionInDays": 365
       },

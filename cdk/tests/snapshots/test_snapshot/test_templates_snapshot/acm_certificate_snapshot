@@ -9,13 +9,24 @@
   "Resources": {
     "ACMCertsSSMReplicatorV2ReplicateSSMCustomResourceBB55D56E": {
       "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "WebsiteCertArnParam8B2F5212"
+      ],
       "Properties": {
+        "Parameters": "[{\"source\": \"/dummy/acm/website-cert-arn\", \"target\": \"/dummy/acm/website-cert-arn\"}]",
         "ServiceToken": {
           "Fn::GetAtt": [
             "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEvent61C2CD53",
             "Arn"
           ]
-        }
+        },
+        "SourceRegion": "us-east-1",
+        "TargetRegion": "us-east-2",
+        "UpdateTriggers": [
+          {
+            "Ref": "WebsiteCertificateAcmCertificate33326BB3"
+          }
+        ]
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete"
@@ -23,7 +34,8 @@
     "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEvent61C2CD53": {
       "DependsOn": [
         "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5C8D7BD7",
-        "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA"
+        "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA",
+        "WebsiteCertArnParam8B2F5212"
       ],
       "Properties": {
         "Code": {
@@ -58,6 +70,9 @@
       "Type": "AWS::Lambda::Function"
     },
     "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA": {
+      "DependsOn": [
+        "WebsiteCertArnParam8B2F5212"
+      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -89,6 +104,9 @@
       "Type": "AWS::IAM::Role"
     },
     "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5C8D7BD7": {
+      "DependsOn": [
+        "WebsiteCertArnParam8B2F5212"
+      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -143,7 +161,8 @@
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaEF693E99": {
       "DependsOn": [
         "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicy82883E87",
-        "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E"
+        "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E",
+        "WebsiteCertArnParam8B2F5212"
       ],
       "Properties": {
         "Architectures": [
@@ -178,6 +197,9 @@
       "Type": "AWS::Lambda::Function"
     },
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E": {
+      "DependsOn": [
+        "WebsiteCertArnParam8B2F5212"
+      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -209,6 +231,9 @@
       "Type": "AWS::IAM::Role"
     },
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicy82883E87": {
+      "DependsOn": [
+        "WebsiteCertArnParam8B2F5212"
+      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -236,6 +261,9 @@
     },
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLogGroupF1D9A79D": {
       "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "WebsiteCertArnParam8B2F5212"
+      ],
       "Properties": {
         "RetentionInDays": 365
       },

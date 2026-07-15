@@ -1,70 +1,86 @@
 # Python CDK Constructs for AWS Services
 
-This repository contains Python CDK constructs for various AWS services such as ACM, API Gateway, CloudFront, and S3.
+This directory contains Python CDK constructs for the PortfolioWebsite infrastructure.
 
 ## Table of Contents
 
 - [AcmCertificate](#acmcertificate)
-- [ApiGwtoLambda](#apigwtolambda)
-- [CloudfrontDistribution](#cloudfrontdistribution)
+- [CloudFrontDistribution](#cloudfrontdistribution)
+- [HostedZone](#hostedzone)
 - [S3Bucket](#s3bucket)
+- [SSMParameterReplicator](#ssmparameterreplicator)
+- [SSMReplication](#ssmreplication)
 
 ## AcmCertificate
 
-This construct creates an ACM certificate for a given domain name and associates it with a Route53 hosted zone.
+Creates a public ACM certificate for a given domain name with DNS validation and Certificate Transparency logging enabled. The certificate includes `www.<domain>` as a subject alternative name.
 
 ### Parameters
 
-- `domain_name`: The domain name for the certificate.
-- `hosted_zone`: The Route53 hosted zone.
+- `domain_name`: The primary domain name for the certificate.
+- `hosted_zone`: The Route53 hosted zone used for DNS validation.
 
 ### Features
 
-- Creates an ACM certificate.
-- Enables transparency logging.
+- Creates an ACM certificate with DNS validation.
+- Includes `www.<domain>` as a subject alternative name.
+- Enables Certificate Transparency logging.
 
-## ApiGwtoLambda
+## CloudFrontDistribution
 
-This construct sets up an API Gateway HTTP API that triggers a Lambda function.
+Creates a CloudFront distribution backed by an S3 origin group with automatic failover to a backup bucket.
 
 ### Parameters
 
-- `account_id`: AWS account ID.
-- `region`: AWS region.
-- `domain_name`: The domain name for the API.
-- `environment`: The environment (e.g., dev, prod).
+- `domain_name`: The primary domain name for the distribution.
+- `certificate`: The ACM certificate (`ICertificate`).
+- `website_s3_bucket`: The primary S3 bucket (`IBucket`).
+- `backup_bucket_name`: Name of the S3 bucket used as the failover origin.
+- `geo_restrictions` _(optional)_: Dict with `restriction_type` (`none`, `blacklist`, or `whitelist`) and `locations` (list of ISO 3166-1 country codes).
+- `price_class` _(optional)_: CloudFront price class name. Defaults to `PRICE_CLASS_100`.
 
 ### Features
 
-- Creates a Docker-based Lambda function.
-- Sets up an API Gateway HTTP API with CORS enabled.
-- Adds necessary permissions and policies.
+- S3 origin group with OAC-secured primary and fallback origins.
+- Automatic failover on 5xx errors.
+- Custom cache policy (30-day default TTL, Brotli/GZIP compression).
+- Security response headers policy (CSP, HSTS, X-Frame-Options, XSS protection, Referrer-Policy).
+- CloudFront Function for URL rewriting (e.g., `/resume` → `/resume.pdf`).
+- Configurable geographic restrictions.
 
-## CloudfrontDistribution
+## HostedZone
 
-This construct creates a CloudFront distribution for either an S3 bucket or an HTTP origin.
-
-### Parameters
-
-- `domain_name`: The domain name for the CloudFront distribution.
-- `origin_type`: The type of origin (either "s3" or "http").
-- `certificate`: The ACM certificate.
-- `website_s3_bucket`: The S3 bucket for the website (optional).
-- `backup_website_s3_bucket`: The backup S3 bucket (optional).
-- `api_gateway`: The API Gateway (optional).
-
-### Features
-
-- Creates a CloudFront distribution.
-- Sets up origin access control for S3.
-- Configures response headers and geo-restrictions.
+Provides a helper function `lookup_hosted_zone` that looks up an existing Route53 hosted zone by domain name.
 
 ## S3Bucket
 
-This construct creates an S3 bucket with specific configurations.
+Creates a secure, versioned S3 bucket for static website content.
 
 ### Features
 
-- Creates an S3 bucket with versioning enabled.
-- Blocks public access.
-- Adds a lifecycle rule for noncurrent versions.
+- S3-managed server-side encryption.
+- Versioning enabled with noncurrent version expiration lifecycle rule.
+- All public access blocked.
+- Bucket policy denying non-TLS (HTTP) access.
+
+## SSMParameterReplicator
+
+Replicates SSM parameters from a source region to a target region using a Lambda-backed CloudFormation custom resource.
+
+### Parameters
+
+- `source_region`: AWS region to read parameters from.
+- `target_region`: AWS region to write parameters to.
+- `parameters`: List of `{source, target}` dicts mapping source parameter names to target names.
+- `param_path_prefix` _(optional)_: SSM path prefix used to scope IAM permissions.
+- `update_triggers` _(optional)_: List of values whose changes should trigger re-replication.
+
+### Features
+
+- Least-privilege IAM permissions scoped to the parameter path prefix.
+- CloudWatch log group for Lambda execution logs.
+- Re-runs replication on stack updates when `update_triggers` values change.
+
+## SSMReplication
+
+Provides the `build_ssm_replication_config` helper that derives a consistent `SsmReplicationConfig` (path prefix + parameter mappings) from a list of parameter names. Used by stacks to build the input for `SSMParameterReplicator`.

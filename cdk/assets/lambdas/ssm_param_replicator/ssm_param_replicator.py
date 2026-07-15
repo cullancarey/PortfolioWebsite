@@ -1,62 +1,38 @@
 import boto3
-import os
 import json
-import urllib.request
-from urllib.parse import urlparse
-
-
-def send_cfn_response(event, context, status, reason=None, data=None):
-    physical_resource_id = event.get("PhysicalResourceId", context.log_stream_name)
-
-    response_body = {
-        "Status": status,
-        "Reason": reason
-        or f"See the details in CloudWatch Log Stream: {context.log_stream_name}",
-        "PhysicalResourceId": physical_resource_id,
-        "StackId": event["StackId"],
-        "RequestId": event["RequestId"],
-        "LogicalResourceId": event["LogicalResourceId"],
-        "Data": data or {},
-    }
-
-    json_response_body = json.dumps(response_body)
-    headers = {"content-type": "", "content-length": str(len(json_response_body))}
-
-    try:
-        # Parse and validate the ResponseURL
-        response_url = event["ResponseURL"]
-        parsed = urlparse(response_url)
-        if parsed.scheme != "https":
-            raise ValueError(f"Insecure scheme in ResponseURL: {parsed.scheme}")
-
-        request = urllib.request.Request(
-            url=response_url,
-            data=json_response_body.encode("utf-8"),
-            headers=headers,
-            method="PUT",
-        )
-        with urllib.request.urlopen(request) as response:  # nosec B310
-            print(f"CFN response status: {response.status}, reason: {response.reason}")
-    except Exception as e:
-        print(f"Failed to send CFN response: {e}")
 
 
 def lambda_handler(event, context):
     print("Received event:", json.dumps(event))
 
-    request_type = event.get("RequestType")
-    if request_type == "Delete":
-        # Nothing to clean up — SSM params are independently managed.
-        send_cfn_response(
-            event, context, status="SUCCESS", data={"Message": "Delete - nothing to do"}
-        )
-        return
+    request_type = event.get("RequestType", "Create")
+    resource_props = event.get("ResourceProperties", {})
 
-    ssm_src = boto3.client("ssm", region_name=os.environ["SOURCE_REGION"])
-    ssm_dst = boto3.client("ssm", region_name=os.environ["TARGET_REGION"])
+    source_region = resource_props["SourceRegion"]
+    target_region = resource_props["TargetRegion"]
+
+    parameters_raw = resource_props["Parameters"]
+    parameters = (
+        json.loads(parameters_raw)
+        if isinstance(parameters_raw, str)
+        else parameters_raw
+    )
+
+    physical_resource_id = event.get(
+        "PhysicalResourceId", f"ssm-param-replicator-{source_region}-to-{target_region}"
+    )
+
+    if request_type == "Delete":
+        # Nothing to clean up. Source and target SSM params are managed elsewhere.
+        return {
+            "PhysicalResourceId": physical_resource_id,
+            "Data": {"Message": "Delete - nothing to do"},
+        }
+
+    ssm_src = boto3.client("ssm", region_name=source_region)
+    ssm_dst = boto3.client("ssm", region_name=target_region)
 
     try:
-        parameters = json.loads(os.environ["PARAMETERS"])
         for param in parameters:
             response = ssm_src.get_parameter(Name=param["source"])
             ssm_dst.put_parameter(
@@ -65,9 +41,15 @@ def lambda_handler(event, context):
                 Type="String",
                 Overwrite=True,
             )
-        send_cfn_response(
-            event, context, status="SUCCESS", data={"Message": "Replication complete"}
-        )
+
+        return {
+            "PhysicalResourceId": physical_resource_id,
+            "Data": {
+                "Message": "Replication complete",
+                "ReplicatedCount": len(parameters),
+            },
+        }
     except Exception as e:
         print(f"Error replicating parameters: {e}")
-        send_cfn_response(event, context, status="FAILED", reason=str(e))
+        # With custom_resources.Provider, raise to signal failure.
+        raise

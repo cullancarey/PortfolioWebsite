@@ -15,7 +15,7 @@ from aws_cdk import (
 )
 from constructs import Construct
 import json
-from typing import List, Dict
+from typing import List, Dict, Sequence
 
 
 class SSMParameterReplicator(Construct):
@@ -27,6 +27,9 @@ class SSMParameterReplicator(Construct):
 
     The Lambda function has least-privilege IAM permissions scoped to specific
     parameter paths.
+
+    Exposes the replication custom resource as `replication_custom_resource`
+    so callers can attach dependencies only to that resource.
     """
 
     def __init__(
@@ -37,6 +40,7 @@ class SSMParameterReplicator(Construct):
         target_region: str,
         parameters: List[Dict[str, str]],
         param_path_prefix: str = "",
+        update_triggers: Sequence[str] | str | None = None,
         **kwargs,
     ) -> None:
         """Initialize the SSMParameterReplicator construct.
@@ -49,6 +53,8 @@ class SSMParameterReplicator(Construct):
             parameters: List of dicts with 'source' and 'target' parameter names
                        Example: [{'source': '/param1', 'target': '/param1'}]
             param_path_prefix: Optional path prefix for IAM permission scoping
+            update_triggers: Optional value or list of values that should trigger
+                replication when they change (for example certificate ARN)
             **kwargs: Additional keyword arguments passed to the parent Construct
         """
         super().__init__(scope, id, **kwargs)
@@ -68,11 +74,6 @@ class SSMParameterReplicator(Construct):
             ),
             timeout=Duration.seconds(60),
             architecture=_lambda.Architecture.X86_64,
-            environment={
-                "SOURCE_REGION": source_region,
-                "TARGET_REGION": target_region,
-                "PARAMETERS": json.dumps(parameters),
-            },
             log_group=replicate_ssm_log_group,
         )
 
@@ -116,9 +117,26 @@ class SSMParameterReplicator(Construct):
             on_event_handler=replicate_ssm_lambda,
         )
 
+        if update_triggers is None:
+            normalized_update_triggers: List[str] = []
+        elif isinstance(update_triggers, str):
+            normalized_update_triggers = [update_triggers]
+        else:
+            normalized_update_triggers = list(update_triggers)
+
+        # Include trigger values as custom resource properties so CloudFormation
+        # will send Update events when source values change.
+        resource_properties = {
+            "Parameters": json.dumps(parameters, sort_keys=True),
+            "SourceRegion": source_region,
+            "TargetRegion": target_region,
+            "UpdateTriggers": normalized_update_triggers,
+        }
+
         # Create the custom resource that triggers replication during stack creation
-        CustomResource(
+        self.replication_custom_resource = CustomResource(
             self,
             "ReplicateSSMCustomResource",
             service_token=provider.service_token,
+            properties=resource_properties,
         )
