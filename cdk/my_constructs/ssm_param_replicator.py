@@ -15,7 +15,7 @@ from aws_cdk import (
 )
 from constructs import Construct
 import json
-from typing import List, Dict
+from typing import List, Dict, Sequence
 
 
 class SSMParameterReplicator(Construct):
@@ -37,6 +37,7 @@ class SSMParameterReplicator(Construct):
         target_region: str,
         parameters: List[Dict[str, str]],
         param_path_prefix: str = "",
+        update_triggers: Sequence[str] | None = None,
         **kwargs,
     ) -> None:
         """Initialize the SSMParameterReplicator construct.
@@ -49,6 +50,8 @@ class SSMParameterReplicator(Construct):
             parameters: List of dicts with 'source' and 'target' parameter names
                        Example: [{'source': '/param1', 'target': '/param1'}]
             param_path_prefix: Optional path prefix for IAM permission scoping
+            update_triggers: Optional list of values that should trigger
+                replication when they change (for example certificate ARN)
             **kwargs: Additional keyword arguments passed to the parent Construct
         """
         super().__init__(scope, id, **kwargs)
@@ -116,9 +119,19 @@ class SSMParameterReplicator(Construct):
             on_event_handler=replicate_ssm_lambda,
         )
 
+        # Include trigger values as custom resource properties so CloudFormation
+        # will send Update events when source values change.
+        resource_properties = {
+            "Parameters": json.dumps(parameters, sort_keys=True),
+            "SourceRegion": source_region,
+            "TargetRegion": target_region,
+            "UpdateTriggers": list(update_triggers or []),
+        }
+
         # Create the custom resource that triggers replication during stack creation
         CustomResource(
             self,
             "ReplicateSSMCustomResource",
             service_token=provider.service_token,
+            properties=resource_properties,
         )
