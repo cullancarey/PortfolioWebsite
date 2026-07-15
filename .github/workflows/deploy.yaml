@@ -58,7 +58,7 @@ jobs:
       - name: Build React Website
         working-directory: frontend
         run: |
-          npm ci
+          npm install
           npm run build
 
       # -------------------------
