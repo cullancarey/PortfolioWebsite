@@ -15,6 +15,7 @@ from aws_cdk.aws_cloudfront_origins import S3BucketOrigin, OriginGroup
 from aws_cdk.aws_cloudfront import HeadersFrameOption, HeadersReferrerPolicy
 from constructs import Construct
 from typing import Optional
+from config import GeoRestrictionsConfig
 
 
 class CloudFrontDistribution(Construct):
@@ -44,7 +45,7 @@ class CloudFrontDistribution(Construct):
         certificate: acm.ICertificate,
         backup_bucket_name: str,
         website_s3_bucket: s3.IBucket,
-        geo_restrictions: Optional[dict] = None,
+        geo_restrictions: GeoRestrictionsConfig | None = None,
         price_class: str = "PRICE_CLASS_100",
         **kwargs,
     ) -> None:
@@ -64,10 +65,6 @@ class CloudFrontDistribution(Construct):
             **kwargs: Additional keyword arguments passed to the parent Construct
         """
         super().__init__(scope, id, **kwargs)
-
-        # Use default empty geo-restrictions if not provided
-        if geo_restrictions is None:
-            geo_restrictions = {"restriction_type": "none", "locations": []}
 
         # Create a shared Origin Access Control for both S3 origins.
         origin_access_control = self._build_origin_access_control(domain_name)
@@ -230,7 +227,7 @@ class CloudFrontDistribution(Construct):
         certificate: acm.ICertificate,
         origin_group: OriginGroup,
         resume_redirect_function: cloudfront.Function,
-        geo_restrictions: Optional[dict],
+        geo_restrictions: GeoRestrictionsConfig | None,
         price_class: str,
     ) -> dict:
         """Assemble the CloudFront distribution keyword arguments."""
@@ -277,7 +274,7 @@ class CloudFrontDistribution(Construct):
             "enabled": True,
         }
 
-        geo_restriction = self._get_geo_restriction(geo_restrictions or {})
+        geo_restriction = self._get_geo_restriction(geo_restrictions)
         if geo_restriction is not None:
             distribution_kwargs["geo_restriction"] = geo_restriction
 
@@ -299,20 +296,21 @@ class CloudFrontDistribution(Construct):
             ) from exc
 
     def _get_geo_restriction(
-        self, geo_restrictions: dict
+        self, geo_restrictions: GeoRestrictionsConfig | None
     ) -> Optional[cloudfront.GeoRestriction]:
         """Build a CloudFront GeoRestriction based on configuration.
 
         Args:
-            geo_restrictions: Dict with keys:
-                - restriction_type: 'none', 'blacklist', or 'whitelist'
-                - locations: List of ISO 3166-1 country codes
+            geo_restrictions: Typed geo restriction config
 
         Returns:
             cloudfront.GeoRestriction: Configured geo-restriction object
         """
-        restriction_type = geo_restrictions.get("restriction_type", "none")
-        locations = geo_restrictions.get("locations", [])
+        if geo_restrictions is None:
+            return None
+
+        restriction_type = geo_restrictions.restriction_type
+        locations = geo_restrictions.locations
 
         if restriction_type == "blacklist" and locations:
             return cloudfront.GeoRestriction.denylist(*locations)
