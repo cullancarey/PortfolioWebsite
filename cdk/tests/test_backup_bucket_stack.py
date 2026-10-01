@@ -72,16 +72,13 @@ def test_replicator_lambda_configuration(backup_stack):
     # Ensure Lambda functions exist (the replicator handlers)
     template.resource_count_is("AWS::Lambda::Function", 2)
 
-    # Ensure environment variables are present
+    # Replicator reads SourceRegion/TargetRegion from the custom resource event,
+    # not Lambda environment variables, so assert against the CustomResource props.
     template.has_resource_properties(
-        "AWS::Lambda::Function",
+        "AWS::CloudFormation::CustomResource",
         {
-            "Environment": {
-                "Variables": {
-                    "SOURCE_REGION": "us-east-1",
-                    "TARGET_REGION": "us-east-2",
-                }
-            }
+            "SourceRegion": "us-east-1",
+            "TargetRegion": "us-east-2",
         },
     )
 

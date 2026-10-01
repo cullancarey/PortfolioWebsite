@@ -83,9 +83,6 @@
     },
     "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEvent3F2F96C0": {
       "DependsOn": [
-        "BackupBucketArnParamC708FC4C",
-        "BackupBucketDomainNameParam74DD78D5",
-        "BackupBucketNameParam841E1F02",
         "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyB6493781",
         "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleE492D598"
       ],
@@ -122,11 +119,6 @@
       "Type": "AWS::Lambda::Function"
     },
     "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicyB6493781": {
-      "DependsOn": [
-        "BackupBucketArnParamC708FC4C",
-        "BackupBucketDomainNameParam74DD78D5",
-        "BackupBucketNameParam841E1F02"
-      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -179,11 +171,6 @@
       "Type": "AWS::IAM::Policy"
     },
     "BackupBucketSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleE492D598": {
-      "DependsOn": [
-        "BackupBucketArnParamC708FC4C",
-        "BackupBucketDomainNameParam74DD78D5",
-        "BackupBucketNameParam841E1F02"
-      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -216,9 +203,6 @@
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLambda1FCE620C": {
       "DependsOn": [
-        "BackupBucketArnParamC708FC4C",
-        "BackupBucketDomainNameParam74DD78D5",
-        "BackupBucketNameParam841E1F02",
         "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicyD051DADC",
         "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRole9EEB535C"
       ],
@@ -228,14 +212,7 @@
         ],
         "Code": {
           "ImageUri": {
-            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:305e1637c7c64ffceb1f79ae672cbe766925544da5c3f60b67c9e53ffea0a94b"
-          }
-        },
-        "Environment": {
-          "Variables": {
-            "PARAMETERS": "[{\"source\": \"/dummy/backup/arn\", \"target\": \"/dummy/backup/arn\"}, {\"source\": \"/dummy/backup/domain\", \"target\": \"/dummy/backup/domain\"}, {\"source\": \"/dummy/backup/name\", \"target\": \"/dummy/backup/name\"}]",
-            "SOURCE_REGION": "us-east-1",
-            "TARGET_REGION": "us-east-2"
+            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:b16d3fe26cf197369b0484e6e8f94a1ad2cf70876d98ad33f063101470fa0ca5"
           }
         },
         "LoggingConfig": {
@@ -255,11 +232,6 @@
       "Type": "AWS::Lambda::Function"
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRole9EEB535C": {
-      "DependsOn": [
-        "BackupBucketArnParamC708FC4C",
-        "BackupBucketDomainNameParam74DD78D5",
-        "BackupBucketNameParam841E1F02"
-      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -291,11 +263,6 @@
       "Type": "AWS::IAM::Role"
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicyD051DADC": {
-      "DependsOn": [
-        "BackupBucketArnParamC708FC4C",
-        "BackupBucketDomainNameParam74DD78D5",
-        "BackupBucketNameParam841E1F02"
-      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -323,11 +290,6 @@
     },
     "BackupBucketSSMReplicatorV2SSMParamReplicatorLogGroupD9E69517": {
       "DeletionPolicy": "Retain",
-      "DependsOn": [
-        "BackupBucketArnParamC708FC4C",
-        "BackupBucketDomainNameParam74DD78D5",
-        "BackupBucketNameParam841E1F02"
-      ],
       "Properties": {
         "RetentionInDays": 365
       },
