@@ -10,6 +10,11 @@ from aws_cdk import (
     aws_ssm as ssm,
 )
 from constructs import Construct
+from config import (
+    AcmSsmParamsConfig,
+    BackupWebsiteBucketSsmParamsConfig,
+    GeoRestrictionsConfig,
+)
 from my_constructs.cloudfront_distribution import CloudFrontDistribution
 from my_constructs.hosted_zone import lookup_hosted_zone
 from my_constructs.s3_bucket import S3Bucket
@@ -24,9 +29,9 @@ class WebsiteStack(Stack):
         id: str,
         domain_name: str,
         source_file_path: str,
-        acm_ssm_params: dict,
-        backup_website_bucket_ssm_params: dict,
-        geo_restrictions: dict = None,
+        acm_ssm_params: AcmSsmParamsConfig,
+        backup_website_bucket_ssm_params: BackupWebsiteBucketSsmParamsConfig,
+        geo_restrictions: GeoRestrictionsConfig | None = None,
         cloudfront_price_class: str = "PRICE_CLASS_100",
         **kwargs,
     ) -> None:
@@ -84,10 +89,12 @@ class WebsiteStack(Stack):
             log_group=backup_log_group,
         )
 
-    def _load_website_certificate(self, acm_ssm_params: dict) -> acm.ICertificate:
+    def _load_website_certificate(
+        self, acm_ssm_params: AcmSsmParamsConfig
+    ) -> acm.ICertificate:
         """Load the ACM certificate ARN from SSM and import it."""
         website_certificate_arn = ssm.StringParameter.value_for_string_parameter(
-            self, acm_ssm_params["website_cert_arn_param"]
+            self, acm_ssm_params.website_cert_arn_param
         )
 
         return acm.Certificate.from_certificate_arn(
@@ -95,16 +102,16 @@ class WebsiteStack(Stack):
         )
 
     def _load_backup_bucket_data(
-        self, backup_website_bucket_ssm_params: dict
+        self, backup_website_bucket_ssm_params: BackupWebsiteBucketSsmParamsConfig
     ) -> tuple[str, str]:
         """Load the backup bucket ARN and name from SSM."""
         backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
             self,
-            backup_website_bucket_ssm_params["backup_website_bucket_arn_param"],
+            backup_website_bucket_ssm_params.backup_website_bucket_arn_param,
         )
         backup_bucket_name = ssm.StringParameter.value_for_string_parameter(
             self,
-            backup_website_bucket_ssm_params["backup_website_bucket_name_param"],
+            backup_website_bucket_ssm_params.backup_website_bucket_name_param,
         )
         return backup_bucket_arn, backup_bucket_name
 

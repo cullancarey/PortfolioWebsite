@@ -7,6 +7,46 @@ from typing import Any, Literal, Mapping
 
 
 @dataclass(frozen=True, slots=True)
+class AcmSsmParamsConfig:
+    """SSM parameter names used by the ACM certificate stack."""
+
+    website_cert_arn_param: str
+
+    @classmethod
+    def from_context(cls, value: Mapping[str, Any]) -> "AcmSsmParamsConfig":
+        """Build ACM SSM parameter config from raw context data."""
+        return cls(
+            website_cert_arn_param=_require_string(value, "website_cert_arn_param")
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class BackupWebsiteBucketSsmParamsConfig:
+    """SSM parameter names used by the backup website bucket stack."""
+
+    backup_website_bucket_arn_param: str
+    backup_website_bucket_name_param: str
+    backup_website_bucket_domain_name_param: str
+
+    @classmethod
+    def from_context(
+        cls, value: Mapping[str, Any]
+    ) -> "BackupWebsiteBucketSsmParamsConfig":
+        """Build backup bucket SSM parameter config from raw context data."""
+        return cls(
+            backup_website_bucket_arn_param=_require_string(
+                value, "backup_website_bucket_arn_param"
+            ),
+            backup_website_bucket_name_param=_require_string(
+                value, "backup_website_bucket_name_param"
+            ),
+            backup_website_bucket_domain_name_param=_require_string(
+                value, "backup_website_bucket_domain_name_param"
+            ),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class GeoRestrictionsConfig:
     """CloudFront geo-restriction settings for an environment."""
 
@@ -64,8 +104,8 @@ class EnvironmentConfig:
     cloudfront_region: str
     replication_target_region: str
     cloudfront_price_class: Literal["PRICE_CLASS_100"]
-    acm_ssm_params: Mapping[str, str]
-    backup_website_bucket_ssm_params: Mapping[str, str]
+    acm_ssm_params: AcmSsmParamsConfig
+    backup_website_bucket_ssm_params: BackupWebsiteBucketSsmParamsConfig
     geo_restrictions: GeoRestrictionsConfig
 
     @classmethod
@@ -78,9 +118,11 @@ class EnvironmentConfig:
                 f"Missing required environment config keys: {', '.join(missing)}"
             )
 
-        acm_ssm_params = _require_string_mapping(value, "acm_ssm_params")
-        backup_params = _require_string_mapping(
-            value, "backup_website_bucket_ssm_params"
+        acm_ssm_params = AcmSsmParamsConfig.from_context(
+            _require_mapping(value, "acm_ssm_params")
+        )
+        backup_params = BackupWebsiteBucketSsmParamsConfig.from_context(
+            _require_mapping(value, "backup_website_bucket_ssm_params")
         )
         cloudfront_region = str(value.get("cloudfront_region", "us-east-1"))
         replication_target_region = str(
@@ -111,15 +153,18 @@ class EnvironmentConfig:
         )
 
 
-def _require_string_mapping(value: Mapping[str, Any], key: str) -> dict[str, str]:
-    """Validate that a context key contains a string-to-string mapping."""
+def _require_mapping(value: Mapping[str, Any], key: str) -> Mapping[str, Any]:
+    """Validate that a context key contains a mapping."""
     raw = value.get(key)
     if not isinstance(raw, Mapping):
-        raise TypeError(f"{key} must be a mapping of string keys to string values")
+        raise TypeError(f"{key} must be a mapping")
 
-    result: dict[str, str] = {}
-    for item_key, item_value in raw.items():
-        if not isinstance(item_key, str) or not isinstance(item_value, str):
-            raise TypeError(f"{key} must contain only string keys and string values")
-        result[item_key] = item_value
-    return result
+    return raw
+
+
+def _require_string(value: Mapping[str, Any], key: str) -> str:
+    """Validate that a mapping contains a required string value."""
+    raw = value.get(key)
+    if not isinstance(raw, str):
+        raise TypeError(f"{key} must be a string")
+    return raw

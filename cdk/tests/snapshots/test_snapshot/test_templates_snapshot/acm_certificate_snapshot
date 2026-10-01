@@ -34,13 +34,12 @@
     "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEvent61C2CD53": {
       "DependsOn": [
         "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5C8D7BD7",
-        "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA",
-        "WebsiteCertArnParam8B2F5212"
+        "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA"
       ],
       "Properties": {
         "Code": {
           "S3Bucket": "cdk-hnb659fds-assets-111111111111-us-east-1",
-          "S3Key": "07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57.zip"
+          "S3Key": "e16ffb3b34af185b8b30c88fdb19faa13b6c42bb38580485c4e84b384ee48b63.zip"
         },
         "Description": "AWS CDK resource provider framework - onEvent (TestACMCertificates/ACMCertsSSMReplicatorV2/ReplicateSSMProvider)",
         "Environment": {
@@ -64,15 +63,12 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900
       },
       "Type": "AWS::Lambda::Function"
     },
     "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRole437A58EA": {
-      "DependsOn": [
-        "WebsiteCertArnParam8B2F5212"
-      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -104,9 +100,6 @@
       "Type": "AWS::IAM::Role"
     },
     "ACMCertsSSMReplicatorV2ReplicateSSMProviderframeworkonEventServiceRoleDefaultPolicy5C8D7BD7": {
-      "DependsOn": [
-        "WebsiteCertArnParam8B2F5212"
-      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -161,8 +154,7 @@
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaEF693E99": {
       "DependsOn": [
         "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicy82883E87",
-        "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E",
-        "WebsiteCertArnParam8B2F5212"
+        "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E"
       ],
       "Properties": {
         "Architectures": [
@@ -170,14 +162,7 @@
         ],
         "Code": {
           "ImageUri": {
-            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:305e1637c7c64ffceb1f79ae672cbe766925544da5c3f60b67c9e53ffea0a94b"
-          }
-        },
-        "Environment": {
-          "Variables": {
-            "PARAMETERS": "[{\"source\": \"/dummy/acm/website-cert-arn\", \"target\": \"/dummy/acm/website-cert-arn\"}]",
-            "SOURCE_REGION": "us-east-1",
-            "TARGET_REGION": "us-east-2"
+            "Fn::Sub": "111111111111.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-111111111111-us-east-1:b16d3fe26cf197369b0484e6e8f94a1ad2cf70876d98ad33f063101470fa0ca5"
           }
         },
         "LoggingConfig": {
@@ -197,9 +182,6 @@
       "Type": "AWS::Lambda::Function"
     },
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleAB2A4D5E": {
-      "DependsOn": [
-        "WebsiteCertArnParam8B2F5212"
-      ],
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -231,9 +213,6 @@
       "Type": "AWS::IAM::Role"
     },
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLambdaServiceRoleDefaultPolicy82883E87": {
-      "DependsOn": [
-        "WebsiteCertArnParam8B2F5212"
-      ],
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -261,9 +240,6 @@
     },
     "ACMCertsSSMReplicatorV2SSMParamReplicatorLogGroupF1D9A79D": {
       "DeletionPolicy": "Retain",
-      "DependsOn": [
-        "WebsiteCertArnParam8B2F5212"
-      ],
       "Properties": {
         "RetentionInDays": 365
       },

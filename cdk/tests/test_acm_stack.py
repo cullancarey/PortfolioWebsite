@@ -34,16 +34,13 @@ def test_replicator_lambda_exists(acm_stack):
     # At least one Lambda function should exist for replication
     assert len(template.find_resources("AWS::Lambda::Function")) >= 1
 
-    # Ensure it has the right environment variables
+    # Replicator reads SourceRegion/TargetRegion from the custom resource event,
+    # not Lambda environment variables, so assert against the CustomResource props.
     template.has_resource_properties(
-        "AWS::Lambda::Function",
+        "AWS::CloudFormation::CustomResource",
         {
-            "Environment": {
-                "Variables": {
-                    "SOURCE_REGION": "us-east-1",
-                    "TARGET_REGION": "us-east-2",
-                }
-            }
+            "SourceRegion": "us-east-1",
+            "TargetRegion": "us-east-2",
         },
     )
 

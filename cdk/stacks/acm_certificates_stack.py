@@ -1,5 +1,6 @@
 from aws_cdk import Stack, aws_ssm as ssm
 from constructs import Construct
+from config import AcmSsmParamsConfig
 from my_constructs.acm_certificate import AcmCertificate
 from my_constructs.hosted_zone import lookup_hosted_zone
 from my_constructs.ssm_param_replicator import SSMParameterReplicator
@@ -13,7 +14,7 @@ class ACMCertificatesStack(Stack):
         id: str,
         domain_name: str,
         env_region: str,
-        ssm_params: dict,
+        ssm_params: AcmSsmParamsConfig,
         replication_target_region: str = "us-east-2",
         **kwargs,
     ) -> None:
@@ -38,13 +39,13 @@ class ACMCertificatesStack(Stack):
         website_cert_arn_param = ssm.StringParameter(
             self,
             "WebsiteCertArnParam",
-            parameter_name=ssm_params["website_cert_arn_param"],
+            parameter_name=ssm_params.website_cert_arn_param,
             string_value=self.website_certificate.certificate.certificate_arn,
         )
 
         # Replicate SSM Parameters to a secondary region
         replication_config = build_ssm_replication_config(
-            [ssm_params["website_cert_arn_param"]]
+            [ssm_params.website_cert_arn_param]
         )
 
         replicator = SSMParameterReplicator(
