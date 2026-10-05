@@ -19,10 +19,6 @@
       "Default": "/dummy/acm/website-cert-arn",
       "Type": "AWS::SSM::Parameter::Value<String>"
     },
-    "SsmParameterValuedummybackuparnC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/dummy/backup/arn",
-      "Type": "AWS::SSM::Parameter::Value<String>"
-    },
     "SsmParameterValuedummybackupnameC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/dummy/backup/name",
       "Type": "AWS::SSM::Parameter::Value<String>"
