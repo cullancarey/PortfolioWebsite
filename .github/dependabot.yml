@@ -14,6 +14,11 @@ updates:
     directory: "/cdk"
     schedule:
       interval: "weekly"
+    ignore:
+      # ecdsa has no patched release for the Minerva timing-attack advisory (GHSA
+      # maintainers consider side-channel attacks out of scope). It's only a
+      # transitive dev dependency of checkov's unused JWT/cloud-auth code path.
+      - dependency-name: "ecdsa"
 
   - package-ecosystem: "github-actions"
     directory: "/"

@@ -43,7 +43,7 @@ class WebsiteStack(Stack):
             domain_name=domain_name,
         )
         website_certificate = self._load_website_certificate(acm_ssm_params)
-        _backup_bucket_arn, backup_bucket_name = self._load_backup_bucket_data(
+        backup_bucket_name = self._load_backup_bucket_data(
             backup_website_bucket_ssm_params
         )
 
@@ -103,17 +103,12 @@ class WebsiteStack(Stack):
 
     def _load_backup_bucket_data(
         self, backup_website_bucket_ssm_params: BackupWebsiteBucketSsmParamsConfig
-    ) -> tuple[str, str]:
-        """Load the backup bucket ARN and name from SSM."""
-        backup_bucket_arn = ssm.StringParameter.value_for_string_parameter(
-            self,
-            backup_website_bucket_ssm_params.backup_website_bucket_arn_param,
-        )
-        backup_bucket_name = ssm.StringParameter.value_for_string_parameter(
+    ) -> str:
+        """Load the backup bucket name from SSM."""
+        return ssm.StringParameter.value_for_string_parameter(
             self,
             backup_website_bucket_ssm_params.backup_website_bucket_name_param,
         )
-        return backup_bucket_arn, backup_bucket_name
 
     def _create_dns_alias_records(
         self,
